@@ -72,9 +72,14 @@ Configure the DHCP server to reference the local laptop
 ```bash
 /ip/dhcp-server/option
 add code=66 name="Server-Name" value="${LAPTOP_IP}"
+
+# For Raspberry Pi 4's
 add code=67 name="Bootfile-Name" value="ipxe-arm64.efi"
 
-/ip/dhcp-server/network/set dhcp-option=Server-Name,Bootfile-Name [find name="SERVER_VLAN_DHCP"]
+# For AMD64
+add code=67 name="Bootfile-Name" value="ipxe.efi"
+
+/ip/dhcp-server/network/set dhcp-option=Server-Name,Bootfile-Name [find name="servers-dhcp"]
 ```
 
 ### dal-k8s-mgmt-1
