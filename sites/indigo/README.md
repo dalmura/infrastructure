@@ -25,15 +25,17 @@ Standard accessories assumed included for all Raspberry Pi's are:
 * 32GB SD Card
 * 128GB SSD Drive w/USB adaptor
 
-We are assuming you have separately upgraded the EEPROM for all Raspberry Pi's to the latest version.
+We are assuming you have separately:
+* Upgraded the EEPROM for all Raspberry Pi's to the latest version
+* Configured the EEPROM boot order to attempt SD Card, USB *and* Network Boot
 
 This will form 2x k8s clusters:
 | Cluster                          | Role          | Hardware        | Quantity |
 |----------------------------------|---------------|-----------------|----------|
 | dal-k8s-mgmt-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm    |        3 |
-| dal k8s-core-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm    |        3 |
-| dal k8s-core-1.indigo.dalmura.au | Workers       | rpi4.8gb.arm    |        3 |
-| dal k8s-core-1.indigo.dalmura.au | Workers       | dell.r320.amd64 |        3 |
+| dal-k8s-core-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm    |        3 |
+| dal-k8s-core-1.indigo.dalmura.au | Workers       | rpi4.8gb.arm    |        3 |
+| dal-k8s-core-1.indigo.dalmura.au | Workers       | dell.r320.amd64 |        3 |
 
 The process outlined below is a rough translation from: https://www.sidero.dev/v0.5/getting-started/
 
@@ -51,6 +53,7 @@ Prerequisites:
 Process to setup k8s:
 ```bash
 # Record the laptop's IP address
+# Substitute it below where you see ${LAPTOP_IP}
 LAPTOP_IP='192.168.77.xx'
 
 # Create the local k8s cluster
@@ -68,23 +71,36 @@ talosctl cluster create \
 talosctl kubeconfig ./indigo-local-sidero
 ```
 
-Configure the DHCP server to reference the local laptop
+Configure the DHCP server to reference the local laptop.
+
+We need to configure the following aspects of the DHCP server for the Servers VLAN:
+* IP address of the server to boot from (Option 66)
+* Filename/URL of the file to boot (Option 76)
+
+Mikrotik since v7.4 (and fixed properly in v7.6) have implemented the ability to selectively offer different options above based on client capabilities (arm64 vs amd64), this is called the 'Generic matcher'.
+
+How to configure this can be found in [Mikrotik's documentation](https://help.mikrotik.com/docs/display/ROS/DHCP#DHCP-Genericmatcher)
+
 ```bash
-/ip/dhcp-server/option
-add code=66 name="Server-Name" value="${LAPTOP_IP}"
+/ip/dhcp-server/network/set boot-file-name="ipxe-arm64.efi" next-server="${LAPTOP_IP}" [find name="servers-dhcp"]
 
-# For Raspberry Pi 4's
-add code=67 name="Bootfile-Name" value="ipxe-arm64.efi"
-
-# For AMD64
-add code=67 name="Bootfile-Name" value="ipxe.efi"
-
-/ip/dhcp-server/network/set dhcp-option=Server-Name,Bootfile-Name [find name="servers-dhcp"]
+/ip/dhcp-server/matcher
+add address-pool=servers-dhcp code=60 name=rpi-matcher value=abc123
 ```
+
+Now when the rpi's boot, they'll:
+* Attempt to Network Boot
+* Obtain a DHCP lease
+* DHCP lease will instruct them to attempt to boot from the laptop IP
+* DHCP lease will instruct them to download the boot file from the laptop
+* They will download the file and boot the Sidero bootloader
+* And proceed with onboarding into a cluster...
 
 ### dal-k8s-mgmt-1
 
-* Build the configs to provision 3x rpi4.4gb.arm Control Plane nodes for dal-k8s-mgmt-1
+* Build the configs to provision 3x rpi4.4gb.arm Control Plane nodes for dal-k8s-mgmt-1, we need to configure:
+  * Talos Linux is installed on the USB SSD
+* Create the dal-k8s-mgmt-1 cluster
 * Power on 3x rpi4.4gb.arm designated for dal-k8s-mgmt-1
 * Ensure they attempt to PXE boot
 * Accept them on the local Sidero on your laptop
