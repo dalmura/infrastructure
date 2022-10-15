@@ -81,6 +81,8 @@ Mikrotik since v7.4 (and fixed properly in v7.6) have implemented the ability to
 
 How to configure this can be found in [Mikrotik's documentation](https://help.mikrotik.com/docs/display/ROS/DHCP#DHCP-Genericmatcher)
 
+There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290) on Mikrotik's forum covering the finer details of this (as their doco is currently lacking)
+
 ```bash
 /ip/dhcp-server/network/set boot-file-name="ipxe-arm64.efi" next-server="${LAPTOP_IP}" [find name="servers-dhcp"]
 
