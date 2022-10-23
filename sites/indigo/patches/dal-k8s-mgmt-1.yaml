@@ -1,0 +1,24 @@
+- op: add
+  path: /cluster/allowSchedulingOnControlPlanes
+  value: true
+- op: replace
+  path: /machine/install/disk
+  value: /dev/mmcblk0
+- op: replace
+  path: /machine/network
+  value:
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: "${NODE_INTERFACE_MAC}"
+          driver: bcmgenet
+        addresses:
+          - "${NODE_STATIC_IP}"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.77.1"
+        mtu: 1500
+        vip:
+          ip: "192.168.77.2"
+
+    nameservers:
+      - "192.168.77.1"

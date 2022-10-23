@@ -1,1 +1,4 @@
 *.swp
+sites/*/templates/
+sites/*/nodes/
+sites/*/kubeconfigs/
