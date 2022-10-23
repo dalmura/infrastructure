@@ -29,9 +29,9 @@ We are assuming you have separately:
 * Upgraded the EEPROM for all Raspberry Pi's to the latest version
 * Update the boot order depending on the cluster in question
   * Boot order is [documented here](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
-* For dal-k8s-mgmt-1 leave the EEPROM boot order to just 0xf41
+* For dal-k8s-mgmt-1 leave the EEPROM boot order to `0xf41`
   * As these nodes have Talos installed directly
-* For dal-k8s-core-1 update the EEPROM boot order to be 0xf21
+* For dal-k8s-core-1 update the EEPROM boot order to `0xf21`
   * As these nodes are PXE booted from Sidero
 
 This will form 2x k8s clusters:
