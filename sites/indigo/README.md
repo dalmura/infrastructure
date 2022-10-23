@@ -86,8 +86,8 @@ cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-3.yaml
 ```
 
 Within each file you will need to make the following changes:
-* Replace '${NODE_INTERFACE_MAC}' with this nodes eth0 MAC address
-* Replace '${NODE_STATIC_IP}' with this nodes eth0 IP address
+* Replace `${NODE_INTERFACE_MAC}` with this nodes eth0 MAC address
+* Replace `${NODE_STATIC_IP}` with this nodes eth0 IP address
 * Replace `machine.install.disk`'s value with `/dev/disk/by-uuid/<uuid of ssd>` if you with to install to another drive
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two nodes.
