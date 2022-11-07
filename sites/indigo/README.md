@@ -56,8 +56,17 @@ Double check the [compatibility of Sidero and Talos](https://github.com/siderola
 
 Download the `metal-rpi_4-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
 
-Boot the 3x rpi4.4gb.arm nodes and let them get a DHCP address:
+Mount each SD card on a linux machine and edit the 3rd partition which holds `/grub/grub.cfg` and add the following kernel args onto the end of the `linux /A/vmlinuz` line:
+* vlan=eth0.103:eth0
+* ip=192.168.77.<random IP from DHCP range>::192.168.77.1:255.255.255.128::eth0.103::192.168.77.1::
+
+This sets the vlan interface to VLAN ID 103 which is the Servers VLAN. We also manually set a randomly picked IP address in the DHCP range, current Talos doesn't support [configuring DHCP on the VLAN interface](https://github.com/siderolabs/talos/issues/6475) so once that's fixed we can remove that bit and set `ip=dhcp` or similar by default.
+
+The above kernel parameters can be found here: https://www.talos.dev/v1.2/reference/kernel/#available-talos-specific-parameters
+
+Boot the 3x rpi4.4gb.arm nodes, record which IP you assigned (or let them get a DHCP address once above issue is resolved) and note them down here:
 ```bash
+# For example
 RPI4_1_IP=192.168.77.65
 RPI4_2_IP=192.168.77.66
 RPI4_3_IP=192.168.77.67
@@ -68,13 +77,13 @@ Generate a config to bootstrap k8s on that node:
 talosctl gen config \
     dal-k8s-mgmt-1 \
     https://192.168.77.2:6443/ \
-    --config-patch @patches/dal-k8s-mgmt-1.yaml \
+    --config-patch-control-plane @patches/dal-k8s-mgmt-1-controlplane.yaml \
     --output-dir templates/dal-k8s-mgmt-1/
 ```
 
-`patches/dal-k8s-mgmt-1.json` contains the following tweaks:
-* Allow scheduling on Control Plane nodes
-* Changes the disk install to /dev/mmcblk0
+`patches/dal-k8s-mgmt-1-controlplane.yaml` contains the following tweaks:
+* Allow scheduling regular pods on Control Plane nodes
+* Changes the disk install to /dev/mmcblk0 (SD Card for rpi's)
 * Configures the networking to move the node into the static ranges (off DHCP)
 
 You will now need to 'hydrate' these files to be per-server:
@@ -85,10 +94,23 @@ cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-2.yaml
 cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-3.yaml
 ```
 
+Gather the disk info from each server to set the right selector:
+```bash
+$ talosctl disks --insecure --nodes 192.168.77.120
+DEV            MODEL   SERIAL       TYPE   UUID   WWID   MODALIAS   NAME    SIZE    BUS_PATH
+/dev/mmcblk0   -       0x7420dc5b   SD     -      -      -          SM32G   32 GB   /platform/emmc2bus/fe340000.mmc/mmc_host/mmc0/mmc0:aaaa/
+
+# The above would translate into the following
+machine:
+  install:
+    diskSelector:
+      uuid: abc123
+```
+
 Within each file you will need to make the following changes:
 * Replace `${NODE_INTERFACE_MAC}` with this nodes eth0 MAC address
 * Replace `${NODE_STATIC_IP}` with this nodes eth0 IP address
-* Replace `machine.install.disk`'s value with `/dev/disk/by-uuid/<uuid of ssd>` if you with to install to another drive
+* Replace `machine.install.disk`'s value with a diskSelector populated from above if you have an SSD/etc
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two nodes.
 
@@ -121,13 +143,15 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg
 
 Verify the node is Ready and we can onboard new nodes:
 ```bash
+mkdir kubeconfigs
+
 # Extract the creds to talk via kubectl
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig kubeconfig kubeconfigs/dal-k8s-mgmt-1
 
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 
-# Verify you can ping the floating vip
+# Verify you can ping the floating Virtual IP (VIP)
 ping 192.168.77.2
 ```
 
@@ -148,11 +172,11 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 You now have a basic k8s cluster running with:
 * 3x rpi4.4gb.arm control plane nodes
 * Able to schedule workloads on them
-* A floating vip of 192.168.77.2
+* A floating VIP of 192.168.77.2
 
 ### Install Sidero on dal-k8s-mgmt-1
 
-Configure the DHCP server to reference dal-k8s-mgmt-1.
+Configure the DHCP server to reference dal-k8s-mgmt-1's VIP
 
 We need to configure the following aspects of the DHCP server for the Servers VLAN:
 * IP address of the server to boot from (Option 66)
