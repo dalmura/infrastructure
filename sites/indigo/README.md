@@ -56,20 +56,12 @@ Double check the [compatibility of Sidero and Talos](https://github.com/siderola
 
 Download the `metal-rpi_4-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
 
-Mount each SD card on a linux machine and edit the 3rd partition which holds `/grub/grub.cfg` and add the following kernel args onto the end of the `linux /A/vmlinuz` line:
-* vlan=eth0.103:eth0
-* ip=192.168.77.<random IP from DHCP range>::192.168.77.1:255.255.255.128::eth0.103::192.168.77.1::
-
-This sets the vlan interface to VLAN ID 103 which is the Servers VLAN. We also manually set a randomly picked IP address in the DHCP range, current Talos doesn't support [configuring DHCP on the VLAN interface](https://github.com/siderolabs/talos/issues/6475) so once that's fixed we can remove that bit and set `ip=dhcp` or similar by default.
-
-The above kernel parameters can be found here: https://www.talos.dev/v1.2/reference/kernel/#available-talos-specific-parameters
-
-Boot the 3x rpi4.4gb.arm nodes, record which IP you assigned (or let them get a DHCP address once above issue is resolved) and note them down here:
+Boot the 3x rpi4.4gb.arm nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN:
 ```bash
 # For example
-RPI4_1_IP=192.168.77.65
-RPI4_2_IP=192.168.77.66
-RPI4_3_IP=192.168.77.67
+RPI4_1_IP=192.168.77.150
+RPI4_2_IP=192.168.77.151
+RPI4_3_IP=192.168.77.152
 ```
 
 Generate a config to bootstrap k8s on that node:
@@ -94,17 +86,37 @@ cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-2.yaml
 cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-3.yaml
 ```
 
-Gather the disk info from each server to set the right selector:
+Get the MAC Address of eth0:
 ```bash
-$ talosctl disks --insecure --nodes 192.168.77.120
-DEV            MODEL   SERIAL       TYPE   UUID   WWID   MODALIAS   NAME    SIZE    BUS_PATH
-/dev/mmcblk0   -       0x7420dc5b   SD     -      -      -          SM32G   32 GB   /platform/emmc2bus/fe340000.mmc/mmc_host/mmc0/mmc0:aaaa/
+# YAML
+talosctl get links --insecure --nodes 192.168.77.151 --output yaml | yq 'select(.metadata.id == "eth0").spec.hardwareAddr'
+e4:5f:01:9d:4c:a8
 
-# The above would translate into the following
+# JSON
+talosctl get links --insecure --nodes 192.168.77.151 --output json | jq -r 'select(.metadata.id == "eth0").spec.hardwareAddr'
+e4:5f:01:9d:4c:a8
+
+# The above would translate into the following device selector:
+machine:
+  network:
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: e4:5f:01:9d:4c:a8
+          driver: bcmgenet  # rpi specific
+```
+
+Gather the disk info:
+```bash
+$ talosctl disks --insecure --nodes 192.168.77.150
+DEV            MODEL              SERIAL       TYPE   UUID   WWID   MODALIAS      NAME    SIZE     BUS_PATH
+/dev/mmcblk0   -                  0x7420dc5b   SD     -      -      -             SM32G   32 GB    /platform/emmc2bus/fe340000.mmc/mmc_host/mmc0/mmc0:aaaa/
+/dev/sda       SSD 870 EVO 250G   -            SSD    -      -      scsi:t-0x00   -       250 GB   /platform/scb/fd500000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0/usb4/4-2/4-2:1.0/host0/target0:0:0/0:0:0:0/
+
+# The above would translate into the following if you wanted to install onto the SSD
 machine:
   install:
     diskSelector:
-      uuid: abc123
+      model: SSD 870 EVO 250G
 ```
 
 Within each file you will need to make the following changes:
