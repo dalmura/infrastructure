@@ -125,9 +125,37 @@ machine:
 ```
 
 Within each file you will need to make the following changes:
-* Replace `${NODE_INTERFACE_MAC}` with this nodes eth0 MAC address
-* Replace `${NODE_STATIC_IP}` with this nodes eth0 IP address
+* Replace `${NODE_INTERFACE_MAC}` with this nodes eth0 MAC address (ensure it's lowercase)
+* Replace `${NODE_STATIC_IP}` with this nodes eth0 IP address (preserve the CIDR prefix)
 * Replace `machine.install.disk`'s value with a diskSelector populated from above if you have an SSD/etc
+
+An example of the `machine.network` could look like:
+```bash
+machine:
+    network:
+        interfaces:
+            -
+              deviceSelector:
+                hardwareAddr: e4:5f:01:9d:4e:19
+                driver: bcmgenet
+              vlans:
+                -
+                  addresses:
+                    - 192.168.77.20/25
+                  routes:
+                    - network: 0.0.0.0/0
+                      gateway: 192.168.77.1
+                  vlanId: 103
+                  vip:
+                    ip: 192.168.77.2
+
+              vip:
+                ip: 192.168.77.130
+
+        nameservers:
+            - 192.168.77.1
+            - 192.168.77.129
+```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two nodes.
 
