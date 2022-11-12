@@ -94,11 +94,11 @@ cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-3.yaml
 Get the MAC Address of eth0:
 ```bash
 # YAML
-talosctl get links --insecure --nodes 192.168.77.151 --output yaml | yq 'select(.metadata.id == "eth0").spec.hardwareAddr'
+talosctl get links --insecure --nodes 192.168.77.150 --output yaml | yq 'select(.metadata.id == "eth0").spec.hardwareAddr'
 e4:5f:01:9d:4c:a8
 
 # JSON
-talosctl get links --insecure --nodes 192.168.77.151 --output json | jq -r 'select(.metadata.id == "eth0").spec.hardwareAddr'
+talosctl get links --insecure --nodes 192.168.77.150 --output json | jq -r 'select(.metadata.id == "eth0").spec.hardwareAddr'
 e4:5f:01:9d:4c:a8
 
 # The above would translate into the following device selector:
@@ -147,7 +147,7 @@ First we verify if the Talos API is running on the node:
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig version
 
 # Look at the logs
-talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg --follow
 ```
 
 And finally bootstrap the etcd cluster:
@@ -155,7 +155,7 @@ And finally bootstrap the etcd cluster:
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig bootstrap
 
 # Wait for the cluster to settle down
-talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg --follow
 ```
 
 Verify the node is Ready and we can onboard new nodes:
@@ -189,7 +189,9 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 You now have a basic k8s cluster running with:
 * 3x rpi4.4gb.arm control plane nodes
 * Able to schedule workloads on them
-* A floating VIP of 192.168.77.2
+* Floating VIPs
+  * 192.168.77.2 on the SERVERS VLAN
+  * 192.168.77.130 on the SERVERS_STAGING VLAN
 
 ### Install Sidero on dal-k8s-mgmt-1
 

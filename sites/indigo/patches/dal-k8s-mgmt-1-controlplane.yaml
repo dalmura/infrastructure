@@ -11,7 +11,8 @@
       - deviceSelector:
           hardwareAddr: "${NODE_INTERFACE_MAC}"
           driver: bcmgenet
-        dhcp: false
+        vip:
+          ip: "192.168.77.130"
         vlans:
           - vlanId: 103
             addresses:
@@ -21,9 +22,5 @@
                 gateway: "192.168.77.1"
             vip:
               ip: "192.168.77.2"
-          - vlanId: 109
-            dhcp: false
-            vip:
-              ip: "192.168.79.220"
     nameservers:
       - "192.168.77.1"
