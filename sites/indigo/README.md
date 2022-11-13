@@ -47,9 +47,7 @@ This will form 2x k8s clusters:
 | dal-k8s-core-1.indigo.dalmura.au | Workers       | rpi4.8gb.arm    |        3 |
 | dal-k8s-core-1.indigo.dalmura.au | Workers       | dell.r320.amd64 |        3 |
 
-### Setup dal-k8s-mgmt-1
-
-The process outlined below is a rough translation from: https://www.sidero.dev/v0.5/guides/sidero-on-rpi4/
+### Provision dal-k8s-mgmt-1 k8s cluster
 
 * Have kubectl, clusterctl and talosctl installed
   * As of the time of writing (2022-10-12) this is
@@ -61,9 +59,8 @@ Double check the [compatibility of Sidero and Talos](https://github.com/siderola
 
 Download the `metal-rpi_4-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
 
-Boot the 3x rpi4.4gb.arm nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN:
+Boot the 3x rpi4.4gb.arm nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-# For example
 RPI4_1_IP=192.168.77.150
 RPI4_2_IP=192.168.77.151
 RPI4_3_IP=192.168.77.152
@@ -223,9 +220,9 @@ You now have a basic k8s cluster running with:
 
 ### Install Sidero on dal-k8s-mgmt-1
 
-Configure the DHCP server to reference dal-k8s-mgmt-1's VIP
+Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP: `192.168.77.130`
 
-We need to configure the following aspects of the DHCP server for the Servers VLAN:
+We need to configure the following aspects of the DHCP server:
 * IP address of the server to boot from (Option 66)
 * Filename/URL of the file to boot (Option 76)
 
