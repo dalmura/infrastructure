@@ -35,8 +35,10 @@ We are assuming you have separately:
 * Update the boot order depending on the cluster in question
   * Boot order is [documented here](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
 * For dal-k8s-mgmt-1 leave the EEPROM boot order to `0xf41`
+  * Boot order: SD Card, USB Drive
   * As these nodes have Talos installed directly
 * For dal-k8s-core-1 update the EEPROM boot order to `0xf21`
+  * Boot order: SD Card, Network (Sidero will then attempt USB as necessary)
   * As these nodes are PXE booted from Sidero
 
 This will form 2x k8s clusters:
@@ -222,9 +224,10 @@ You now have a basic k8s cluster running with:
 
 Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP: `192.168.77.130`
 
-We need to configure the following aspects of the DHCP server:
+We need to configure the following aspects of the DHCP server to respond with:
+* Hardcoded string the rPi requires "Raspberry Pi Boot" (Option 43)
 * IP address of the server to boot from (Option 66)
-* Filename/URL of the file to boot (Option 76)
+* Filename/URL of the file to boot (Option 67)
 
 Mikrotik since v7.4 (and fixed properly in v7.6) have implemented the ability to selectively offer different options above based on client capabilities (arm64 vs amd64), this is called the 'Generic matcher'.
 
@@ -233,10 +236,39 @@ How to configure this can be found in [Mikrotik's documentation](https://help.mi
 There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290) and a [thread here](https://forum.mikrotik.com/viewtopic.php?t=95674) on Mikrotik's forum covering the finer details of this (as their doco is currently lacking)
 
 ```bash
-/ip/dhcp-server/network/set boot-file-name="ipxe-arm64.efi" next-server="${LAPTOP_IP}" [find name="servers-dhcp"]
+# Shouldn't be required
+#/ip/dhcp-server/network/set boot-file-name="ipxe-arm64.efi" next-server="192.168.77.130" [find comment="SERVERS_STAGING_VLAN"]
 
 /ip/dhcp-server/matcher
-add address-pool=servers-dhcp code=60 name=rpi-matcher value=abc123
+add name="arch-rpi4"   code=?? value=??       server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
+add name="arch-arm64"  code=93 value="0x000b" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-arm64-default
+add name="arch-uefi64" code=93 value="0x0007" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi64-default
+add name="arch-uefi32" code=93 value="0x0006" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi32-default
+
+
+/ip/dhcp-server/option/sets
+add name="arch-rpi4-default"   options=boot-rpi4
+add name="arch-arm64-default"  options=boot-arm64
+add name="arch-uefi64-default" options=boot-uefi64
+add name="arch-uefi32-default" options=boot-uefi32
+add name="arch-bios-default"   options=boot-bios
+
+/ip/dhcp-server/option
+add name="boot-rpi4" code=43 value="'Raspberry Pi Boot'"
+add name="boot-rpi4" code=66 value="192.168.77.130"
+add name="boot-rpi4" code=67 value="'ipxe.efi'"
+
+add name="boot-arm64" code=66 value="192.168.77.130"
+add name="boot-arm64" code=67 value="'ipxe-arm64.efi'"
+
+add name="boot-uefi64" code=66 value="192.168.77.130"
+add name="boot-uefi64" code=67 value="'ipxe64.efi'"
+
+add name="boot-uefi32" code=66 value="192.168.77.130"
+add name="boot-uefi32" code=67 value="'ipxe.efi'"
+
+add name="boot-bios" code=66 value="192.168.77.130"
+add name="boot-bios" code=67 value="'ipxe.pxe'"
 ```
 
 Now we install Sidero dal-k8s-mgmt-1:
