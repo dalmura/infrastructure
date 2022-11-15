@@ -7,8 +7,8 @@ In order to bootstrap the Indigo site you will need:
 
 Standard accessories assumed included for all Raspberry Pi's are:
 * Raspberry Pi PoE+ Hat
-* >32GB SD Card
-* >128GB SSD Drive w/USB adaptor
+* \>32GB SD Card
+* \>128GB SSD Drive w/USB adaptor
 
 Rack accessories include:
 * [UCTRONICS 5x rpi4 + SSDs 1U rack (SKU U6264)](https://www.uctronics.com/cluster-and-rack-mount/uctronics-19-1u-raspberry-pi-rackmount-ssd-bracket-for-any-2-5-ssds.html)
