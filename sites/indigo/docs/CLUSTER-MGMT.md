@@ -171,7 +171,7 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig config endpoints 192
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig config nodes 192.168.77.20 192.168.77.21 192.168.77.22
 ```
 
-Verify all nodes are Ready:
+Wait until all nodes become `Ready`:
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 ```
@@ -239,5 +239,20 @@ export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.130"
 export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.130"
 
 clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
+
+# You'll see the following logs
+Fetching providers
+Installing cert-manager Version="v1.9.1"
+Waiting for cert-manager to be available...
+Installing Provider="cluster-api" Version="v1.2.5" TargetNamespace="capi-system"
+Installing Provider="bootstrap-talos" Version="v0.5.5" TargetNamespace="cabpt-system"
+Installing Provider="control-plane-talos" Version="v0.4.10" TargetNamespace="cacppt-system"
+Installing Provider="infrastructure-sidero" Version="v0.5.6" TargetNamespace="sidero-system"
+
+Your management cluster has been initialized successfully!
+
+You can now create your first workload cluster by running the following:
+
+  clusterctl generate cluster [name] --kubernetes-version [version] | kubectl apply -f -
 ```
 Now dal-k8s-mgmt-1 is a Sidero management cluster, able to support PXE booting!
