@@ -133,7 +133,21 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig bootstrap
 
 # Wait for the cluster to settle down
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg --follow
+
+# Keep an eye until you see the following logs fly past:
+192.168.77.20: user: warning: [2022-11-19T01:39:08.487418318Z]: [talos] phase labelControlPlane (17/19): done, 1m43.004679272s
+192.168.77.20: user: warning: [2022-11-19T01:39:08.497915318Z]: [talos] phase uncordon (18/19): 1 tasks(s)
+192.168.77.20: user: warning: [2022-11-19T01:40:11.102102078Z]: [talos] task uncordonNode (1/1): done, 1m2.212281572s
+192.168.77.20: user: warning: [2022-11-19T01:40:11.110591078Z]: [talos] phase uncordon (18/19): done, 1m2.228608374s
+192.168.77.20: user: warning: [2022-11-19T01:40:11.118872078Z]: [talos] phase bootloader (19/19): 1 tasks(s)
+192.168.77.20: user: warning: [2022-11-19T01:40:11.126706078Z]: [talos] task updateBootloader (1/1): starting
+192.168.77.20: user: warning: [2022-11-19T01:40:11.187985078Z]: [talos] task updateBootloader (1/1): done, 61.278313ms
+192.168.77.20: user: warning: [2022-11-19T01:40:11.195462078Z]: [talos] phase bootloader (19/19): done, 76.612441ms
+192.168.77.20: user: warning: [2022-11-19T01:40:11.202824078Z]: [talos] boot sequence: done: 4m26.855228102s
 ```
+
+# Verify you can ping the floating Virtual IP (VIP)
+ping 192.168.77.2
 
 Verify the node is Ready and we can onboard new nodes:
 ```bash
@@ -145,8 +159,7 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig kubeconfig kubeconfi
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 
-# Verify you can ping the floating Virtual IP (VIP)
-ping 192.168.77.2
+# The node's status should become Ready when you see a bunch of `cni0` related logs appear after the above
 ```
 
 Now we onboard the other nodes into the cluster:
@@ -194,36 +207,36 @@ add name="arch-uefi64" code=93 value="0x0007" server=servers-staging-dchp addres
 add name="arch-uefi32" code=93 value="0x0006" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi32-default
 
 /ip/dhcp-server/option/sets
-add name="arch-rpi4-default"   options=boot-rpi4
-add name="arch-arm64-default"  options=boot-arm64
-add name="arch-uefi64-default" options=boot-uefi64
-add name="arch-uefi32-default" options=boot-uefi32
-add name="arch-bios-default"   options=boot-bios
+add name="arch-rpi4-default"   options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
+add name="arch-arm64-default"  options=boot-arm66-66,boot-arm66-67
+add name="arch-uefi64-default" options=boot-uefi64-66,boot-uefi64-67
+add name="arch-uefi32-default" options=boot-uefi32-66,boot-uefi32-67
+add name="arch-bios-default"   options=boot-bios-66,boot-bios-67
 
 /ip/dhcp-server/option
-add name="boot-rpi4" code=43 value="'Raspberry Pi Boot'"
-add name="boot-rpi4" code=60 value="'PXEClient'"
-add name="boot-rpi4" code=66 value="192.168.77.130"
-add name="boot-rpi4" code=67 value="'ipxe.efi'"
+add name="boot-rpi4-43" code=43 value="'Raspberry Pi Boot'"
+add name="boot-rpi4-60" code=60 value="'PXEClient'"
+add name="boot-rpi4-66" code=66 value="192.168.77.130"
+add name="boot-rpi4-67" code=67 value="'ipxe.efi'"
 
-add name="boot-arm64" code=66 value="192.168.77.130"
-add name="boot-arm64" code=67 value="'ipxe-arm64.efi'"
+add name="boot-arm64-66" code=66 value="192.168.77.130"
+add name="boot-arm64-67" code=67 value="'ipxe-arm64.efi'"
 
-add name="boot-uefi64" code=66 value="192.168.77.130"
-add name="boot-uefi64" code=67 value="'ipxe64.efi'"
+add name="boot-uefi64-66" code=66 value="192.168.77.130"
+add name="boot-uefi64-67" code=67 value="'ipxe64.efi'"
 
-add name="boot-uefi32" code=66 value="192.168.77.130"
-add name="boot-uefi32" code=67 value="'ipxe.efi'"
+add name="boot-uefi32-66" code=66 value="192.168.77.130"
+add name="boot-uefi32-67" code=67 value="'ipxe.efi'"
 
-add name="boot-bios" code=66 value="192.168.77.130"
-add name="boot-bios" code=67 value="'ipxe.pxe'"
+add name="boot-bios-66" code=66 value="192.168.77.130"
+add name="boot-bios-67" code=67 value="'ipxe.pxe'"
 ```
 
 Now we install Sidero dal-k8s-mgmt-1:
 ```bash
 export SIDERO_CONTROLLER_MANAGER_HOST_NETWORK=true
-export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.2"
-export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.2"
+export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.130"
+export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.130"
 
 clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
 ```
