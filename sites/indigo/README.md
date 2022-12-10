@@ -15,6 +15,6 @@ We use the following Sidero Labs products:
 
 ## Instructions
 
-[`Site Hardware`](docs/HARDWARE.md)
-
-[`dal-k8s-mgmt-1 setup`](docs/CLUSTER-MGMT.md)
+* [`Site hardware`](docs/HARDWARE.md)
+* [`Setup dal-k8s-mgmt-1 cluster`](docs/CLUSTER-MGMT.md)
+* [`Configure dal-k8s-mgmt-1 for RPi4's`](docs/CLUSTER-MGMT-SIDERO.md)
