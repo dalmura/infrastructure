@@ -2,3 +2,4 @@
 sites/*/templates/
 sites/*/nodes/
 sites/*/kubeconfigs/
+sites/*/support/

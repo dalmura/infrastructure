@@ -183,76 +183,24 @@ You now have a basic k8s cluster running with:
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
 
-## Install Sidero
 
-Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP: `192.168.77.130`
+# Upgrading
 
-We need to configure the following aspects of the DHCP server to respond with:
-* Hardcoded string the rPi requires "Raspberry Pi Boot" (Option 43)
-* IP address of the server to boot from (Option 66)
-* Filename/URL of the file to boot (Option 67)
-
-Mikrotik since v7.4 (and fixed properly in v7.6) have implemented the ability to selectively offer different options above based on client capabilities (arm64 vs amd64), this is called the 'Generic matcher'.
-
-How to configure this can be found in [Mikrotik's documentation](https://help.mikrotik.com/docs/display/ROS/DHCP#DHCP-Genericmatcher)
-
-There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290) and a [thread here](https://forum.mikrotik.com/viewtopic.php?t=95674) on Mikrotik's forum covering the finer details of this (as their doco is currently lacking)
-
-```bash
-/ip/dhcp-server/matcher
-add name="arch-rpi4"   code=93 value="0x0000" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
-#add name="arch-rpi4"   code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
-add name="arch-arm64"  code=93 value="0x000b" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-arm64-default
-add name="arch-uefi64" code=93 value="0x0007" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi64-default
-add name="arch-uefi32" code=93 value="0x0006" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi32-default
-
-/ip/dhcp-server/option/sets
-add name="arch-rpi4-default"   options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
-add name="arch-arm64-default"  options=boot-arm66-66,boot-arm66-67
-add name="arch-uefi64-default" options=boot-uefi64-66,boot-uefi64-67
-add name="arch-uefi32-default" options=boot-uefi32-66,boot-uefi32-67
-add name="arch-bios-default"   options=boot-bios-66,boot-bios-67
-
-/ip/dhcp-server/option
-add name="boot-rpi4-43" code=43 value="'Raspberry Pi Boot'"
-add name="boot-rpi4-60" code=60 value="'PXEClient'"
-add name="boot-rpi4-66" code=66 value="192.168.77.130"
-add name="boot-rpi4-67" code=67 value="'ipxe.efi'"
-
-add name="boot-arm64-66" code=66 value="192.168.77.130"
-add name="boot-arm64-67" code=67 value="'ipxe-arm64.efi'"
-
-add name="boot-uefi64-66" code=66 value="192.168.77.130"
-add name="boot-uefi64-67" code=67 value="'ipxe64.efi'"
-
-add name="boot-uefi32-66" code=66 value="192.168.77.130"
-add name="boot-uefi32-67" code=67 value="'ipxe.efi'"
-
-add name="boot-bios-66" code=66 value="192.168.77.130"
-add name="boot-bios-67" code=67 value="'ipxe.pxe'"
+Going from v1.2.6 => v.1.2.7
 ```
+# --preserve=true is required for a single node cluster
+# Otherwise the node is wiped and rejoins the cluster
 
-Now we install Sidero dal-k8s-mgmt-1:
-```bash
-export SIDERO_CONTROLLER_MANAGER_HOST_NETWORK=true
-export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.130"
-export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.130"
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig upgrade --nodes 192.168.77.20 --image ghcr.io/siderolabs/installer:v1.2.7 --preserve=true
+NODE            ACK                        STARTED
+192.168.77.20   Upgrade request received   2022-11-26 19:22:45.079607 +1100 AEDT m=+56.434870596
 
-clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
+# Can use DMESG to keep an eye on progress/etc
+# Wait for the reboot and when the node's back
 
-# You'll see the following logs
-Fetching providers
-Installing cert-manager Version="v1.9.1"
-Waiting for cert-manager to be available...
-Installing Provider="cluster-api" Version="v1.2.5" TargetNamespace="capi-system"
-Installing Provider="bootstrap-talos" Version="v0.5.5" TargetNamespace="cabpt-system"
-Installing Provider="control-plane-talos" Version="v0.4.10" TargetNamespace="cacppt-system"
-Installing Provider="infrastructure-sidero" Version="v0.5.6" TargetNamespace="sidero-system"
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig apply-config -n 192.168.77.20 -f nodes/dal-k8s-mgmt-1-rpi4-1.yaml
+Applied configuration without a reboot
 
-Your management cluster has been initialized successfully!
-
-You can now create your first workload cluster by running the following:
-
-  clusterctl generate cluster [name] --kubernetes-version [version] | kubectl apply -f -
+# There's a possible kubelet bug w/Talos's static pods where you need to restart kubelet after a reboot
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig -n 192.168.77.20 services kubelet restart
 ```
-Now dal-k8s-mgmt-1 is a Sidero management cluster, able to support PXE booting!
