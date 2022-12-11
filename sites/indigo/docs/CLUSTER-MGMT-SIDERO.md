@@ -133,7 +133,7 @@ git checkout 23c0dfd
 # This step fails if you're on a different architecture and you've not done the 'buildx' above
 make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
 
-# Will be available as:
+# Will be available at
 docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.2.0-20-g23c0dfd
 ```
 
