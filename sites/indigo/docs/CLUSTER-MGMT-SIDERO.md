@@ -15,18 +15,18 @@ How to configure this can be found in [Mikrotik's documentation](https://help.mi
 There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290) and a [thread here](https://forum.mikrotik.com/viewtopic.php?t=95674) on Mikrotik's forum covering the finer details of this (as their doco is currently lacking)
 
 ```bash
-/ip/dhcp-server/matcher
-add name="arch-rpi4-native"    code=93 value="0x0000"                             server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
-add name="arch-rpi4-pxeclient" code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
-
-/ip/dhcp-server/option/sets
-add name="boot-rpi4" options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
-
 /ip/dhcp-server/option
 add name="boot-rpi4-43" code=43 value="s'Raspberry Pi Boot'"
 add name="boot-rpi4-60" code=60 value="s'PXEClient'"
 add name="boot-rpi4-66" code=66 value="s'192.168.77.130'"
 add name="boot-rpi4-67" code=67 value="s'ipxe.efi'"
+
+/ip/dhcp-server/option/sets
+add name="boot-rpi4" options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
+
+/ip/dhcp-server/matcher
+add name="arch-rpi4-native"    code=93 value="0x0000"                             server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
+add name="arch-rpi4-pxeclient" code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
 ```
 
 Now we install Sidero dal-k8s-mgmt-1:
