@@ -27,7 +27,7 @@ talosctl gen config \
     --output-dir templates/dal-k8s-mgmt-1/
 ```
 
-`192.168.77.2` will be our 'Virtual IP' that is advertised between all management nodes in the cluster, see the [network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this IP.
+`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.2/talos-guides/network/vip/) that is advertised between all management nodes in the cluster, see the [network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this IP.
 
 `patches/dal-k8s-mgmt-1-controlplane.yaml` contains the following tweaks:
 * Allow scheduling regular pods on Control Plane nodes
