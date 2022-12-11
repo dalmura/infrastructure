@@ -1,5 +1,4 @@
-# infrastructure
-The Dalmura Infrastructure
+# The Dalmura Infrastructure
 
 Consists of a series of sites that comprimise the WAN.
 
