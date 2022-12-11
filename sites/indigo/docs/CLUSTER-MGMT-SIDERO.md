@@ -62,7 +62,9 @@ NAMESPACE       NAME                                         READY   STATUS     
 sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   0/4     ContainerCreating   0             51s
 ...
 
-# You'll notice the k8s API Server stop responding as the sidero-controller-manager joins the host networking and causes a few pods to restart. Just wait a minute or two
+# You'll notice the k8s API Server stop responding
+# This is the sidero-controller-manager joining the host network
+# It will cause a few pods to restart... just wait a minute!
 
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
 NAMESPACE       NAME                                         READY   STATUS    RESTARTS      AGE
