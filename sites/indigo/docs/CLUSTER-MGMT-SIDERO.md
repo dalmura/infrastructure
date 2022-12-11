@@ -195,4 +195,9 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-man
 pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
 ```
 
-You should now have a patched Sidero that supports rpi4s! Attempt another network boot of an rpi4 and see the logs of the `sidero-controller-manager`!
+You should now have a patched Sidero that supports rpi4s!
+
+This will allow the rpi4 to:
+* Recieve information from the DHCP server about where to boot from
+* Download & boot the PXEClient from our Sidero server
+* Use the PXEClient and attempt to boot the Sidero agent
