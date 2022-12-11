@@ -19,34 +19,15 @@ There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290)
 /ip/dhcp-server/matcher
 add name="arch-rpi4"   code=93 value="0x0000" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
 #add name="arch-rpi4"   code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
-add name="arch-arm64"  code=93 value="0x000b" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-arm64-default
-add name="arch-uefi64" code=93 value="0x0007" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi64-default
-add name="arch-uefi32" code=93 value="0x0006" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-uefi32-default
 
 /ip/dhcp-server/option/sets
-add name="arch-rpi4-default"   options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
-add name="arch-arm64-default"  options=boot-arm66-66,boot-arm66-67
-add name="arch-uefi64-default" options=boot-uefi64-66,boot-uefi64-67
-add name="arch-uefi32-default" options=boot-uefi32-66,boot-uefi32-67
-add name="arch-bios-default"   options=boot-bios-66,boot-bios-67
+add name="boot-rpi4" options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
 
 /ip/dhcp-server/option
-add name="boot-rpi4-43" code=43 value="'Raspberry Pi Boot'"
-add name="boot-rpi4-60" code=60 value="'PXEClient'"
-add name="boot-rpi4-66" code=66 value="192.168.77.130"
-add name="boot-rpi4-67" code=67 value="'ipxe.efi'"
-
-add name="boot-arm64-66" code=66 value="192.168.77.130"
-add name="boot-arm64-67" code=67 value="'ipxe-arm64.efi'"
-
-add name="boot-uefi64-66" code=66 value="192.168.77.130"
-add name="boot-uefi64-67" code=67 value="'ipxe64.efi'"
-
-add name="boot-uefi32-66" code=66 value="192.168.77.130"
-add name="boot-uefi32-67" code=67 value="'ipxe.efi'"
-
-add name="boot-bios-66" code=66 value="192.168.77.130"
-add name="boot-bios-67" code=67 value="'ipxe.pxe'"
+add name="boot-rpi4-43" code=43 value="s'Raspberry Pi Boot'"
+add name="boot-rpi4-60" code=60 value="s'PXEClient'"
+add name="boot-rpi4-66" code=66 value="s'192.168.77.130'"
+add name="boot-rpi4-67" code=67 value="s'ipxe.efi'"
 ```
 
 Now we install Sidero dal-k8s-mgmt-1:
