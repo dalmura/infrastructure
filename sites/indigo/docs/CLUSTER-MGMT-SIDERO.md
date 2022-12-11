@@ -195,4 +195,4 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-man
 pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
 ```
 
-You should now have a patched Sidero that supports RPi4s!
+You should now have a patched Sidero that supports rpi4s! Attempt another network boot of an rpi4 and see the logs of the `sidero-controller-manager`!
