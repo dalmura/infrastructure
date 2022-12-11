@@ -6,6 +6,7 @@ Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP `1
 
 We need to configure the following aspects of the DHCP server to respond with:
 * Hardcoded string the rPi requires "Raspberry Pi Boot" (Option 43)
+* Hardcoded string not strictly required but best practice "PXEClient" (Option 60)
 * IP address of the server to boot from (Option 66)
 * Filename/URL of the file to boot (Option 67)
 
