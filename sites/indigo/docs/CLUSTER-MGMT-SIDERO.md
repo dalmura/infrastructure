@@ -192,6 +192,7 @@ Events:
 
 
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-manager-5d6754fcfb-rrzlr -n sidero-system
+pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
 ```
 
-You should now have a patched Sidero that supports RPi4's
+You should now have a patched Sidero that supports RPi4s!
