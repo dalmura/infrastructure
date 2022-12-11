@@ -106,7 +106,7 @@ You'll notice a specific pattern of folder structures the rpi4 follows when atte
 This guide follows https://www.sidero.dev/v0.5/guides/rpi4-as-servers/
 
 RPi4's are special in that they have a fixed 'folder structure' they attempt to network boot from, as well as not fully supporting a PXE boot client. So this means we need to:
-* Patch Sidero to offer the right 'folder structure'
+* Patch Sidero to offer the right 'folder structure' (see above logs for what this looks like!)
 * Offer a PXE Client to network boot from, which *then* PXE boots Sidero's image
 
 You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/guides/rpi4-as-servers/#uefi--rpi4) which should result in a `RPI_EFI.fd` file (binary) that you'll be able to copy into your below image.
