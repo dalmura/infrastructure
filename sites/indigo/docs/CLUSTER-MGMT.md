@@ -148,10 +148,10 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg --follow
 192.168.77.20: user: warning: [2022-11-19T01:40:11.187985078Z]: [talos] task updateBootloader (1/1): done, 61.278313ms
 192.168.77.20: user: warning: [2022-11-19T01:40:11.195462078Z]: [talos] phase bootloader (19/19): done, 76.612441ms
 192.168.77.20: user: warning: [2022-11-19T01:40:11.202824078Z]: [talos] boot sequence: done: 4m26.855228102s
-```
 
 # Verify you can ping the floating Virtual IP (VIP)
 ping 192.168.77.2
+```
 
 Verify the node is Ready and we can onboard new nodes:
 ```bash
