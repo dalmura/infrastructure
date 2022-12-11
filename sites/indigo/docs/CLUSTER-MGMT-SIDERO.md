@@ -2,8 +2,6 @@
 
 Following https://www.sidero.dev/v0.5/guides/sidero-on-rpi4/#installing-sidero
 
-Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP `192.168.77.130` that's on the `SERVERS_STAGING` VLAN.
-
 We need to configure the following aspects of the DHCP server to respond with:
 * Hardcoded string the rPi requires "Raspberry Pi Boot" (Option 43)
 * Hardcoded string not strictly required but best practice "PXEClient" (Option 60)
@@ -89,9 +87,15 @@ Defaulted container "manager" out of: manager, siderolink, serverlogs, servereve
 2022/12/11 04:44:35 HTTP GET /boot.ipxe 127.0.0.1:35448
 2022/12/11 04:44:45 HTTP GET /boot.ipxe 127.0.0.1:35462  <--- these are healthchecks
 2022/12/11 04:44:45 HTTP GET /boot.ipxe 127.0.0.1:35448
-2022/12/11 04:44:46 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory
-2022/12/11 04:44:48 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory  <--- this is the rpi4 attempting to network boot!
-2022/12/11 04:44:50 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory
+...
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory   <--- these are the rpi4 attempting to network boot!
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/09b92bda/start.elf: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/config.txt: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/pieeprom.sig: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/recover4.elf: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/recovery.elf: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/start4.elf: no such file or directory
+2022/12/11 04:56:55 open /var/lib/sidero/tftp/start.elf: no such file or directory
 ```
 
 You'll notice a specific pattern of folder structures the rpi4 follows when attemping to network boot. If you don't see the rpi4 logs above please double check your DHCP settings.
