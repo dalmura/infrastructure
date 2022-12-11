@@ -16,8 +16,8 @@ There is also a [thread here](https://forum.mikrotik.com/viewtopic.php?t=188290)
 
 ```bash
 /ip/dhcp-server/matcher
-add name="arch-rpi4"   code=93 value="0x0000" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
-#add name="arch-rpi4"   code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=arch-rpi4-default
+add name="arch-rpi4-native"    code=93 value="0x0000"                             server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
+add name="arch-rpi4-pxeclient" code=60 value="'PXEClient:Arch:00000:UNDI:002001'" server=servers-staging-dchp address-pool=servers-staging-dhcp option-set=boot-rpi4
 
 /ip/dhcp-server/option/sets
 add name="boot-rpi4" options=boot-rpi4-43,boot-rpi4-60,boot-rpi4-66,boot-rpi4-67
