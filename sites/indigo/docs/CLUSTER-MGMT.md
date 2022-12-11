@@ -127,10 +127,12 @@ talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig version
 
 # Look at the logs
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig dmesg --follow
-```
 
-And finally bootstrap the etcd cluster:
-```bash
+# Wait until you see something like 
+192.168.77.20: user: warning: [2022-12-11T04:27:28.724547918Z]: [talos] task startAllServices (1/1): service "etcd" to be "up", service "kubelet" to be "up"
+
+# This tells us we're waiting for "etcd" to come online
+# Bootstrap the etcd cluster
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig bootstrap
 
 # Wait for the cluster to settle down
