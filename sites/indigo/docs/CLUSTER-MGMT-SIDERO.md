@@ -53,7 +53,45 @@ You can now create your first workload cluster by running the following:
 
   clusterctl generate cluster [name] --kubernetes-version [version] | kubectl apply -f -
 ```
+
+Wait until you see the `sidero-controller-manager` pods come up
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+NAMESPACE       NAME                                         READY   STATUS              RESTARTS      AGE
+...
+sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   0/4     ContainerCreating   0             51s
+...
+
+# You'll notice the k8s API Server stop responding as the sidero-controller-manager joins the host networking and causes a few pods to restart. Just wait a minute or two
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+NAMESPACE       NAME                                         READY   STATUS    RESTARTS      AGE
+...
+sidero-system   caps-controller-manager-fd48bf9b4-xvsqm      1/1     Running   3 (43s ago)   2m24s
+sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   4/4     Running   9 (46s ago)   2m23s
+...
+```
+
 Now dal-k8s-mgmt-1 is a Sidero management cluster, able to support PXE booting!
+
+You should now be able to at least get an rpi4 able to attempt to network boot from Sidero now (it won't work properly until you do the below, but you should see logs in the sidero-controller-manager pod)
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 logs -f sidero-controller-manager-5d6754fcfb-drv4h -n sidero-system
+Defaulted container "manager" out of: manager, siderolink, serverlogs, serverevents
+1.6707336924300556e+09	INFO	controller-runtime.metrics	Metrics server is starting to listen	{"addr": "127.0.0.1:8080"}
+1.6707336924350235e+09	INFO	setup	starting TFTP server
+1.6707336924351463e+09	INFO	setup	starting iPXE server
+...
+2022/12/11 04:44:35 HTTP GET /boot.ipxe 127.0.0.1:35448
+2022/12/11 04:44:45 HTTP GET /boot.ipxe 127.0.0.1:35462  <--- these are healthchecks
+2022/12/11 04:44:45 HTTP GET /boot.ipxe 127.0.0.1:35448
+2022/12/11 04:44:46 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory
+2022/12/11 04:44:48 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory  <--- this is the rpi4 attempting to network boot!
+2022/12/11 04:44:50 open /var/lib/sidero/tftp/09b92bda/start4.elf: no such file or directory
+```
+
+You'll notice a specific pattern of folder structures the rpi4 follows when attemping to network boot. If you don't see the rpi4 logs above please double check your DHCP settings.
 
 
 ## Setting up Sidero to support Raspberry Pi 4 servers
