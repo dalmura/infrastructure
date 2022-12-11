@@ -27,6 +27,11 @@
         vip:
           ip: 192.168.77.130
 
+        dhcp: true
+
+        dhcpOptions:
+          routeMetric: 2048
+
     nameservers:
       - 192.168.77.1
       - 192.168.77.129
