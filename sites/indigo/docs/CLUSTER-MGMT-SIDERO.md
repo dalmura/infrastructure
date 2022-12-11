@@ -2,7 +2,7 @@
 
 Following https://www.sidero.dev/v0.5/guides/sidero-on-rpi4/#installing-sidero
 
-Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP: `192.168.77.130`
+Configure the `SERVERS_STAGING` DHCP server to reference dal-k8s-mgmt-1's VIP `192.168.77.130` that's on the `SERVERS_STAGING` VLAN.
 
 We need to configure the following aspects of the DHCP server to respond with:
 * Hardcoded string the rPi requires "Raspberry Pi Boot" (Option 43)
