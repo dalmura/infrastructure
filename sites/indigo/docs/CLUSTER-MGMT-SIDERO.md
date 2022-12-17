@@ -40,18 +40,19 @@ clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sid
 
 # You'll see the following logs
 Fetching providers
-Installing cert-manager Version="v1.9.1"
+Installing cert-manager Version="v1.10.1"
 Waiting for cert-manager to be available...
-Installing Provider="cluster-api" Version="v1.2.5" TargetNamespace="capi-system"
-Installing Provider="bootstrap-talos" Version="v0.5.5" TargetNamespace="cabpt-system"
-Installing Provider="control-plane-talos" Version="v0.4.10" TargetNamespace="cacppt-system"
-Installing Provider="infrastructure-sidero" Version="v0.5.6" TargetNamespace="sidero-system"
+Installing Provider="cluster-api" Version="v1.3.1" TargetNamespace="capi-system"
+Installing Provider="bootstrap-talos" Version="v0.5.6" TargetNamespace="cabpt-system"
+Installing Provider="control-plane-talos" Version="v0.4.11" TargetNamespace="cacppt-system"
+Installing Provider="infrastructure-sidero" Version="v0.5.7" TargetNamespace="sidero-system"
 
 Your management cluster has been initialized successfully!
 
 You can now create your first workload cluster by running the following:
 
   clusterctl generate cluster [name] --kubernetes-version [version] | kubectl apply -f -
+
 ```
 
 Wait until you see the `sidero-controller-manager` pods come up
@@ -63,7 +64,7 @@ sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   0/4     ContainerCr
 ...
 
 # You'll notice the k8s API Server stop responding
-# This is the sidero-controller-manager joining the host network
+# This is some of the talos static pods inc the kube-apiserver being updated
 # It will cause a few pods to restart... just wait a minute!
 
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
@@ -125,17 +126,41 @@ git clone git@github.com:siderolabs/pkgs.git siderolabs-pkgs
 cd siderolabs-pkgs
 
 # Find the commit of the talos version we'll boot
-# Go to https://github.com/siderolabs/talos/blob/v1.2.7/Makefile#L17
-# Find: PKGS ?= v1.2.0-20-g23c0dfd
-# Commit ID is '23c0dfd'
-git checkout 23c0dfd
+# Go to https://github.com/siderolabs/talos/blob/v1.3.0/Makefile#L17
+# Find: PKGS ?= v1.3.0-5-g6509d23
+# Commit ID is '6509d23'
+git checkout 6509d23
+
+# The below is largely following the guide linked above
+mkdir raspberrypi4-uefi
+mkdir raspberrypi4-uefi/serials
+
+vim raspberrypi4-uefi/pkg.yaml
+# Copy in the contents from the linked guide with the following changes
+# url: https://github.com/pftf/RPi4/releases/download/v1.34/RPi4_UEFI_Firmware_v1.34.zip
+# destination: RPi4_UEFI_Firmware.zip
+# sha256: ff4f5ce208f49f50e38e9517430678f3b6a10327d3fd5ce4ce434f74d08d5b76
+# sha512: f095d6419066e9042f71716865ea495991a4cc4d149ecb514348f397ae2c617de481aead6e507b7dcec018864c6f941b020903c167984accf25bf261010385f7
+
+# Burn RPi4_UEFI_Firmware.zip to an SD Card and boot the rpi4(s) you plan to use as nodes for DAL-CORE-1 cluster
+# Get to the main main and:
+# 1. Device Manager => Raspberry Pi Configuration => Advanced Configuration => Limit RAM to 3 GB => Disabled
+# 2. Device Manager => Raspberry Pi Configuration => CPU Configuration => Max
+# 3. Boot Maintenance Manager => Boot Options => Delete Boot Option => Delete all apart from UEFI PXEv4
+# 4. reset => Turn off rpi and put SDCARD back in laptop
+
+# Extract `RPI_EFI.fd` from the SDCARD and store it in `raspberrypi4-uefi/serials/<device serial>/RPI_EFI.fd
+```bash
+mkdir raspberrypi4-uefi/serials/09b92bda/
+cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
+```
 
 # Build the pkgs image and push to our ghcr org
 # This step fails if you're on a different architecture and you've not done the 'buildx' above
 make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
 
 # Will be available at
-docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.2.0-20-g23c0dfd
+docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
 ```
 
 Build the sidero patch
@@ -147,7 +172,7 @@ spec:
         - name: tftp-folder
           emptyDir: {}
       initContainers:
-      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.2.0-19-g23c0dfd
+      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
         imagePullPolicy: Always
         name: tftp-folder-setup
         command:
@@ -170,7 +195,7 @@ This is available in `patches/dal-k8s-mgmt-1-sidero.yaml`
 
 # Apply patch to existing Sidero install:
 ```
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch "$(cat patches/dal-k8s-mgmt-1-sidero.yaml)"
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero.yaml
 deployment.apps/sidero-controller-manager patched
 ```
 
@@ -194,6 +219,11 @@ Events:
 
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-manager-5d6754fcfb-rrzlr -n sidero-system
 pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+...
+sidero-system   sidero-controller-manager-cf7bb88db-ksmwb   4/4     Running   0             83s
+...
 ```
 
 You should now have a patched Sidero that supports rpi4s!
