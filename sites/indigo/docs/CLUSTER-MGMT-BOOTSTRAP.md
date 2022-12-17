@@ -2,14 +2,14 @@
 
 ## Form the k8s cluster
 Have kubectl, clusterctl and talosctl installed:
-  * As of the time of writing (2022-10-12) this is
-  * kubectl v1.25
-  * clusterapi v1.2
-  * talosctl v1.2
+  * As of the time of writing (2022-12-17) this is
+  * kubernetes v1.26
+  * clusterapi v1.3.1
+  * talos v1.3
 
-Double check the [compatibility of Sidero and Talos](https://github.com/siderolabs/sidero#compatibility-with-cluster-api-and-kubernetes-versions) and ensure you choose the [latest Sidero](https://github.com/siderolabs/sidero/releases/latest) and the [latest supported Talos](https://github.com/siderolabs/talos/releases). At the time of writing Sidero v0.5 supports Talos v1.2.
+Double check the [compatibility of Sidero and Talos](https://github.com/siderolabs/sidero#compatibility-with-cluster-api-and-kubernetes-versions) and ensure you choose the [latest Sidero](https://github.com/siderolabs/sidero/releases/latest) and the [latest supported Talos](https://github.com/siderolabs/talos/releases). At the time of writing Sidero v0.5 supports Talos v1.3.
 
-Download the `metal-rpi_4-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
+Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
 
 Boot the 3x rpi4.4gb.arm nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
@@ -24,15 +24,18 @@ talosctl gen config \
     dal-k8s-mgmt-1 \
     https://192.168.77.2:6443/ \
     --config-patch-control-plane @patches/dal-k8s-mgmt-1-controlplane.yaml \
+    --output-types controlplane,talosconfig \
     --output-dir templates/dal-k8s-mgmt-1/
 ```
 
-`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.2/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this specific IP.
+`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this specific IP.
 
 `patches/dal-k8s-mgmt-1-controlplane.yaml` contains the following tweaks:
 * Allow scheduling regular pods on Control Plane nodes
 * Changes the disk install to /dev/mmcblk0 (SD Card for rpi's)
 * Configures the networking to move the node into the static ranges (off DHCP)
+
+`--output-types controlplane,talosconfig` skips generating a worker config as this cluster is control plane only!
 
 You will now need to 'hydrate' these files to be per-server:
 ```bash
@@ -76,11 +79,17 @@ machine:
 ```
 
 Within each file you will need to make the following changes:
-* Replace `${NODE_INTERFACE_MAC}` with this nodes eth0 MAC address (ensure it's lowercase)
-* Replace `${NODE_STATIC_IP}` with this nodes eth0 IP address (preserve the CIDR prefix)
+* Replace `NODE_INTERFACE_MAC` with this nodes eth0 MAC address (ensure it's lowercase)
+* Replace `NODE_STATIC_IP` with this nodes eth0 IP address (preserve the CIDR prefix)
 * Replace `machine.install.disk`'s value with a diskSelector populated from above if you have an SSD/etc
 
-An example of the `machine.network` could look like:
+Some quick commands to replace some of the above:
+```bash
+sed -i 's/NODE_INTERFACE_MAC/e4:5f:01:9d:4d:95/g' nodes/dal-k8s-mgmt-1-rpi4-1.yaml
+sed -i 's/NODE_SERVERS_STATIC_IP/192.168.77.20/g' nodes/dal-k8s-mgmt-1-rpi4-1.yaml
+```
+
+An example of the `machine.network` would then look like:
 ```bash
 machine:
     network:
@@ -112,7 +121,7 @@ Now we will provision a single node and bootstrap it to form a cluster, after th
 
 Apply the config for the first node:
 ```bash
-talosctl apply-config --insecure -n <dhcp ip of dal-k8s-mgmt-1-rpi4-1> -f nodes/dal-k8s-mgmt-1-rpi4-1.yaml
+talosctl apply-config --insecure -n 192.168.77.150 -f nodes/dal-k8s-mgmt-1-rpi4-1.yaml
 ```
 
 Update your local device with the new credentials to talk to the cluster:

@@ -9,20 +9,19 @@
   value:
     interfaces:
       - deviceSelector:
-          hardwareAddr: ${NODE_INTERFACE_MAC}
+          hardwareAddr: NODE_INTERFACE_MAC
           driver: bcmgenet
         vlans:
           -
             addresses:
-              - ${NODE_SERVERS_STATIC_IP}/25
+              - NODE_SERVERS_STATIC_IP/25
             routes:
               - network: 0.0.0.0/0
                 gateway: 192.168.77.1
+                metric: 2048
             vlanId: 103
             vip:
               ip: 192.168.77.2
-
-        # We don't define DHCP on the parent interface as it's already configured
 
         vip:
           ip: 192.168.77.130
@@ -30,8 +29,8 @@
         dhcp: true
 
         dhcpOptions:
-          routeMetric: 2048
+          routeMetric: 1024
 
     nameservers:
-      - 192.168.77.1
       - 192.168.77.129
+      - 192.168.77.1
