@@ -214,34 +214,8 @@ This is available in `patches/dal-k8s-mgmt-1-sidero.yaml`
 
 # Apply patch to existing Sidero install:
 ```
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero.yaml
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero-rpi4.yaml
 deployment.apps/sidero-controller-manager patched
-```
-
-Because it's host networking you'll need to delete the existing one
-```
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
-NAMESPACE       NAME                                         READY   STATUS    RESTARTS      AGE
-...
-sidero-system   sidero-controller-manager-5d6754fcfb-rrzlr   4/4     Running   9 (34h ago)   34h
-sidero-system   sidero-controller-manager-cf7bb88db-ksmwb    0/4     Pending   0             2m48s
-...
-
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe pod sidero-controller-manager-cf7bb88db-ksmwb -n sidero-system
-....
-Events:
-  Type     Reason            Age   From               Message
-  ----     ------            ----  ----               -------
-  Warning  FailedScheduling  3m3s  default-scheduler  0/1 nodes are available: 1 node(s) didn't have free ports for the requested pod ports. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.
-
-
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-manager-5d6754fcfb-rrzlr -n sidero-system
-pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
-
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
-...
-sidero-system   sidero-controller-manager-cf7bb88db-ksmwb   4/4     Running   0             83s
-...
 ```
 
 You should now have a patched Sidero that supports rpi4s!
