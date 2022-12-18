@@ -1,0 +1,40 @@
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: servers-vlan
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.77.10-192.168.77.19
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: servers-vlan
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - servers-vlan
+  interfaces:
+    - eth0.103
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: servers-staging-vlan
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.77.140-192.168.77.149
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: servers-staging-vlan
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - servers-staging-vlan
+  interfaces:
+    - eth0

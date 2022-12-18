@@ -33,8 +33,8 @@ Now we install Sidero dal-k8s-mgmt-1:
 ```bash
 export SIDERO_CONTROLLER_MANAGER_HOST_NETWORK=true
 export SIDERO_CONTROLLER_MANAGER_AUTO_BMC_SETUP=false
-export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.130"
-export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.130"
+export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.150"
+export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.150"
 
 clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
 
@@ -146,8 +146,9 @@ vim raspberrypi4-uefi/pkg.yaml
 # Get to the main main and:
 # 1. Device Manager => Raspberry Pi Configuration => Advanced Configuration => Limit RAM to 3 GB => Disabled
 # 2. Device Manager => Raspberry Pi Configuration => CPU Configuration => Max
-# 3. Boot Maintenance Manager => Boot Options => Delete Boot Option => Delete all apart from UEFI PXEv4
-# 4. reset => Turn off rpi and put SDCARD back in laptop
+# 3. Device Manager => Raspberry Pi Configuration => Display Configuration => Only select Virtual 800x600
+# 4. Boot Maintenance Manager => Boot Options => Delete Boot Option => Delete all apart from UEFI PXEv4
+# 5. reset => Turn off rpi and put SDCARD back in laptop
 
 # Extract `RPI_EFI.fd` from the SDCARD and store it in `raspberrypi4-uefi/serials/<device serial>/RPI_EFI.fd
 ```bash
