@@ -31,10 +31,9 @@ add name="arch-rpi4-pxeclient" code=60 value="PXEClient:Arch:00000:UNDI:002001" 
 
 Now we install Sidero dal-k8s-mgmt-1:
 ```bash
-export SIDERO_CONTROLLER_MANAGER_HOST_NETWORK=true
 export SIDERO_CONTROLLER_MANAGER_AUTO_BMC_SETUP=false
-export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.150"
-export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.150"
+export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.140"
+export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.140"
 
 clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
 
@@ -75,7 +74,26 @@ sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   4/4     Running   9
 ...
 ```
 
+Sidero is now running, but it's isolated to inside the cluster, we now need to expose it via a k8s Service and MetalLB!
+
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f patches/dal-k8s-mgmt-1-sidero-service.yaml
+service/sidero-controller-manager created
+```
+
 Now dal-k8s-mgmt-1 is a Sidero management cluster, able to support PXE booting!
+
+You can verify this by attemping to download the ipxe file directly from Sidero.
+
+```bash
+% curl -I http://192.168.77.130:8081/tftp/ipxe-arm64.efi
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Length: 1029632
+Content-Type: application/octet-stream
+Last-Modified: Sat, 17 Dec 2022 03:29:30 GMT
+Date: Sun, 18 Dec 2022 05:47:09 GMT
+```
 
 You should now be able to at least get an rpi4 able to attempt to network boot from Sidero now (it won't work properly until you do the below, but you should see logs in the sidero-controller-manager pod)
 
