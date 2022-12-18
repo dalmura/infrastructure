@@ -35,7 +35,7 @@ export SIDERO_CONTROLLER_MANAGER_AUTO_BMC_SETUP=false
 export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.140"
 export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.140"
 
-clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
+% clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
 
 # You'll see the following logs
 Fetching providers
@@ -56,17 +56,17 @@ You can now create your first workload cluster by running the following:
 
 Wait until you see the `sidero-controller-manager` pods come up
 ```bash
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
 NAMESPACE       NAME                                         READY   STATUS              RESTARTS      AGE
 ...
 sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   0/4     ContainerCreating   0             51s
 ...
 
-# You'll notice the k8s API Server stop responding
+# You'll notice the k8s API Server stop responding around this time
 # This is some of the talos static pods inc the kube-apiserver being updated
 # It will cause a few pods to restart... just wait a minute!
 
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
 NAMESPACE       NAME                                         READY   STATUS    RESTARTS      AGE
 ...
 sidero-system   caps-controller-manager-fd48bf9b4-xvsqm      1/1     Running   3 (43s ago)   2m24s
@@ -86,7 +86,7 @@ Now dal-k8s-mgmt-1 is a Sidero management cluster, able to support PXE booting!
 You can verify this by attemping to download the ipxe file directly from Sidero.
 
 ```bash
-% curl -I http://192.168.77.130:8081/tftp/ipxe-arm64.efi
+% curl -I http://192.168.77.140:8081/tftp/ipxe-arm64.efi
 HTTP/1.1 200 OK
 Accept-Ranges: bytes
 Content-Length: 1029632
@@ -98,7 +98,7 @@ Date: Sun, 18 Dec 2022 05:47:09 GMT
 You should now be able to at least get an rpi4 able to attempt to network boot from Sidero now (it won't work properly until you do the below, but you should see logs in the sidero-controller-manager pod)
 
 ```bash
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 logs -f sidero-controller-manager-5d6754fcfb-drv4h -n sidero-system
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 logs -f sidero-controller-manager-5d6754fcfb-drv4h -n sidero-system
 Defaulted container "manager" out of: manager, siderolink, serverlogs, serverevents
 1.6707336924300556e+09	INFO	controller-runtime.metrics	Metrics server is starting to listen	{"addr": "127.0.0.1:8080"}
 1.6707336924350235e+09	INFO	setup	starting TFTP server
@@ -133,27 +133,27 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 
 ```
 # Before building the pkgs image, ensure your laptop/pc is setup
-docker buildx create --use
+% docker buildx create --use
 
 # Ensure this works for your Personal Access Token with packages:write
-CR_PAT='mySecretToken'
-echo $CR_PAT | docker login ghcr.io -u <github username> --password-stdin
+% CR_PAT='mySecretToken'
+% echo $CR_PAT | docker login ghcr.io -u <github username> --password-stdin
 
 # Clone the pkgs repo
-git clone git@github.com:siderolabs/pkgs.git siderolabs-pkgs
-cd siderolabs-pkgs
+% git clone git@github.com:siderolabs/pkgs.git siderolabs-pkgs
+% cd siderolabs-pkgs
 
 # Find the commit of the talos version we'll boot
 # Go to https://github.com/siderolabs/talos/blob/v1.3.0/Makefile#L17
 # Find: PKGS ?= v1.3.0-5-g6509d23
 # Commit ID is '6509d23'
-git checkout 6509d23
+% git checkout 6509d23
 
 # The below is largely following the guide linked above
-mkdir raspberrypi4-uefi
-mkdir raspberrypi4-uefi/serials
+% mkdir raspberrypi4-uefi
+% mkdir raspberrypi4-uefi/serials
 
-vim raspberrypi4-uefi/pkg.yaml
+% vim raspberrypi4-uefi/pkg.yaml
 # Copy in the contents from the linked guide with the following changes
 # url: https://github.com/pftf/RPi4/releases/download/v1.34/RPi4_UEFI_Firmware_v1.34.zip
 # destination: RPi4_UEFI_Firmware.zip
@@ -170,16 +170,16 @@ vim raspberrypi4-uefi/pkg.yaml
 
 # Extract `RPI_EFI.fd` from the SDCARD and store it in `raspberrypi4-uefi/serials/<device serial>/RPI_EFI.fd
 ```bash
-mkdir raspberrypi4-uefi/serials/09b92bda/
-cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
+% mkdir raspberrypi4-uefi/serials/09b92bda/
+% cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
 ```
 
 # Build the pkgs image and push to our ghcr org
 # This step fails if you're on a different architecture and you've not done the 'buildx' above
-make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
+% make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
 
 # Will be available at
-docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
+% docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
 ```
 
 Build the sidero patch
@@ -214,21 +214,20 @@ This is available in `patches/dal-k8s-mgmt-1-sidero.yaml`
 
 # Apply patch to existing Sidero install:
 ```
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero.yaml
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero.yaml
 deployment.apps/sidero-controller-manager patched
 ```
 
 Because it's host networking you'll need to delete the existing one
 ```
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
 NAMESPACE       NAME                                         READY   STATUS    RESTARTS      AGE
 ...
 sidero-system   sidero-controller-manager-5d6754fcfb-rrzlr   4/4     Running   9 (34h ago)   34h
 sidero-system   sidero-controller-manager-cf7bb88db-ksmwb    0/4     Pending   0             2m48s
 ...
 
-
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe pod sidero-controller-manager-cf7bb88db-ksmwb -n sidero-system
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe pod sidero-controller-manager-cf7bb88db-ksmwb -n sidero-system
 ....
 Events:
   Type     Reason            Age   From               Message
@@ -236,10 +235,10 @@ Events:
   Warning  FailedScheduling  3m3s  default-scheduler  0/1 nodes are available: 1 node(s) didn't have free ports for the requested pod ports. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.
 
 
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-manager-5d6754fcfb-rrzlr -n sidero-system
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 delete pod sidero-controller-manager-5d6754fcfb-rrzlr -n sidero-system
 pod "sidero-controller-manager-5d6754fcfb-rrzlr" deleted
 
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A
 ...
 sidero-system   sidero-controller-manager-cf7bb88db-ksmwb   4/4     Running   0             83s
 ...
