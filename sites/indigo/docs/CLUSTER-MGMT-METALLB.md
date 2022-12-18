@@ -15,7 +15,7 @@ version.BuildInfo{Version:"v3.10.3", GitCommit:"835b7334cfe2e5e27870ab3ed4135f13
 
 # Create the namespace with our extra PodSecurity labels
 # Helm can do this automatically but we need a few custom labels, so do this separately
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 create -f patches/dal-k8s-mgmt-1-metallb-namespace.yaml
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f patches/dal-k8s-mgmt-1-metallb-namespace.yaml
 namespace/metallb-system created
 
 % helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 --namespace metallb-system install metallb metallb/metallb
@@ -46,7 +46,7 @@ We need to now 'configure' MetalLB by creating a few new resources in k8s for ou
 We configure these for the 2x VLANs that this cluster listens on: `SERVERS` and `SERVERS_STAGING`
 
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 create -f patches/dal-k8s-mgmt-1-metallb-config.yaml
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f patches/dal-k8s-mgmt-1-metallb-config.yaml
 ipaddresspool.metallb.io/servers-vlan created
 l2advertisement.metallb.io/servers-vlan created
 ipaddresspool.metallb.io/servers-staging-vlan created
