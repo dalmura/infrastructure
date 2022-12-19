@@ -224,3 +224,12 @@ This will allow the rpi4 to:
 * Recieve information from the DHCP server about where to boot from
 * Download & boot the PXEClient from our Sidero server
 * Use the PXEClient and attempt to boot the Sidero agent
+
+To double check it's all working, when the node successfully downloads the Sidero agent and reboots you should be able to see the new Server via:
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers -o wide
+NAME                                   HOSTNAME         BMC IP   ACCEPTED   CORDONED   ALLOCATED   CLEAN   POWER   AGE
+00d03115-0000-0000-0000-e45f019d4e19   192.168.77.157            false                                     on      52m
+```
+
+You can now start creating workload clusters!
