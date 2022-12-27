@@ -1,0 +1,46 @@
+---
+apiVersion: metal.sidero.dev/v1alpha1
+kind: ServerClass
+metadata:
+  name: rpi4.4gb.arm
+spec:
+  qualifiers:
+    systemInformation:
+      - productName: Raspberry Pi 4 Model B
+        version: C03111 # 4B  1.1
+      - productName: Raspberry Pi 4 Model B
+        version: C03112 # 4B  1.2
+      - productName: Raspberry Pi 4 Model B
+        version: C03114 # 4B  1.4
+      - productName: Raspberry Pi 4 Model B
+        version: C03115 # 4B  1.5
+      - productName: Raspberry Pi 4 Model B
+        version: C03140 # CM4 1.0
+  environmentRef:
+    name: rpi-arm64
+  configPatches:
+    - op: replace
+      path: /machine/install/disk
+      value: /dev/mmcblk0
+  bootFromDiskMethod: ipxe-sanboot
+---
+apiVersion: metal.sidero.dev/v1alpha1
+kind: ServerClass
+metadata:
+  name: rpi4.8gb.arm
+spec:
+  qualifiers:
+    systemInformation:
+      - productName: Raspberry Pi 4 Model B
+        version: D03114 # 4B  1.4
+      - productName: Raspberry Pi 4 Model B
+        version: D03115 # 4B  1.5
+      - productName: Raspberry Pi 4 Model B
+        version: D03140 # CM4 1.0
+  environmentRef:
+    name: rpi-arm64
+  configPatches:
+    - op: replace
+      path: /machine/install/disk
+      value: /dev/mmcblk0
+  bootFromDiskMethod: ipxe-sanboot

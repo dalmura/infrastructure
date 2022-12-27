@@ -1,0 +1,28 @@
+---
+apiVersion: metal.sidero.dev/v1alpha1
+kind: Environment
+metadata:
+  name: rpi-arm64
+  namespace: sidero
+spec:
+  kernel:
+    url: https://github.com/siderolabs/talos/releases/download/v1.3.0/vmlinuz-arm64
+    args:
+      - talos.platform=metal
+      - console=tty0
+      - console=ttyAMA0,115200
+      - init_on_alloc=1
+      - slab_nomerge=
+      - pti=on
+      - consoleblank=0
+      - nvme_core.io_timeout=4294967295
+      - printk.devkmsg=on
+      - ima_template=ima-ng
+      - ima_appraise=fix
+      - ima_hash=sha512
+      - talos.board=rpi_generic
+      - sysctl.kernel.kexec_load_disabled=1
+      - earlyprintk=ttyAMA0,115200
+      - random.trust_cpu=on
+  initrd:
+    url: https://github.com/siderolabs/talos/releases/download/v1.3.0/initramfs-arm64.xz
