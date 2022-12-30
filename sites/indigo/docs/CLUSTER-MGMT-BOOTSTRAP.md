@@ -199,21 +199,20 @@ You now have a basic k8s cluster running with:
 
 # Upgrading
 
-Going from v1.2.6 => v.1.2.7
+Going from v1.3.0 => v.1.3.1
 ```
 # --preserve=true is required for a single node cluster
 # Otherwise the node is wiped and rejoins the cluster
+talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig upgrade --nodes 192.168.77.20 --image ghcr.io/siderolabs/installer:v1.3.1 --preserve=true
 
-talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig upgrade --nodes 192.168.77.20 --image ghcr.io/siderolabs/installer:v1.2.7 --preserve=true
-NODE            ACK                        STARTED
-192.168.77.20   Upgrade request received   2022-11-26 19:22:45.079607 +1100 AEDT m=+56.434870596
+# By default the upgrade process with talosctl will block and wait until it's done
+# Eventually assuming all goes well you'll see
+watching nodes: [192.168.77.20]
+    * 192.168.77.20: post check passed
 
-# Can use DMESG to keep an eye on progress/etc
+# You can use DMESG to keep an eye on progress/etc
 # Wait for the reboot and when the node's back
 
-talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig apply-config -n 192.168.77.20 -f nodes/dal-k8s-mgmt-1-rpi4-1.yaml
-Applied configuration without a reboot
-
-# There's a possible kubelet bug w/Talos's static pods where you need to restart kubelet after a reboot
+# There's a possible kubelet bug w/Talos's static pods where you need to restart kubelet after a reboot (pods like the API Server won't actually be running)
 talosctl --talosconfig templates/dal-k8s-mgmt-1/talosconfig -n 192.168.77.20 services kubelet restart
 ```
