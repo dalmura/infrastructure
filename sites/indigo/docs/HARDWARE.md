@@ -1,8 +1,8 @@
 # Hardware
 
 In order to bootstrap the Indigo site you will need:
-* 6x rpi4.4gb.arm
-* 3x rpi4.8gb.arm
+* 6x rpi4.4gb.arm64
+* 3x rpi4.8gb.arm64
 * 3x dell.r320.amd64
 
 Standard accessories assumed included for all Raspberry Pi's are:
@@ -29,7 +29,7 @@ We are assuming you have separately:
 This will form 2x k8s clusters:
 | Cluster                          | Role          | Hardware        | Quantity |
 |----------------------------------|---------------|-----------------|----------|
-| dal-k8s-mgmt-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm    |        3 |
-| dal-k8s-core-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm    |        3 |
-| dal-k8s-core-1.indigo.dalmura.au | Workers       | rpi4.8gb.arm    |        3 |
+| dal-k8s-mgmt-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm64  |        3 |
+| dal-k8s-core-1.indigo.dalmura.au | Control Plane | rpi4.4gb.arm64  |        3 |
+| dal-k8s-core-1.indigo.dalmura.au | Workers       | rpi4.8gb.arm64  |        3 |
 | dal-k8s-core-1.indigo.dalmura.au | Workers       | dell.r320.amd64 |        3 |

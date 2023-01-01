@@ -16,7 +16,7 @@ accepted: true
 First before onboarding anything, we need to figure out `ServerClasses`. These are groupings of server hardware that are of a common spec.
 
 A few examples of these are:
-* `rpi4.4gb.arm`, `rpi4.8gb.arm`, `dell.r320.amd64` are examples of ServerClasses that target specific hardwre
+* `rpi4.4gb.arm64`, `rpi4.8gb.arm64`, `dell.r320.amd64` are examples of ServerClasses that target specific hardwre
 * `t4.small`, `m5.xlarge`, `r6a.6xlarge` are examples of ServerClasses that are more generic
 
 In order for a Server to match to a ServerClass it needs to have a common attribute in the ServerClass' `qualifiers` and `selectors`.
@@ -43,7 +43,7 @@ This would allow us to build a ServerClass with the following `qualifiers` to ma
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
 metadata:
-  name: rpi4.8gb.arm
+  name: rpi4.8gb.arm64
 spec:
   qualifiers:
     systemInformation:
@@ -86,7 +86,7 @@ The Environment is set from the ServerClass so expanding on the above example:
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
 metadata:
-  name: rpi4.8gb.arm
+  name: rpi4.8gb.arm64
 spec:
   qualifiers:
     systemInformation:
@@ -102,6 +102,6 @@ spec:
 environment.metal.sidero.dev/rpi-arm64 created
 
 % kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/serverclasses.yaml
-serverclass.metal.sidero.dev/rpi4.4gb.arm created
-serverclass.metal.sidero.dev/rpi4.8gb.arm created
+serverclass.metal.sidero.dev/rpi4.4gb.arm64 created
+serverclass.metal.sidero.dev/rpi4.8gb.arm64 created
 ```

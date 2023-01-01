@@ -11,7 +11,7 @@ Double check the [compatibility of Sidero and Talos](https://github.com/siderola
 
 Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
 
-Boot the 3x rpi4.4gb.arm nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
+Boot the 3x rpi4.4gb.arm64 nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
 RPI4_1_IP=192.168.77.150
 RPI4_2_IP=192.168.77.151
@@ -190,7 +190,7 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get nodes
 ```
 
 You now have a basic k8s cluster running with:
-* 3x rpi4.4gb.arm control plane nodes
+* 3x rpi4.4gb.arm64 control plane nodes
 * Able to schedule workloads on them
 * Floating VIPs for easy k8s control plane access
   * 192.168.77.2 on the SERVERS VLAN

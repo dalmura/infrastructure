@@ -2,7 +2,7 @@
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
 metadata:
-  name: rpi4.4gb.arm
+  name: rpi4.4gb.arm64
 spec:
   qualifiers:
     systemInformation:
@@ -27,7 +27,7 @@ spec:
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
 metadata:
-  name: rpi4.8gb.arm
+  name: rpi4.8gb.arm64
 spec:
   qualifiers:
     systemInformation:
