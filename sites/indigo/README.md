@@ -19,5 +19,7 @@ We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 
 * [`Site hardware`](docs/HARDWARE.md)
 * [`Setup dal-k8s-mgmt-1 cluster`](docs/CLUSTER-MGMT-BOOTSTRAP.md)
-* [`Configure dal-k8s-mgmt-1 with MetalLB](docs/CLUSTER-MGMT-METALLB.md)
+* [`Configure dal-k8s-mgmt-1 with MetalLB`](docs/CLUSTER-MGMT-METALLB.md)
 * [`Configure dal-k8s-mgmt-1 for RPi4's`](docs/CLUSTER-MGMT-SIDERO.md)
+* [`Configure dal-k8s-mgmt-1 Sidero`](docs/CLUSTER-MGMT-SIDERO-CONFIGURE.md)
+* [`Setup dal-k8s-core-1`](docs/CLUSTER-CORE-BOOTSTRAP.md)
