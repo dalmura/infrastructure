@@ -1,0 +1,48 @@
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+kind: TalosConfigTemplate
+metadata:
+  name: dal-k8s-core-1-worker-pool-rpi4-8gb-arm64
+  namespace: sidero-system
+spec:
+  template:
+    spec:
+      generateType: join
+      talosVersion: v1.3.1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+kind: MetalMachineTemplate
+metadata:
+  name: dal-k8s-core-1-worker-pool-rpi4-8gb-arm64
+  namespace: sidero-system
+spec:
+  template:
+    spec:
+      serverClassRef:
+        apiVersion: metal.sidero.dev/v1alpha1
+        kind: ServerClass
+        name: rpi4.8gb.arm64
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: dal-k8s-core-1-worker-pool-rpi4-8gb-arm64
+  namespace: sidero-system
+spec:
+  clusterName: dal-k8s-core-1
+  replicas: 0
+  selector:
+    matchLabels: null
+  template:
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+          kind: TalosConfigTemplate
+          name: dal-k8s-core-1-worker-pool-rpi4-8gb-arm64
+      clusterName: dal-k8s-core-1
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3
+        kind: MetalMachineTemplate
+        name: dal-k8s-core-1-worker-pool-rpi4-8gb-arm64
+      version: v1.26.0
