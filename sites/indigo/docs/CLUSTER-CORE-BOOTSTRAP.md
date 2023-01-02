@@ -2,6 +2,10 @@
 
 After configuring Sidero with our Server Classes and Environment, we're ready to create dal-k8s-core-1
 
+To do this you'll have to have onboarded:
+* 3x rpi4.4gb.arm64 for the Control Plane
+* 3x rpi4.8gb.arm64 for Worker Pool #1
+
 ## Create the cluster in Sidero
 
 ```bash
@@ -11,7 +15,7 @@ export CONTROL_PLANE_SERVERCLASS=rpi4.4gb.arm64
 # Temporary until we have rpi4.4gb.arm64 in stock
 export CONTROL_PLANE_SERVERCLASS=rpi4.8gb.arm64
 export WORKER_SERVERCLASS=rpi4.8gb.arm64
-export TALOS_VERSION=v1.3.0
+export TALOS_VERSION=v1.3.1
 export KUBERNETES_VERSION=v1.26.0
 export CONTROL_PLANE_PORT=6443
 export CONTROL_PLANE_ENDPOINT=192.168.77.3
