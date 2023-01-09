@@ -2,9 +2,6 @@
   path: /cluster/allowSchedulingOnControlPlanes
   value: true
 - op: replace
-  path: /machine/install/disk
-  value: /dev/mmcblk0
-- op: replace
   path: /machine/network
   value:
     interfaces:
