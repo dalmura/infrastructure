@@ -2,14 +2,26 @@
 
 ## Form the k8s cluster
 Have kubectl, clusterctl and talosctl installed:
-  * As of the time of writing (2022-12-17) this is
+  * As of the time of writing (2023-01-09) this is
   * kubernetes v1.26
-  * clusterapi v1.3.1
+  * clusterapi v1.3
   * talos v1.3
 
 Double check the [compatibility of Sidero and Talos](https://github.com/siderolabs/sidero#compatibility-with-cluster-api-and-kubernetes-versions) and ensure you choose the [latest Sidero](https://github.com/siderolabs/sidero/releases/latest) and the [latest supported Talos](https://github.com/siderolabs/talos/releases). At the time of writing Sidero v0.5 supports Talos v1.3.
 
-Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and burn it onto 3x SD cards.
+Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and `dd` it onto the SSD's via another machine:
+```bash
+# Download and unzip
+wget https://github.com/siderolabs/talos/releases/download/v1.3.1/metal-rpi_generic-arm64.img.xz
+xz -d metal-rpi_generic-arm64.img.xz
+
+# Find the SSD /dev/sdX and dd, for example /dev/sdb would be
+sudo lsblk
+sudo dd if=metal-rpi_generic-arm64.img of=/dev/sdb
+
+# Ensure no pending disk writes
+flush
+```
 
 Boot the 3x rpi4.4gb.arm64 nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
@@ -32,7 +44,6 @@ talosctl gen config \
 
 `patches/dal-k8s-mgmt-1-controlplane.yaml` contains the following tweaks:
 * Allow scheduling regular pods on Control Plane nodes
-* Changes the disk install to /dev/mmcblk0 (SD Card for rpi's)
 * Configures the networking to move the node into the static ranges (off DHCP)
 
 `--output-types controlplane,talosconfig` skips generating a worker config as this cluster is control plane only!
@@ -40,48 +51,33 @@ talosctl gen config \
 You will now need to 'hydrate' these files to be per-server:
 ```bash
 mkdir nodes
-cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-1.yaml
-cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-2.yaml
-cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-rpi4-3.yaml
+cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-cp-1.yaml
+cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-cp-2.yaml
+cp templates/dal-k8s-mgmt-1/controlplane.yaml nodes/dal-k8s-mgmt-1-cp-3.yaml
 ```
 
 Get the MAC Address of eth0:
 ```bash
 # YAML
 talosctl get links --insecure --nodes 192.168.77.150 --output yaml | yq 'select(.metadata.id == "eth0").spec.hardwareAddr'
-e4:5f:01:9d:4c:a8
+e4:5f:01:9d:4d:95
 
 # JSON
 talosctl get links --insecure --nodes 192.168.77.150 --output json | jq -r 'select(.metadata.id == "eth0").spec.hardwareAddr'
-e4:5f:01:9d:4c:a8
+e4:5f:01:9d:4d:95
 
 # The above would translate into the following device selector:
 machine:
   network:
     interfaces:
       - deviceSelector:
-          hardwareAddr: e4:5f:01:9d:4c:a8
-          driver: bcmgenet  # rpi specific
-```
-
-Gather the disk info:
-```bash
-$ talosctl disks --insecure --nodes 192.168.77.150
-DEV            MODEL              SERIAL       TYPE   UUID   WWID   MODALIAS      NAME    SIZE     BUS_PATH
-/dev/mmcblk0   -                  0x7420dc5b   SD     -      -      -             SM32G   32 GB    /platform/emmc2bus/fe340000.mmc/mmc_host/mmc0/mmc0:aaaa/
-/dev/sda       SSD 870 EVO 250G   -            SSD    -      -      scsi:t-0x00   -       250 GB   /platform/scb/fd500000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0/usb4/4-2/4-2:1.0/host0/target0:0:0/0:0:0:0/
-
-# The above would translate into the following if you wanted to install onto the SSD
-machine:
-  install:
-    diskSelector:
-      model: SSD 870 EVO 250G
+          hardwareAddr: e4:5f:01:9d:4d:95
+          driver: bcmgenet  # <- rpi specific
 ```
 
 Within each file you will need to make the following changes:
 * Replace `NODE_INTERFACE_MAC` with this nodes eth0 MAC address (ensure it's lowercase)
-* Replace `NODE_STATIC_IP` with this nodes eth0 IP address (preserve the CIDR prefix)
-* Replace `machine.install.disk`'s value with a diskSelector populated from above if you have an SSD/etc
+* Replace `NODE_SERVERS_STATIC_IP` with this nodes eth0 IP address (preserve the CIDR prefix)
 
 Some quick commands to replace some of the above:
 ```bash
@@ -121,7 +117,7 @@ Now we will provision a single node and bootstrap it to form a cluster, after th
 
 Apply the config for the first node:
 ```bash
-talosctl apply-config --insecure -n 192.168.77.150 -f nodes/dal-k8s-mgmt-1-rpi4-1.yaml
+talosctl apply-config --insecure -n 192.168.77.150 -f nodes/dal-k8s-mgmt-1-cp-1.yaml
 ```
 
 Update your local device with the new credentials to talk to the cluster:
