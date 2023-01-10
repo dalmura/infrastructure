@@ -1,17 +1,5 @@
 # Configuring Sidero to onboard new Servers
 
-## Servers
-There is a unique instance for every piece of hardware that Sidero has booted and knows about.
-
-These first need to be 'accepted' before they are able to be allocated to clusters.
-
-```bash
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 edit server 00d03115-0000-0000-0000-e45f019d4e19
-
-# Update
-accepted: true
-```
-
 ## Server Classes
 First before onboarding anything, we need to figure out `ServerClasses`. These are groupings of server hardware that are of a common spec.
 
@@ -104,4 +92,16 @@ environment.metal.sidero.dev/rpi-arm64 created
 % kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/serverclasses.yaml
 serverclass.metal.sidero.dev/rpi4.4gb.arm64 created
 serverclass.metal.sidero.dev/rpi4.8gb.arm64 created
+```
+
+## Servers
+There is a unique instance for every piece of hardware that Sidero has booted and knows about.
+
+These first need to be 'accepted' before they are able to be allocated to clusters.
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 edit server 00d03115-0000-0000-0000-e45f019d4e19
+
+# Update
+accepted: true
 ```

@@ -36,8 +36,6 @@ export SIDERO_CONTROLLER_MANAGER_API_ENDPOINT="192.168.77.140"
 export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.140"
 
 % clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
-
-# You'll see the following logs
 Fetching providers
 Installing cert-manager Version="v1.10.1"
 Waiting for cert-manager to be available...
@@ -131,7 +129,7 @@ RPi4's are special in that they have a fixed 'folder structure' they attempt to 
 
 You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/guides/rpi4-as-servers/#uefi--rpi4) which should result in a `RPI_EFI.fd` file (binary) that you'll be able to copy into your below image.
 
-```
+```bash
 # Before building the pkgs image, ensure your laptop/pc is setup
 % docker buildx create --use
 
@@ -144,10 +142,10 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 % cd siderolabs-pkgs
 
 # Find the commit of the talos version we'll boot
-# Go to https://github.com/siderolabs/talos/blob/v1.3.0/Makefile#L17
-# Find: PKGS ?= v1.3.0-5-g6509d23
-# Commit ID is '6509d23'
-% git checkout 6509d23
+# Go to https://github.com/siderolabs/talos/blob/v1.3.1/Makefile#L17
+# Find: PKGS ?= v1.3.0-7-g9931288
+# Commit ID is '9931288'
+% git checkout 9931288
 
 # The below is largely following the guide linked above
 % mkdir raspberrypi4-uefi
@@ -160,7 +158,7 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 # sha256: ff4f5ce208f49f50e38e9517430678f3b6a10327d3fd5ce4ce434f74d08d5b76
 # sha512: f095d6419066e9042f71716865ea495991a4cc4d149ecb514348f397ae2c617de481aead6e507b7dcec018864c6f941b020903c167984accf25bf261010385f7
 
-# Burn RPi4_UEFI_Firmware.zip to an SD Card and boot the rpi4(s) you plan to use as nodes for DAL-CORE-1 cluster
+# Burn RPi4_UEFI_Firmware.zip to an SD Card and boot the rpi4(s) you plan to use as nodes for dal-k8s-core-1 cluster
 # Get to the main main and:
 # 1. Device Manager => Raspberry Pi Configuration => Advanced Configuration => Limit RAM to 3 GB => Disabled
 # 2. Device Manager => Raspberry Pi Configuration => CPU Configuration => Max
@@ -169,20 +167,18 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 # 5. reset => Turn off rpi and put SDCARD back in laptop
 
 # Extract `RPI_EFI.fd` from the SDCARD and store it in `raspberrypi4-uefi/serials/<device serial>/RPI_EFI.fd
-```bash
-% mkdir raspberrypi4-uefi/serials/09b92bda/
-% cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
-```
+mkdir raspberrypi4-uefi/serials/09b92bda/
+cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
 
 # Build the pkgs image and push to our ghcr org
 # This step fails if you're on a different architecture and you've not done the 'buildx' above
-% make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
+make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
 
 # Will be available at
-% docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
+docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-7-g9931288
 ```
 
-Build the sidero patch
+Update the patch `patches/dal-k8s-mgmt-1-sidero.yaml` with the latest image tag from above:
 ```
 spec:
   template:
@@ -191,7 +187,7 @@ spec:
         - name: tftp-folder
           emptyDir: {}
       initContainers:
-      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-5-g6509d23
+      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-7-g9931288
         imagePullPolicy: Always
         name: tftp-folder-setup
         command:
@@ -210,11 +206,9 @@ spec:
             name: tftp-folder
 ```
 
-This is available in `patches/dal-k8s-mgmt-1-sidero.yaml`
-
 # Apply patch to existing Sidero install:
 ```
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero-rpi4.yaml
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero-rpi4.yaml
 deployment.apps/sidero-controller-manager patched
 ```
 
@@ -227,7 +221,7 @@ This will allow the rpi4 to:
 
 To double check it's all working, when the node successfully downloads the Sidero agent and reboots you should be able to see the new Server via:
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers -o wide
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers -o wide
 NAME                                   HOSTNAME         BMC IP   ACCEPTED   CORDONED   ALLOCATED   CLEAN   POWER   AGE
 00d03115-0000-0000-0000-e45f019d4e19   192.168.77.157            false                                     on      52m
 ```
