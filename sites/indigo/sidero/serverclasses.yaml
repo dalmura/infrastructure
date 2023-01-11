@@ -21,7 +21,7 @@ spec:
   configPatches:
     - op: replace
       path: /machine/install/disk
-      value: /dev/mmcblk0
+      value: /dev/sda
   bootFromDiskMethod: ipxe-sanboot
 ---
 apiVersion: metal.sidero.dev/v1alpha1
@@ -42,5 +42,5 @@ spec:
   configPatches:
     - op: replace
       path: /machine/install/disk
-      value: /dev/mmcblk0
+      value: /dev/sda
   bootFromDiskMethod: ipxe-sanboot
