@@ -99,9 +99,52 @@ There is a unique instance for every piece of hardware that Sidero has booted an
 
 These first need to be 'accepted' before they are able to be allocated to clusters.
 
-```bash
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 edit server 00d03115-0000-0000-0000-e45f019d4e19
+We also at this stage label the servers with any additional metadata. To do this we save the servers state out to the git repo and keep track of it there.
 
-# Update
-accepted: true
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers -o wide
+NAME                                   HOSTNAME         BMC IP   ACCEPTED   CORDONED   ALLOCATED   CLEAN   POWER   AGE
+00d03115-0000-0000-0000-e45f019d4ca8   192.168.77.151            true                              true    on      20h
+00d03115-0000-0000-0000-e45f019d4e19   192.168.77.152            true                              true    on      19h
+
+
+# We can then save individual servers to files
+mkdir sidero/servers/
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get server 00d03115-0000-0000-0000-e45f019d4ca8 -o yaml > sidero/servers/00d03115-0000-0000-0000-e45f019d4ca8.yaml
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get server 00d03115-0000-0000-0000-e45f019d4e19 -o yaml > sidero/servers/00d03115-0000-0000-0000-e45f019d4e19.yaml
+```
+
+From there you'll want to prune down the files to just contain the below bits that we want to change.
+
+Accept the server so Sidero will wipe and make it available for allocation:
+```yaml
+spec:
+  accepted: true
+```
+
+Apply any labels base on, eg. region, zone, etc
+```yaml
+metadata:
+  labels:
+    region: au-mel
+    zone: indigo
+```
+
+This will result in a file looking roughly like this:
+```yaml
+metadata:
+  labels:
+    region: au-mel
+    zone: indigo
+spec:
+  accepted: true
+```
+
+These can the be patched back to the Server:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 patch server 00d03115-0000-0000-0000-e45f019d4ca8 --patch-file sidero/servers/00d03115-0000-0000-0000-e45f019d4ca8.yaml --type merge
+server.metal.sidero.dev/00d03115-0000-0000-0000-e45f019d4ca8 patched
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 patch server 00d03115-0000-0000-0000-e45f019d4e19 --patch-file sidero/servers/00d03115-0000-0000-0000-e45f019d4e19.yaml --type merge
+server.metal.sidero.dev/00d03115-0000-0000-0000-e45f019d4e19 patched
 ```
