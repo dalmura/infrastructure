@@ -52,7 +52,52 @@ metadata:
 spec:
   controlPlaneConfig:
     controlplane:
+      configPatches:
+        - op: add
+          path: /machine/network
+          value:
+            interfaces:
+            - interface: eth0
+              vlans:
+                - dhcp: true
+                  dhcpOptions:
+                    routeMetric: 2048
+                  vlanId: 103
+                  vip:
+                    ip: 192.168.77.3
+              dhcp: true
+              dhcpOptions:
+                routeMetric: 1024
+              vip:
+                ip: 192.168.77.131
+            nameservers:
+              - 192.168.77.129
+              - 192.168.77.1
       generateType: controlplane
+      talosVersion: v1.3.1
+    init:
+      configPatches:
+        - op: add
+          path: /machine/network
+          value:
+            interfaces:
+            - interface: eth0
+              vlans:
+                - dhcp: true
+                  dhcpOptions:
+                    routeMetric: 2048
+                  vlanId: 103
+                  vip:
+                    ip: 192.168.77.3
+              dhcp: true
+              dhcpOptions:
+                routeMetric: 1024
+              vip:
+                ip: 192.168.77.131
+            nameservers:
+              - 192.168.77.129
+              - 192.168.77.1
+      generateType: init
       talosVersion: v1.3.1
   infrastructureTemplate:
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha3

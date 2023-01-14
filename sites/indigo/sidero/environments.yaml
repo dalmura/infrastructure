@@ -3,7 +3,6 @@ apiVersion: metal.sidero.dev/v1alpha1
 kind: Environment
 metadata:
   name: rpi-arm64
-  namespace: sidero
 spec:
   kernel:
     url: https://github.com/siderolabs/talos/releases/download/v1.3.0/vmlinuz-arm64

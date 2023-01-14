@@ -35,13 +35,13 @@ metadata:
 spec:
   qualifiers:
     systemInformation:
-      - version: D03115
-  bootFromDiskMethod: ipxe-sanboot
+      - productName: Raspberry Pi 4 Model B
+        version: D03115
 ```
 
 Unfortunately we cannot differentiate between 4GB RAM models and 8GB RAM models easily in Sidero v0.5 due to lack of comprehensive attributes exposed, but that will change with v0.6 having a lot more attributes available.
 
-We use the `version` key above and build a list of all 8GB versions, then another `ServerClass` with a list of 4GB versions, but it'd be weird if some other manufacturer started populating a similar `Version` field for another product entirely...
+We use the `productName` above to ensure our `version` list is correct, to avoid if another manufacturer decided to use the name `version` value(s). We end up having 2x ServerClasses with 8gb and 4gb versions.
 
 ## Environments
 Determine the kernel args that are send to the device, which version of Talos to boot and the kernel args sent to it, architecture specific.
@@ -55,7 +55,6 @@ apiVersion: metal.sidero.dev/v1alpha1
 kind: Environment
 metadata:
   name: rpi-arm64
-  namespace: sidero
 spec:
   kernel:
     url: https://github.com/siderolabs/talos/releases/download/v1.3.0/vmlinuz-arm64
@@ -78,8 +77,8 @@ metadata:
 spec:
   qualifiers:
     systemInformation:
-      - version: D03115
-  bootFromDiskMethod: ipxe-sanboot
+      - productName: Raspberry Pi 4 Model B
+        version: D03115
   environmentRef:
     name: rpi-arm64
 ```
@@ -128,6 +127,7 @@ metadata:
   labels:
     region: au-mel
     zone: indigo
+    serial: abc123abc132
 ```
 
 This will result in a file looking roughly like this:
@@ -136,6 +136,7 @@ metadata:
   labels:
     region: au-mel
     zone: indigo
+    serial: abc123abc132
 spec:
   accepted: true
 ```
@@ -148,3 +149,16 @@ server.metal.sidero.dev/00d03115-0000-0000-0000-e45f019d4ca8 patched
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 patch server 00d03115-0000-0000-0000-e45f019d4e19 --patch-file sidero/servers/00d03115-0000-0000-0000-e45f019d4e19.yaml --type merge
 server.metal.sidero.dev/00d03115-0000-0000-0000-e45f019d4e19 patched
 ```
+
+You can validate the Servers have been correctly grouped by ServerClass:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get serverclasses
+NAME             AVAILABLE                                                                         IN USE   AGE
+any              ["00d03115-0000-0000-0000-e45f019d4ca8","00d03115-0000-0000-0000-e45f019d4e19"]   []       2d
+rpi4.4gb.arm64   []                                                                                []       45h
+rpi4.8gb.arm64   ["00d03115-0000-0000-0000-e45f019d4ca8","00d03115-0000-0000-0000-e45f019d4e19"]   []       45h
+```
+
+Here we can see there is 2x `AVAILABLE` Servers both matching the `rpi4.8gb.arm64` ServerClass.
+
+You now have one or more servers available to use in creating new k8s clusters!

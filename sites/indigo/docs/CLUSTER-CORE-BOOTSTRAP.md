@@ -1,10 +1,21 @@
 # Creating workload cluster dal-k8s-core-1
 
-After configuring Sidero with our Server Classes and Environment, we're ready to create dal-k8s-core-1
+After configuring Sidero with:
+* Server Classes and Environments
+* Servers
+
+We're ready to create dal-k8s-core-1 and allocate the Servers
 
 To do this you'll have to have onboarded:
 * 3x rpi4.4gb.arm64 for the Control Plane
 * 3x rpi4.8gb.arm64 for Worker Pool #1
+
+So we should be able to run:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get serverclasses
+```
+
+And see 3x `AVAILABLE` servers in both the `rpi4.4gb.arm64` and `rpi4.8gb.arm64` ServerClasses.
 
 ## Create the cluster in Sidero
 

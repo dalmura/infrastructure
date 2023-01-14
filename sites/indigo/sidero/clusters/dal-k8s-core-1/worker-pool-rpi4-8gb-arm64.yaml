@@ -7,6 +7,23 @@ metadata:
 spec:
   template:
     spec:
+      configPatches:
+        - op: add
+          path: /machine/network
+          value:
+            interfaces:
+            - interface: eth0
+              vlans:
+                - dhcp: true
+                  dhcpOptions:
+                    routeMetric: 2048
+                  vlanId: 103
+              dhcp: true
+              dhcpOptions:
+                routeMetric: 1024
+            nameservers:
+              - 192.168.77.129
+              - 192.168.77.1
       generateType: join
       talosVersion: v1.3.1
 ---
