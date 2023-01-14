@@ -46,6 +46,12 @@ All the above Resources descriptions can be found conveniently on the [Sidero re
 
 We are using `rpi4.4gb.arm64` Server Class for the Control Plane nodes, `rpi4.8gb.arm64` Server Class for the Worker nodes, latest support versions for Talos and k8s and `192.168.77.3` as our allocated VIP from our [network config](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L53).
 
+The modifications we've done to the default resources are:
+* Control Plane
+  * Updated `TalosControlPlane` to include `configPatches` for the VLANs & VIPs
+* Worker Pools
+  * Updated `TalosConfigTemplate` to include `configPatches` for the VLANs
+
 Instead of simply applying the generated yaml back, we're going to break it up into:
 1. `sidero/clusters/dal-k8s-core-1/control-plane.yaml` - Cluster & Control Plane
 2. `sidero/clusters/dal-k8s-core-1/worker-pool-rpi4-8gb-arm64.yaml` - Worker Pool (rpi4.8gb.arm64)
