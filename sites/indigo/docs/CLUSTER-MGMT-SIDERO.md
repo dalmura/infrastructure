@@ -96,7 +96,10 @@ Date: Sun, 18 Dec 2022 05:47:09 GMT
 You should now be able to at least get an rpi4 able to attempt to network boot from Sidero now (it won't work properly until you do the below, but you should see logs in the sidero-controller-manager pod)
 
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 logs -f sidero-controller-manager-5d6754fcfb-drv4h -n sidero-system
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -A | grep 'sidero-controller-manager'
+sidero-system    sidero-controller-manager-54cd5d79f4-hcmrf   4/4     Running   0              115m
+
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 logs -f sidero-controller-manager-54cd5d79f4-hcmrf -n sidero-system
 Defaulted container "manager" out of: manager, siderolink, serverlogs, serverevents
 1.6707336924300556e+09	INFO	controller-runtime.metrics	Metrics server is starting to listen	{"addr": "127.0.0.1:8080"}
 1.6707336924350235e+09	INFO	setup	starting TFTP server

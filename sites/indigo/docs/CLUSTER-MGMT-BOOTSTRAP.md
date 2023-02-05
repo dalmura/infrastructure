@@ -2,7 +2,7 @@
 
 ## Form the k8s cluster
 Have kubectl, clusterctl and talosctl installed:
-  * As of the time of writing (2023-01-09) this is
+  * As of the time of writing (2023-02-05) this is
   * kubernetes v1.26
   * clusterapi v1.3
   * talos v1.3
@@ -11,16 +11,17 @@ Double check the [compatibility of Sidero and Talos](https://github.com/siderola
 
 Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and `dd` it onto the SSD's via another machine:
 ```bash
-# Download and unzip
-wget https://github.com/siderolabs/talos/releases/download/v1.3.1/metal-rpi_generic-arm64.img.xz
-xz -d metal-rpi_generic-arm64.img.xz
+# Download the latest supported release
+wget https://github.com/siderolabs/talos/releases/download/v1.3.3/metal-rpi_generic-arm64.img.xz
 
-# Find the SSD /dev/sdX and dd, for example /dev/sdb would be
+# Linux, SSD is /dev/sdb
 sudo lsblk
-sudo dd if=metal-rpi_generic-arm64.img of=/dev/sdb
-
-# Ensure no pending disk writes
+xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
+
+# Mac, SSD is /dev/disk2
+diskutil list
+# Use Raspberry Pi Imager tool
 ```
 
 Boot the 3x rpi4.4gb.arm64 nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
@@ -109,8 +110,8 @@ machine:
                 ip: 192.168.77.130
 
         nameservers:
-            - 192.168.77.1
             - 192.168.77.129
+            - 192.168.77.1
 ```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two nodes.

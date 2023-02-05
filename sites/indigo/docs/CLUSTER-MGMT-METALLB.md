@@ -10,8 +10,12 @@ Following https://metallb.universe.tf/installation/#installation-with-helm
 % helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 version
 version.BuildInfo{Version:"v3.10.3", GitCommit:"835b7334cfe2e5e27870ab3ed4135f136eecc704", GitTreeState:"clean", GoVersion:"go1.19.4"}
 
+# If you've not added before
 % helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 repo add metallb https://metallb.github.io/metallb
 "metallb" has been added to your repositories
+
+# Alternatively if you've added a while ago
+% helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 repo update
 
 # Create the namespace with our extra PodSecurity labels
 # Helm can do this automatically but we need a few custom labels, so do this separately
@@ -31,6 +35,7 @@ MetalLB is now running in the cluster.
 Now you can configure it via its CRs. Please refer to the metallb official docs
 on how to use the CRs.
 
+# Should take about 30s to get into a Running state
 % kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get pods -n metallb-system
 NAME                                  READY   STATUS    RESTARTS   AGE
 metallb-controller-5b89f7554c-4tqnl   1/1     Running   0          56s
