@@ -59,9 +59,38 @@ Instead of simply applying the generated yaml back, we're going to break it up i
 
 We'll then apply these back to k8s:
 ```bash
-kubectl apply --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -f sidero/clusters/dal-k8s-core-1/control-plane.yaml
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/control-plane.yaml
+cluster.cluster.x-k8s.io/dal-k8s-core-1 created
+metalcluster.infrastructure.cluster.x-k8s.io/dal-k8s-core-1 created
+metalmachinetemplate.infrastructure.cluster.x-k8s.io/dal-k8s-core-1-cp created
+taloscontrolplane.controlplane.cluster.x-k8s.io/dal-k8s-core-1-cp created
 
-kubectl apply --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -f sidero/clusters/dal-k8s-core-1/worker-pool-rpi4-8gb-arm64.yaml
 
-kubectl apply --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -f sidero/clusters/dal-k8s-core-1/worker-pool-dell-r320-amd64.yaml
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/worker-pool-rpi4-8gb-arm64.yaml
+
+# Optionally if hardware exists
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/worker-pool-dell-r320-amd64.yaml
+```
+
+You can then verify if Servers are being allocated to Clusters:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get clusters -A
+NAMESPACE       NAME             PHASE         AGE   VERSION
+sidero-system   dal-k8s-core-1   Provisioned   46s
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers
+NAME                                   HOSTNAME         ACCEPTED   CORDONED   ALLOCATED   CLEAN   POWER   AGE
+00d03115-0000-0000-0000-e45f019d4ca8   192.168.77.151   true                  true        false   on      3d23h
+00d03115-0000-0000-0000-e45f019d4e19   192.168.77.152   true                              true    on      3d22h
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe server 00d03115-0000-0000-0000-e45f019d4ca8
+Name:         00d03115-0000-0000-0000-e45f019d4ca8
+Namespace:
+Labels:       region=au-mel
+              zone=indigo
+...
+Events:
+  Type    Reason             Age   From                     Message
+  ----    ------             ----  ----                     -------
+  Normal  Server Allocation  86s   caps-controller-manager  Server as allocated via serverclass "rpi4.8gb.arm64" for metal machine "dal-k8s-core-1-cp-tnp8c".
 ```
