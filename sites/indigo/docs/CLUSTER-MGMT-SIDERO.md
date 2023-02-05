@@ -145,14 +145,13 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 % cd siderolabs-pkgs
 
 # Find the commit of the talos version we'll boot
-# Go to https://github.com/siderolabs/talos/blob/v1.3.1/Makefile#L17
-# Find: PKGS ?= v1.3.0-7-g9931288
-# Commit ID is '9931288'
-% git checkout 9931288
+# Go to https://github.com/siderolabs/talos/blob/v1.3.3/Makefile#L17
+# Find: PKGS ?= v1.3.0-10-g6f6a030
+# Commit ID is '6f6a030'
+% git checkout 6f6a030
 
 # The below is largely following the guide linked above
-% mkdir raspberrypi4-uefi
-% mkdir raspberrypi4-uefi/serials
+% mkdir -p raspberrypi4-uefi/serials
 
 % vim raspberrypi4-uefi/pkg.yaml
 # Copy in the contents from the linked guide with the following changes
@@ -163,13 +162,14 @@ You'll need to go and [follow the steps in here](https://www.sidero.dev/v0.5/gui
 
 # Burn RPi4_UEFI_Firmware.zip to an SD Card and boot the rpi4(s) you plan to use as nodes for dal-k8s-core-1 cluster
 # Get to the main main and:
-# 1. Device Manager => Raspberry Pi Configuration => Advanced Configuration => Limit RAM to 3 GB => Disabled
-# 2. Device Manager => Raspberry Pi Configuration => CPU Configuration => Max
-# 3. Device Manager => Raspberry Pi Configuration => Display Configuration => Only select Virtual 800x600
+# 1. Device Manager => Raspberry Pi Configuration => CPU Configuration => Max
+# 2. Device Manager => Raspberry Pi Configuration => Display Configuration => Only select Virtual 800x600
+# 3. Device Manager => Raspberry Pi Configuration => Advanced Configuration => Limit RAM to 3 GB => Disabled
 # 4. Boot Maintenance Manager => Boot Options => Delete Boot Option => Delete all apart from UEFI PXEv4
 # 5. reset => Turn off rpi and put SDCARD back in laptop
 
 # Extract `RPI_EFI.fd` from the SDCARD and store it in `raspberrypi4-uefi/serials/<device serial>/RPI_EFI.fd
+# You can find the serial from your sidero-controller-manager logs from above!
 mkdir raspberrypi4-uefi/serials/09b92bda/
 cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
 
@@ -178,10 +178,10 @@ cp /Volumes/SDCARD/RPI_EFI.fd raspberrypi4-uefi/serials/09b92bda/
 make PLATFORM=linux/arm64 USERNAME=dalmura PUSH=true TARGETS=raspberrypi4-uefi
 
 # Will be available at
-docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-7-g9931288
+docker pull ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-10-g6f6a030
 ```
 
-Update the patch `patches/dal-k8s-mgmt-1-sidero.yaml` with the latest image tag from above:
+Update the patch `patches/dal-k8s-mgmt-1-sidero-rpi4.yaml` with the latest image tag from above:
 ```
 spec:
   template:
@@ -190,7 +190,7 @@ spec:
         - name: tftp-folder
           emptyDir: {}
       initContainers:
-      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-7-g9931288
+      - image: ghcr.io/dalmura/raspberrypi4-uefi:v1.3.0-10-g6f6a030
         imagePullPolicy: Always
         name: tftp-folder-setup
         command:

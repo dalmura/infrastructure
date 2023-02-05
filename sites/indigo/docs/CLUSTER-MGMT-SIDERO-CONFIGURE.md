@@ -127,7 +127,7 @@ metadata:
   labels:
     region: au-mel
     zone: indigo
-    serial: abc123abc132
+    serial: 653b9d59
 ```
 
 This will result in a file looking roughly like this:
@@ -136,7 +136,7 @@ metadata:
   labels:
     region: au-mel
     zone: indigo
-    serial: abc123abc132
+    serial: 653b9d59
 spec:
   accepted: true
 ```
