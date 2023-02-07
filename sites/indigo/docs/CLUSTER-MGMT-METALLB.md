@@ -8,7 +8,7 @@ Following https://metallb.universe.tf/installation/#installation-with-helm
 
 ```bash
 % helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 version
-version.BuildInfo{Version:"v3.10.3", GitCommit:"835b7334cfe2e5e27870ab3ed4135f136eecc704", GitTreeState:"clean", GoVersion:"go1.19.4"}
+version.BuildInfo{Version:"v3.11.0", GitCommit:"472c5736ab01133de504a826bd9ee12cbe4e7904", GitTreeState:"clean", GoVersion:"go1.19.5"}
 
 # If you've not added before
 % helm --kubeconfig kubeconfigs/dal-k8s-mgmt-1 repo add metallb https://metallb.github.io/metallb
@@ -57,5 +57,14 @@ l2advertisement.metallb.io/servers-vlan created
 ipaddresspool.metallb.io/servers-staging-vlan created
 l2advertisement.metallb.io/servers-staging-vlan created
 ```
+
+If you get any errors like:
+```
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f patches/dal-k8s-mgmt-1-metallb-config.yaml
+Error from server (InternalError): error when creating "patches/dal-k8s-mgmt-1-metallb-config.yaml": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://metallb-webhook-service.metallb-system.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": dial tcp 10.110.207.211:443: connect: connection refused
+....
+```
+
+Then the admission webhook is still being setup, so just give it another minute or two until it starts working.
 
 And now when a Service of `type: LoadBalancer` inside the k8s cluster is created, MetalLB will listen and forward traffic to this service!
