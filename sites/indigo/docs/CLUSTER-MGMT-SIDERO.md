@@ -37,19 +37,18 @@ export SIDERO_CONTROLLER_MANAGER_SIDEROLINK_ENDPOINT="192.168.77.140"
 
 % clusterctl init --kubeconfig=kubeconfigs/dal-k8s-mgmt-1 -b talos -c talos -i sidero
 Fetching providers
-Installing cert-manager Version="v1.10.1"
+Installing cert-manager Version="v1.11.0"
 Waiting for cert-manager to be available...
-Installing Provider="cluster-api" Version="v1.3.1" TargetNamespace="capi-system"
+Installing Provider="cluster-api" Version="v1.3.3" TargetNamespace="capi-system"
 Installing Provider="bootstrap-talos" Version="v0.5.6" TargetNamespace="cabpt-system"
 Installing Provider="control-plane-talos" Version="v0.4.11" TargetNamespace="cacppt-system"
-Installing Provider="infrastructure-sidero" Version="v0.5.7" TargetNamespace="sidero-system"
+Installing Provider="infrastructure-sidero" Version="v0.5.8" TargetNamespace="sidero-system"
 
 Your management cluster has been initialized successfully!
 
 You can now create your first workload cluster by running the following:
 
   clusterctl generate cluster [name] --kubernetes-version [version] | kubectl apply -f -
-
 ```
 
 Wait until you see the `sidero-controller-manager` pods come up
@@ -73,7 +72,6 @@ sidero-system   sidero-controller-manager-5d6754fcfb-drv4h   4/4     Running   9
 ```
 
 Sidero is now running, but it's isolated to inside the cluster, we now need to expose it via a k8s Service and MetalLB!
-
 ```bash
 % kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f patches/dal-k8s-mgmt-1-sidero-service.yaml
 service/sidero-controller-manager created
@@ -214,6 +212,8 @@ spec:
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 -n sidero-system patch deployments.apps sidero-controller-manager --patch-file patches/dal-k8s-mgmt-1-sidero-rpi4.yaml
 deployment.apps/sidero-controller-manager patched
 ```
+
+It will take a minute as a new version of the sidero-controller-manager pod is deployed and the old one is terminated.
 
 You should now have a patched Sidero that supports rpi4s!
 

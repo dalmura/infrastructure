@@ -59,17 +59,15 @@ Instead of simply applying the generated yaml back, we're going to break it up i
 
 We'll then apply these back to k8s:
 ```bash
+# Create the cluster & control plane
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/control-plane.yaml
 cluster.cluster.x-k8s.io/dal-k8s-core-1 created
 metalcluster.infrastructure.cluster.x-k8s.io/dal-k8s-core-1 created
 metalmachinetemplate.infrastructure.cluster.x-k8s.io/dal-k8s-core-1-cp created
 taloscontrolplane.controlplane.cluster.x-k8s.io/dal-k8s-core-1-cp created
 
-
+# Create a worker pool of 8gb rpi4's
 kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/worker-pool-rpi4-8gb-arm64.yaml
-
-# Optionally if hardware exists
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s-core-1/worker-pool-dell-r320-amd64.yaml
 ```
 
 You can then verify if Servers are being allocated to Clusters:
