@@ -19,9 +19,8 @@ sudo lsblk
 xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
-# Mac, SSD is /dev/disk2
-diskutil list
-# Use Raspberry Pi Imager tool
+# Mac
+# Just use Raspberry Pi Imager tool
 ```
 
 Boot the 3x rpi4.4gb.arm64 nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
