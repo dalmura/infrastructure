@@ -72,16 +72,13 @@ kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 apply -f sidero/clusters/dal-k8s
 
 You can then verify if Servers are being allocated to Clusters:
 ```bash
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get clusters -A
-NAMESPACE       NAME             PHASE         AGE   VERSION
-sidero-system   dal-k8s-core-1   Provisioned   46s
-
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers
+# This shows that 00d03115-0000-0000-0000-e45f019d4ca8 has been allocated to a cluster
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get servers
 NAME                                   HOSTNAME         ACCEPTED   CORDONED   ALLOCATED   CLEAN   POWER   AGE
 00d03115-0000-0000-0000-e45f019d4ca8   192.168.77.151   true                  true        false   on      3d23h
 00d03115-0000-0000-0000-e45f019d4e19   192.168.77.152   true                              true    on      3d22h
 
-kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe server 00d03115-0000-0000-0000-e45f019d4ca8
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 describe server 00d03115-0000-0000-0000-e45f019d4ca8
 Name:         00d03115-0000-0000-0000-e45f019d4ca8
 Namespace:
 Labels:       region=au-mel
@@ -91,4 +88,42 @@ Events:
   Type    Reason             Age   From                     Message
   ----    ------             ----  ----                     -------
   Normal  Server Allocation  86s   caps-controller-manager  Server as allocated via serverclass "rpi4.8gb.arm64" for metal machine "dal-k8s-core-1-cp-tnp8c".
+```
+
+You can then verify if the Cluster resource has been created, it moves from Provisioning => Provisioned:
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get clusters -A
+NAMESPACE       NAME             PHASE         AGE   VERSION
+sidero-system   dal-k8s-core-1   Provisioned   46s
+```
+
+And finally one or more Machine resources are created linking the Server to a Cluster, this represents the setup of Talos on that Server.
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get machines -A
+NAMESPACE       NAME                      CLUSTER          NODENAME   PROVIDERID                                      PHASE         AGE   VERSION
+sidero-system   dal-k8s-core-1-cp-xrgd5   dal-k8s-core-1              sidero://00d03115-0000-0000-0000-e45f019d4ca8   Provisioned   22h   v1.26.0
+```
+
+The Machine(s) should go from Provisioning => Provisioned => Running, which indicates the machine is part of a k8s cluster.
+
+You can verify the control plane node(s) have bootstrapped by attempting to ping the VIP of the cluster:
+```bash
+ping 192.168.77.3
+```
+
+Once this is done you can retrieve the `talosconfig`:
+```bash
+mkdir templates/dal-k8s-core-1
+
+kubectl --kubeconfig kubeconfigs/dal-k8s-mgmt-1 get secret -n sidero-system dal-k8s-core-1-talosconfig -o jsonpath='{.data.talosconfig}' | base64 -d > templates/dal-k8s-core-1/talosconfig
+```
+
+With the `talosconfig` you can use `talosctl` to retrieve the kubeconfig:
+```bash
+talosctl --talosconfig templates/dal-k8s-core-1/talosconfig --nodes 192.168.77.3 kubeconfigs/dal-k8s-core-1
+```
+
+And finally verify the Node(s) are showing as Ready:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-k8s-core-1 get nodes
 ```
