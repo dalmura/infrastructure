@@ -22,7 +22,7 @@ spec:
     - op: replace
       path: /machine/install/disk
       value: /dev/sda
-  bootFromDiskMethod: ipxe-sanboot
+  bootFromDiskMethod: http-404
 ---
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
@@ -43,4 +43,4 @@ spec:
     - op: replace
       path: /machine/install/disk
       value: /dev/sda
-  bootFromDiskMethod: ipxe-sanboot
+  bootFromDiskMethod: http-404
