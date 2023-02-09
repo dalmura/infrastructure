@@ -5,7 +5,7 @@ metadata:
   name: rpi-arm64
 spec:
   kernel:
-    url: https://github.com/siderolabs/talos/releases/download/v1.3.0/vmlinuz-arm64
+    url: https://github.com/siderolabs/talos/releases/download/v1.3.3/vmlinuz-arm64
     args:
       - talos.platform=metal
       - console=tty0
@@ -24,4 +24,4 @@ spec:
       - earlyprintk=ttyAMA0,115200
       - random.trust_cpu=on
   initrd:
-    url: https://github.com/siderolabs/talos/releases/download/v1.3.0/initramfs-arm64.xz
+    url: https://github.com/siderolabs/talos/releases/download/v1.3.3/initramfs-arm64.xz
