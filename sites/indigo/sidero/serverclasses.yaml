@@ -17,12 +17,16 @@ spec:
       - productName: Raspberry Pi 4 Model B
         version: C03140 # CM4 1.0
   environmentRef:
+    namespace: default
     name: rpi-arm64
   configPatches:
     - op: replace
       path: /machine/install/disk
-      value: /dev/sda
-  bootFromDiskMethod: http-404
+      #value: /dev/sda
+      value: /dev/mmcblk0
+  #bootFromDiskMethod: http-404
+  bootFromDiskMethod: ipxe-sanboot
+  #bootFromDiskMethod: ipxe-exit
 ---
 apiVersion: metal.sidero.dev/v1alpha1
 kind: ServerClass
@@ -38,9 +42,13 @@ spec:
       - productName: Raspberry Pi 4 Model B
         version: D03140 # CM4 1.0
   environmentRef:
+    namespace: default
     name: rpi-arm64
   configPatches:
     - op: replace
       path: /machine/install/disk
-      value: /dev/sda
-  bootFromDiskMethod: http-404
+      #value: /dev/sda
+      value: /dev/mmcblk0
+  #bootFromDiskMethod: http-404
+  bootFromDiskMethod: ipxe-sanboot
+  #bootFromDiskMethod: ipxe-exit
