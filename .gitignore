@@ -1,4 +1,5 @@
 *.swp
+sites/*/secrets.yaml
 sites/*/templates/
 sites/*/nodes/
 sites/*/kubeconfigs/

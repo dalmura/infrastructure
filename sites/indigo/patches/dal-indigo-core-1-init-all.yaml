@@ -1,0 +1,20 @@
+machine:
+  nodeLabels:
+    topology.kubernetes.io/region: "melbourne"
+    topology.kubernetes.io/zone: "indigo"
+    node.kubernetes.io/instance-type: "<TO POPULATE>"
+  network:
+    interfaces:
+      - interface: eth0
+        dhcp: true
+        dhcpOptions:
+          routeMetric: 2048
+        vlans:
+          - # SERVERS
+            vlanId: 103
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+    nameservers:
+      - 192.168.77.1
+      - 192.168.77.129

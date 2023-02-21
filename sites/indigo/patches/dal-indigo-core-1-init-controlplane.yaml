@@ -1,0 +1,11 @@
+machine:
+  network:
+    interfaces:
+      - interface: eth0
+        vip:
+          ip: 192.168.77.130
+        vlans:
+          - # SERVERS
+            vlanId: 103
+            vip:
+              ip: 192.168.77.2

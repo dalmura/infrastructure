@@ -18,4 +18,6 @@ We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 
 ## Configuration
 
-* [`Site hardware`](docs/HARDWARE.md)
+* [`Site hardware`](docs/INDIGO-HARDWARE.md)
+* [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
+* [`dal-indigo-core-1` Workers](docs/INDIGO-CORE-1-WORKERS.md)
