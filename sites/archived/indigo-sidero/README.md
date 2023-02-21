@@ -1,3 +1,10 @@
+# This site is archived
+
+Originally the plan was to use [Sidero Metal](https://www.sidero.dev/) to run the cluster management/lifecycle functionality of the k8s clusters, but due to lack of support for RPi4's with ipxe booting this has been shelved until a later date when it gets some love and attention.
+
+Until then the clusters will be manually managed with talosctl and customised tooling.
+
+
 # Site Information
 
 Instructions on how to setup and run the Indigo site.
