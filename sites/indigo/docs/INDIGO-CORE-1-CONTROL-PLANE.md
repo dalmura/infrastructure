@@ -36,6 +36,19 @@ talosctl gen secrets \
   --talos-version "${TALOS_VERSION}"
 ```
 
+TODO: Steps to encrypt secrets.yaml with the GPG key
+```bash
+gpg --output secrets.yaml.gpg \
+    --recipient 'network.public.key.alias' \
+    --encrypt secrets.yaml
+```
+
+TODO: Steps to decrypt a previously encrypted secrets.yaml
+```bash
+gpg --output secrets.yaml \
+    --decrypt secrets.yaml.gpg
+```
+
 Generate a config to bootstrap k8s on that node:
 ```bash
 talosctl gen config \
@@ -55,15 +68,25 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 
 `192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this specific IP.
 
-`patches/dal-indigo-core-1-init-all.yaml` contains:
+`--from-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
+
+`--talos-version` needs to be consistent across regeneration of files, as the config generated is minor version specific
+
+`--with-cluster-discovery false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
+
+`--additional-sans` eventually the cluster will be accessed via these hostnames
+
+`--config-patch @patches/dal-indigo-core-1-init-all.yaml` contains:
 * General node labels for this site
 * Configures the network including VLANs & routes
 
-`patches/dal-indigo-core-1-init-controlplane.yaml` contains:
+`--config-patch-control-plane @patches/dal-indigo-core-1-init-controlplane.yaml` contains:
 * Configures the VIPs on all interfaces
 
-`patches/dal-indigo-core-1-init-worker.yaml` contains:
+`--config-patch-worker @patches/dal-indigo-core-1-init-worker.yaml` contains:
 * Configures further node labels for node groups
+
+The above will output general `controlplane.yaml` and `worker.yaml` config files. Fortunately `controlplane.yaml` doesn't need any further customisation and can be applied directly, but `worker.yaml` will need to be specialised for each node group, we will do that later though.
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.
 

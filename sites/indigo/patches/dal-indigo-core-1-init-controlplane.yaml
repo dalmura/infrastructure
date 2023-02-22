@@ -1,4 +1,6 @@
 machine:
+  nodeLabels:
+    node.kubernetes.io/instance-type: "rpi4.4gb.arm64"
   network:
     interfaces:
       - interface: eth0
