@@ -1,7 +1,4 @@
 machine:
-  nodeLabels:
-    k8s.dalmura.cloud/nodegroup: "<TO POPULATE>"
-
   install:
     extensions:
       - image: ghcr.io/siderolabs/iscsi-tools:v0.1.1

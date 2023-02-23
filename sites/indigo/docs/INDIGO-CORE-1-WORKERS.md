@@ -34,14 +34,8 @@ mkdir -p nodes/dal-indigo-core-1/
 cp templates/dal-indigo-core-1/worker.yaml nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
 
 # Edit and set:
-# node.kubernetes.io/instance-type: "<TO POPULATE>"
-# to
-# node.kubernetes.io/instance-type: "rpi4.8gb.arm64"
-#
-# Edit and set:
-# k8s.dalmura.cloud/nodegroup: "<TO POPULATE>"
-# to
-# k8s.dalmura.cloud/nodegroup: "rpi4-worker-pool"
+# node.kubernetes.io/instance-type: "<TO POPULATE>" => "rpi4.8gb.arm64"
+# k8s.dalmura.cloud/nodegroup:      "<TO POPULATE>" => "rpi4-worker-pool"
 
 talosctl apply-config --insecure -n "${RPI4_1_IP}" -f templates/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
 talosctl apply-config --insecure -n "${RPI4_2_IP}" -f templates/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml

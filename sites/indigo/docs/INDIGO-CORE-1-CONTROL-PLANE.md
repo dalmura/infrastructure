@@ -58,9 +58,9 @@ talosctl gen config \
     --talos-version "${TALOS_VERSION}" \
     --with-cluster-discovery false \
     --additional-sans "indigo.dalmura.cloud" \
-    --config-patch @patches/dal-indigo-core-1-init-all.yaml \
-    --config-patch-control-plane @patches/dal-indigo-core-1-init-controlplane.yaml \
-    --config-patch-worker @patches/dal-indigo-core-1-init-worker.yaml \
+    --config-patch @patches/dal-indigo-core-1-all-init.yaml \
+    --config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml \
+    --config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml \
     --output-dir templates/dal-indigo-core-1/
 ```
 
@@ -76,14 +76,14 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 
 `--additional-sans` eventually the cluster will be accessed via these hostnames
 
-`--config-patch @patches/dal-indigo-core-1-init-all.yaml` contains:
+`--config-patch @patches/dal-indigo-core-1-all-init.yaml` contains:
 * General node labels for this site
 * Configures the network including VLANs & routes
 
-`--config-patch-control-plane @patches/dal-indigo-core-1-init-controlplane.yaml` contains:
+`--config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml` contains:
 * Configures the VIPs on all interfaces
 
-`--config-patch-worker @patches/dal-indigo-core-1-init-worker.yaml` contains:
+`--config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml` contains:
 * Configures further node labels for node groups
 
 The above will output general `controlplane.yaml` and `worker.yaml` config files. Fortunately `controlplane.yaml` doesn't need any further customisation and can be applied directly, but `worker.yaml` will need to be specialised for each node group, we will do that later though.
