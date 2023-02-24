@@ -7,7 +7,7 @@ machine:
     extraMounts:
       - destination: /var/openebs/local
         type: bind
-        source: /var/openebs/local
+        source: /var/mnt/attached_ssd
         options:
           - bind
           - rshared
