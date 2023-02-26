@@ -14,7 +14,8 @@ At a high level the site is comprised of the following Kubernetes clusters:
 
 We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 * [Talos Linux](https://www.talos.dev/) as the Kubernetes-focused distribution for the clusters
-* [Omni](https://omni.siderolabs.com/) to run the cluster management/lifecycle functionality
+
+Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.com/) or [Sidero](https://www.sidero.dev/) won't be used due to high cost and hardware incompatibilities respectively. See [archived/indigo-sidero](/sites/archived/indigo-sidero/) for an initial attempt at getting Sidero working, but ultimately failing due to hardware incompatibilites.
 
 ## Configuration
 
