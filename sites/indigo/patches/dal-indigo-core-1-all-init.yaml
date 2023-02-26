@@ -12,9 +12,6 @@ machine:
         dhcpOptions:
           routeMetric: 2048
 
-    nameservers:
-      - 192.168.77.129
-
   install:
     disk: /dev/sda
 
