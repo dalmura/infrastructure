@@ -3,6 +3,7 @@
 Set a few basic config vars for below
 ```bash
 export TALOS_VERSION=v1.3.5
+export CILIUM_VERSION=1.13.0
 ```
 
 ## Form the k8s cluster
@@ -179,11 +180,37 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig kubeconfig kubeco
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
+# You will then see the progress stop as Talos waits for the CNI to be provisioned
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+```
+
+## Setup Cilium CNI
+```bash
+helm repo add cilium https://helm.cilium.io/
+helm repo update
+
+export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
+export KUBERNETES_API_SERVER_PORT=6443
+
+helm install cilium cilium/cilium \
+    --version "${CILIUM_VERSION}" \
+    --namespace kube-system \
+    --set ipam.mode=kubernetes \
+    --set kubeProxyReplacement=strict \
+    --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
+    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}"
+
+# Check the progress of the CNI install
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+
+# Get the nodes status
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
+
 # The node's status should become Ready when you see a bunch of `cni0` related logs appear after the above
 # As Talos only marks the cluster bootstrap as complete after the CNI has come up
 ```
 
-Now we onboard the other nodes into the cluster:
+## Onboard the other Control Plane nodes
 ```bash
 talosctl apply-config --insecure -n "${RPI4_2_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${RPI4_3_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml
