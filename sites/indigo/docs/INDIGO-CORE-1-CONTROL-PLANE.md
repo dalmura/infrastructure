@@ -19,7 +19,7 @@ flush
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.3
+export TALOS_VERSION=v1.3.5
 ```
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
@@ -53,11 +53,13 @@ Generate a config to bootstrap k8s on that node:
 ```bash
 talosctl gen config \
     dal-indigo-core-1 \
-    https://192.168.77.2:6443/ \
-    --from-secrets secrets.yaml \
+    'https://192.168.77.2:6443/' \
+    --with-secrets secrets.yaml \
+    --with-docs=false \
+    --with-examples=false \
     --talos-version "${TALOS_VERSION}" \
-    --with-cluster-discovery false \
-    --additional-sans "indigo.dalmura.cloud" \
+    --with-cluster-discovery=false \
+    --additional-sans 'indigo.dalmura.cloud' \
     --config-patch @patches/dal-indigo-core-1-all-init.yaml \
     --config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml \
     --config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml \

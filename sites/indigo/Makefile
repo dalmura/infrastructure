@@ -1,5 +1,5 @@
 all:
-    @echo 'Nothing to do'
+	@echo 'Nothing to do'
 
 clean:
-    rm -rf kubeconfigs nodes templates
+	rm -rf kubeconfigs nodes templates
