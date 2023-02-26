@@ -6,7 +6,7 @@ We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIG
 Download the `metal-rpi_generic-arm64.img.xz` artifact matching the same Talos version you used for the Control Plane step, and `dd` it onto the 128 GB USB Flash Drives via another machine:
 ```bash
 # Download the version used when setting up the Control Plane nodes
-wget https://github.com/siderolabs/talos/releases/download/v1.3.5/metal-rpi_generic-arm64.img.xz
+wget "https://github.com/siderolabs/talos/releases/download/${TALOS_VERSION}/metal-rpi_generic-arm64.img.xz"
 
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
@@ -37,9 +37,9 @@ cp templates/dal-indigo-core-1/worker.yaml nodes/dal-indigo-core-1/worker-rpi4-8
 # node.kubernetes.io/instance-type: "<TO POPULATE>" => "rpi4.8gb.arm64"
 # k8s.dalmura.cloud/nodegroup:      "<TO POPULATE>" => "rpi4-worker-pool"
 
-talosctl apply-config --insecure -n "${RPI4_1_IP}" -f templates/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
-talosctl apply-config --insecure -n "${RPI4_2_IP}" -f templates/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
-talosctl apply-config --insecure -n "${RPI4_3_IP}" -f templates/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
+talosctl apply-config --insecure -n "${RPI4_1_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
+talosctl apply-config --insecure -n "${RPI4_2_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
+talosctl apply-config --insecure -n "${RPI4_3_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64.yaml
 ```
 
 Verify the nodes become Ready:
