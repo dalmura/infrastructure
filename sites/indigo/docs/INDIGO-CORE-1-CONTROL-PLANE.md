@@ -106,6 +106,7 @@ Update your local device with the new credentials to talk to the cluster:
 ```bash
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config endpoints "${RPI4_1_IP}"
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config nodes "${RPI4_1_IP}"
+# From now on our talosctl commands just talk to RPI4_1_IP only
 ```
 
 First we verify if the Talos API is running on the node:
@@ -137,6 +138,7 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 192.168.77.20: user: warning: [2022-11-19T01:40:11.202824078Z]: [talos] boot sequence: done: 4m26.855228102s
 
 # Verify you can ping the floating Virtual IP (VIP)
+# This assumes you're on a network segment that can do this!
 ping 192.168.77.2
 ```
 
@@ -151,6 +153,7 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig kubeconfig kubeco
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 # The node's status should become Ready when you see a bunch of `cni0` related logs appear after the above
+# As Talos only marks the cluster bootstrap as complete after the CNI has come up
 ```
 
 Now we onboard the other nodes into the cluster:
@@ -160,6 +163,7 @@ talosctl apply-config --insecure -n "${RPI4_3_IP}" -f templates/dal-indigo-core-
 
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config endpoints "${RPI4_1_IP}" "${RPI4_2_IP}" "${RPI4_3_IP}"
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config nodes "${RPI4_1_IP}" "${RPI4_2_IP}" "${RPI4_3_IP}"
+# From now on our talosctl commands can talk to all 3x RPI4_(1|2|3)_IP nodes
 ```
 
 Wait until all nodes become `Ready`:
