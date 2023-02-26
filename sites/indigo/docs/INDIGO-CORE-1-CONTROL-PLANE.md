@@ -59,7 +59,8 @@ talosctl gen config \
     --with-examples=false \
     --talos-version "${TALOS_VERSION}" \
     --with-cluster-discovery=false \
-    --additional-sans 'indigo.dalmura.cloud' \
+    --additional-sans 'core-1.indigo.dalmura.cloud' \
+    --dns-domain 'core-1.indigo.dalmura.cloud' \
     --config-patch @patches/dal-indigo-core-1-all-init.yaml \
     --config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml \
     --config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml \
@@ -70,23 +71,27 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 
 `192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this specific IP.
 
-`--from-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
+`--with-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
+
+`--with-docs=false` and `--with-examples=false` just disable verbose configs, just refer to the online doco instead
 
 `--talos-version` needs to be consistent across regeneration of files, as the config generated is minor version specific
 
-`--with-cluster-discovery false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
+`--with-cluster-discovery=false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
 
 `--additional-sans` eventually the cluster will be accessed via these hostnames
 
+`--dns-domain` internal domain all pods use, not required, but nice to have set
+
 `--config-patch @patches/dal-indigo-core-1-all-init.yaml` contains:
 * General node labels for this site
-* Configures the network including VLANs & routes
+* Configures the default network interface with dhcp
 
 `--config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml` contains:
-* Configures the VIPs on all interfaces
+* Configures the VIPs on all interfaces and configures VLANs
 
 `--config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml` contains:
-* Configures further node labels for node groups
+* Configures further node labels for node groups and configures VLANs
 
 The above will output general `controlplane.yaml` and `worker.yaml` config files. Fortunately `controlplane.yaml` doesn't need any further customisation and can be applied directly, but `worker.yaml` will need to be specialised for each node group, we will do that later though.
 
