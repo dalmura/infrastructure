@@ -1,12 +1,17 @@
 # Provision dal-indigo-core-1's Control Plane
 
+Set a few basic config vars for below
+```bash
+export TALOS_VERSION=v1.3.5
+```
+
 ## Form the k8s cluster
 Have kubectl and talosctl installed with their latest compatible versions
 
 Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and `dd` it onto the 128 GB USB Flash Drives via another machine:
 ```bash
 # Download the latest supported release
-wget https://github.com/siderolabs/talos/releases/download/v1.3.5/metal-rpi_generic-arm64.img.xz
+wget "https://github.com/siderolabs/talos/releases/download/${TALOS_VERSION}/metal-rpi_generic-arm64.img.xz"
 
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
@@ -15,11 +20,6 @@ flush
 
 # Mac
 # Just use Raspberry Pi Imager tool
-```
-
-Set a few basic config vars for below
-```bash
-export TALOS_VERSION=v1.3.5
 ```
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
