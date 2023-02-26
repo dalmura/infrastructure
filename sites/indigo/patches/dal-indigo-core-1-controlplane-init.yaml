@@ -10,5 +10,12 @@ machine:
         vlans:
           - # SERVERS
             vlanId: 103
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
             vip:
               ip: 192.168.77.2
+
+    nameservers:
+      - 192.168.77.1
+      - 192.168.77.129
