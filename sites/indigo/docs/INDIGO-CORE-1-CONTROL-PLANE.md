@@ -24,9 +24,9 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.150
-RPI4_2_IP=192.168.77.151
-RPI4_3_IP=192.168.77.152
+RPI4_1_IP=192.168.77.151
+RPI4_2_IP=192.168.77.155
+RPI4_3_IP=192.168.77.159
 ```
 
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
@@ -104,14 +104,14 @@ talosctl -n "${RPI4_1_IP}" get links --insecure -o json
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
-RPI4_1_HW_ADDR='e45f011d3ca8'
-RPI4_2_HW_ADDR='e45f014d7ab2'
-RPI4_3_HW_ADDR='e45f012d23ea'
+RPI4_1_HW_ADDR='e45f019d4ca8'
+RPI4_2_HW_ADDR='e45f019d4d95'
+RPI4_3_HW_ADDR='e45f019d4e19'
 
 # Copy the configs
-cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml
-cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml
-cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml
+cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
 
 # Edit and set:
 # machine.network.hostname: "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"

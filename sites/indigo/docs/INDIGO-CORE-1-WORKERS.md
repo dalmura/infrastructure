@@ -19,9 +19,9 @@ flush
 
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.153
-RPI4_2_IP=192.168.77.154
-RPI4_3_IP=192.168.77.155
+RPI4_1_IP=192.168.77.151
+RPI4_2_IP=192.168.77.155
+RPI4_3_IP=192.168.77.159
 ```
 
 Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
@@ -33,14 +33,14 @@ talosctl -n "${RPI4_1_IP}" get links --insecure -o json
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
-RPI4_1_HW_ADDR='e45f011d3ca8'
-RPI4_2_HW_ADDR='e45f014d7ab2'
-RPI4_3_HW_ADDR='e45f012d23ea'
+RPI4_1_HW_ADDR='e45f019d4ca8'
+RPI4_2_HW_ADDR='e45f019d4d95'
+RPI4_3_HW_ADDR='e45f019d4e19'
 
 # Copy the configs
-cp templates/dal-indigo-core-1/worker.yaml nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml
-cp templates/dal-indigo-core-1/worker.yaml nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml
-cp templates/dal-indigo-core-1/worker.yaml nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml
+cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
+cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
+cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
 # Edit and set:
 # machine.network.hostname:         "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
