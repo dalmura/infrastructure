@@ -93,13 +93,35 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 `--config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml` contains:
 * Configures further node labels for node groups and configures VLANs
 
-The above will output general `controlplane.yaml` and `worker.yaml` config files. Fortunately `controlplane.yaml` doesn't need any further customisation and can be applied directly, but `worker.yaml` will need to be specialised for each node group, we will do that later though.
+The above will output generic `controlplane.yaml` and `worker.yaml` config files. Unfortunately these are both unable to be directly applied, we need to specialise each of these for each node (as we have unique node hostnames). We'll do the `controlplane.yaml` and `worker.yaml` later on.
+
+Configure each nodes config file:
+```bash
+mkdir -p nodes/dal-indigo-core-1/
+
+# Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json
+
+# Repeat noting down the HW ADDR for each node
+# Remove all ':' from the HW ADDR and you're left with:
+RPI4_1_HW_ADDR='e45f011d3ca8'
+RPI4_2_HW_ADDR='e45f014d7ab2'
+RPI4_3_HW_ADDR='e45f012d23ea'
+
+# Copy the configs
+cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml
+cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml
+cp templates/dal-indigo-core-1/controlplane.yaml nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml
+
+# Edit and set:
+# machine.network.hostname: "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
+```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.
 
 Apply the config for the first node:
 ```bash
-talosctl apply-config --insecure -n "${RPI4_1_IP}" -f templates/dal-indigo-core-1/controlplane.yaml
+talosctl apply-config --insecure -n "${RPI4_1_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml
 ```
 
 Update your local device with the new credentials to talk to the cluster:
@@ -158,8 +180,8 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 Now we onboard the other nodes into the cluster:
 ```bash
-talosctl apply-config --insecure -n "${RPI4_2_IP}" -f templates/dal-indigo-core-1/controlplane.yaml
-talosctl apply-config --insecure -n "${RPI4_3_IP}" -f templates/dal-indigo-core-1/controlplane.yaml
+talosctl apply-config --insecure -n "${RPI4_2_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml
+talosctl apply-config --insecure -n "${RPI4_3_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml
 
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config endpoints "${RPI4_1_IP}" "${RPI4_2_IP}" "${RPI4_3_IP}"
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config nodes "${RPI4_1_IP}" "${RPI4_2_IP}" "${RPI4_3_IP}"

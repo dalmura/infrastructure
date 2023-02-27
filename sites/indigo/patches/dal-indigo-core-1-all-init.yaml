@@ -5,6 +5,8 @@ machine:
     node.kubernetes.io/instance-type: "<TO POPULATE>"
 
   network:
+    hostname: "talos-<HW_ADDRESS>"
+
     interfaces:
       - interface: eth0
         mtu: 1500
