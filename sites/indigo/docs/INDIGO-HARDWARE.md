@@ -4,6 +4,8 @@ In order to bootstrap the Indigo site you will need:
 * 3x rpi4.4gb.arm64
 * 3x rpi4.8gb.arm64
 
+See the site's [`config.yaml`](../config.yaml) for further info about identifying info for hardware.
+
 Standard accessories assumed included for all Raspberry Pi 4's are:
 * Raspberry Pi PoE+ Hat
 * 128GB USB Flash Drive

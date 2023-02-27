@@ -1,0 +1,10 @@
+hardware:
+  992e78c0:
+    instance-class: rpi4.8gb.arm64
+    eth0-mac: e4:5f:01:9d:4d:95
+  653b9d59:
+    instance-class: rpi4.8gb.arm64
+    eth0-mac: e4:5f:01:9d:4c:a8
+  09b92bda:
+    instance-class: rpi4.8gb.arm64
+    eth0-mac: e4:5f:01:9d:4e:19
