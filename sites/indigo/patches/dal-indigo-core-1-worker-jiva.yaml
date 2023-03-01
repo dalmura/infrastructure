@@ -1,7 +1,7 @@
 machine:
   install:
     extensions:
-      - image: ghcr.io/siderolabs/iscsi-tools:v0.1.1
+      - image: ghcr.io/siderolabs/iscsi-tools:v0.1.4
 
   kubelet:
     extraMounts:

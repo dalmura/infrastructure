@@ -75,6 +75,7 @@ helm upgrade --install --create-namespace --namespace openebs --version 3.4.0 op
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
 * 3x rpi4.8gb.arm64 Worker nodes
+  * OpenEBS Jiva configured as a CSI Storage Class
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
