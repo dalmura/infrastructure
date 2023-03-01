@@ -69,7 +69,16 @@ We then install the helm chart:
 ```bash
 helm repo add openebs-jiva https://openebs.github.io/jiva-operator
 helm repo update
-helm upgrade --install --create-namespace --namespace openebs --version 3.4.0 openebs-jiva openebs-jiva/jiva
+helm upgrade --kubeconfig kubeconfigs/dal-indigo-core-1 --install --create-namespace --namespace openebs --version 3.4.0 openebs-jiva openebs-jiva/jiva
+```
+
+You can now verify if the pods are coming up
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n openebs
+NAME                                                READY   STATUS    RESTARTS   AGE
+openebs-jiva-csi-controller-0                       5/5     Running   0          2m44s
+openebs-jiva-localpv-provisioner-55dc7b7578-pv2wn   1/1     Running   0          2m44s
+openebs-jiva-operator-dbd4f5d4b-wtckz               1/1     Running   0          2m44s
 ```
 
 Now our k8s cluster should be running with:
