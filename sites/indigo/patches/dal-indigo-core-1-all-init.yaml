@@ -16,9 +16,3 @@ machine:
 
   install:
     disk: /dev/sdb
-
-  disks:
-    - device: /dev/sda
-      # Above is hardcoded until https://github.com/siderolabs/talos/issues/5320
-      partitions:
-        - mountpoint: /var/mnt/attached_ssd

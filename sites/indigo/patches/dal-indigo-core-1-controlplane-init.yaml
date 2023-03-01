@@ -19,3 +19,9 @@ machine:
     nameservers:
       - 192.168.77.1
       - 192.168.77.129
+
+  disks:
+    - device: /dev/sda
+      # Above is hardcoded until https://github.com/siderolabs/talos/issues/5320
+      partitions:
+        - mountpoint: /var/mnt/attached_ssd
