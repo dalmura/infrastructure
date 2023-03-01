@@ -24,9 +24,9 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.151
-RPI4_2_IP=192.168.77.155
-RPI4_3_IP=192.168.77.159
+RPI4_1_IP=192.168.77.155
+RPI4_2_IP=192.168.77.161
+RPI4_3_IP=192.168.77.162
 ```
 
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
@@ -100,12 +100,13 @@ Configure each nodes config file:
 mkdir -p nodes/dal-indigo-core-1/
 
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
 
-# Repeat noting down the HW ADDR for each node
-# Remove all ':' from the HW ADDR and you're left with:
-RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4d95'
+# Repeat noting down the HW ADDR for each node from above, for example:
+RPI4_1_HW_ADDR='e45f019d4d95'
+RPI4_2_HW_ADDR='e45f019d4ca8'
 RPI4_3_HW_ADDR='e45f019d4e19'
 
 # Copy the configs
@@ -115,13 +116,17 @@ cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/contro
 
 # Edit and set:
 # machine.network.hostname: "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
+# (mac is gsed, linux is sed)
+gsed -i "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
 ```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.
 
 Apply the config for the first node:
 ```bash
-talosctl apply-config --insecure -n "${RPI4_1_IP}" -f nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml
+talosctl apply-config --insecure -n "${RPI4_1_IP}" -f "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
 ```
 
 Update your local device with the new credentials to talk to the cluster:

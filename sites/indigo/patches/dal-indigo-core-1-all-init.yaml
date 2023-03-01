@@ -2,7 +2,7 @@ machine:
   nodeLabels:
     topology.kubernetes.io/region: "melbourne"
     topology.kubernetes.io/zone: "indigo"
-    node.kubernetes.io/instance-type: "<TO POPULATE>"
+    node.kubernetes.io/instance-type: "<NODE_INSTANCE_TYPE>"
 
   network:
     hostname: "talos-<HW_ADDRESS>"

@@ -19,9 +19,9 @@ flush
 
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.151
-RPI4_2_IP=192.168.77.155
-RPI4_3_IP=192.168.77.159
+RPI4_1_IP=192.168.77.155
+RPI4_2_IP=192.168.77.161
+RPI4_3_IP=192.168.77.162
 ```
 
 Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
@@ -29,12 +29,14 @@ Using the config generated as part of the Control Plane bootstrap, we'll copy an
 Apply the config for each node:
 ```bash
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
-RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4d95'
+RPI4_1_HW_ADDR='e45f019d4d95'
+RPI4_2_HW_ADDR='e45f019d4ca8'
 RPI4_3_HW_ADDR='e45f019d4e19'
 
 # Copy the configs
@@ -42,14 +44,22 @@ cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-
 cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
 cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
-# Edit and set:
-# machine.network.hostname:         "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
-# k8s.dalmura.cloud/nodegroup:      "<TO POPULATE>"      => "rpi4-worker-pool"
-# node.kubernetes.io/instance-type: "<TO POPULATE>"      => "rpi4.8gb.arm64"
+# Edit and set
+gsed -i "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
+
+gsed -i 's/<NODE_INSTANCE_TYPE>/rpi4.8gb.arm64/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
+gsed -i 's/<K8S_NODE_GROUP>/rpi4-worker-pool/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
 
 talosctl apply-config --insecure -n "${RPI4_1_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${RPI4_2_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${RPI4_3_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml
+
+# If you want to watch the individual nodes bootstrap
+talosctl -n "${RPI4_1_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+talosctl -n "${RPI4_2_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+talosctl -n "${RPI4_3_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ```
 
 Verify the nodes become Ready:

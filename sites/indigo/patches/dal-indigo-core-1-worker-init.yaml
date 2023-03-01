@@ -1,6 +1,6 @@
 machine:
   nodeLabels:
-    k8s.dalmura.cloud/nodegroup: "<TO POPULATE>"
+    k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
 
   network:
     interfaces:
