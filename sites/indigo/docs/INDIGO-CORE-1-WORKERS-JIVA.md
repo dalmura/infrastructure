@@ -1,4 +1,4 @@
-# Provision extra configuration for dal-indigo-core-1's `rpi4.8gb.arm` Workers
+# Provision OpenEBS for dal-indigo-core-1's `rpi4.8gb.arm` Workers
 
 We assume you've got dal-indigo-core-1's `rpi4.8gb.arm` Workers running and Ready according to `kubectl get nodes`!
 
@@ -9,7 +9,7 @@ RPI4_2_IP=192.168.77.161
 RPI4_3_IP=192.168.77.162
 ```
 
-## OpenEBS Jiva
+Install isci talos extension:
 ```bash
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -e 192.168.77.130 -n "${RPI4_1_IP}" patch mc -p @patches/dal-indigo-core-1-worker-jiva.yaml
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -e 192.168.77.130 -n "${RPI4_2_IP}" patch mc -p @patches/dal-indigo-core-1-worker-jiva.yaml

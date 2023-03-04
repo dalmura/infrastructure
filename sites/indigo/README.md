@@ -19,3 +19,4 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [`Site hardware`](docs/INDIGO-HARDWARE.md)
 * [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
 * [`dal-indigo-core-1` Workers](docs/INDIGO-CORE-1-WORKERS.md)
+  * [`dal-indigo-core-1` Workers - OpenEBS Jiva](docs/INDIGO-CORE-1-WORKERS-JIVA.md)
