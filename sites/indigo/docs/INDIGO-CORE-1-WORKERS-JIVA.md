@@ -77,7 +77,7 @@ We then install the helm chart
 ```bash
 helm repo add openebs-jiva https://openebs.github.io/jiva-operator
 helm repo update
-helm upgrade --kubeconfig kubeconfigs/dal-indigo-core-1 --install --namespace openebs --version 3.4.0 openebs-jiva openebs-jiva/jiva
+helm upgrade --kubeconfig kubeconfigs/dal-indigo-core-1 --install --namespace openebs --version 3.4.0 --values patches/dal-indigo-core-1-worker-jiva-helm-values.yaml openebs-jiva openebs-jiva/jiva
 ```
 
 You can now verify if the pods are coming up
@@ -194,3 +194,17 @@ Now our k8s cluster should be running with:
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
+
+
+If you want to remove the install:
+```bash
+# Remove the application
+helm uninstall --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace openebs openebs-jiva
+
+# Remove the namespace
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 delete -f patches/dal-indigo-core-1-worker-jiva-namespace.yaml
+
+# Cleanup the Talos extensions
+# You would have to manually patch the MachineConfig for each worker node removing the `ghcr.io/siderolabs/iscsi-tools:v0.1.4` extensions
+# After this you'd then upgrade the nodes one-by-one to complete the removal
+```

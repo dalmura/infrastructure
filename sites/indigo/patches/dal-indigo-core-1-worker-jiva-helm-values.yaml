@@ -1,0 +1,11 @@
+---
+defaultPolicy:
+  # Until we have 3x worker nodes
+  replicas: 2
+
+storageClass:
+  name: openebs-jiva-worker-replicated
+  isDefaultClass: true
+
+analytics:
+  enabled: false
