@@ -25,3 +25,10 @@ machine:
       # Above is hardcoded until https://github.com/siderolabs/talos/issues/5320
       partitions:
         - mountpoint: /var/mnt/attached_ssd
+
+cluster:
+  proxy:
+    disabled: true
+  network:
+    cni:
+      name: none
