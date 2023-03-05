@@ -14,6 +14,13 @@ We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 
 Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.com/) or [Sidero](https://www.sidero.dev/) won't be used due to high cost and hardware incompatibilities respectively. See [archived/indigo-sidero](/sites/archived/indigo-sidero/) for an initial attempt at getting Sidero working, but ultimately failing due to hardware incompatibilites.
 
+## Cluster Composition
+* [Cilium CNI](https://cilium.io/get-started/)
+  * Network Policies
+  * kube-proxy replacement
+* [OpenEBS Jiva](https://openebs.io/docs/concepts/jiva)
+  * Replicated container volumes
+
 ## Configuration
 
 * [`Site hardware`](docs/INDIGO-HARDWARE.md)
