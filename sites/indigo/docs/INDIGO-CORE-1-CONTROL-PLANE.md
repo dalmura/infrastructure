@@ -106,9 +106,9 @@ talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node from above, for example:
-RPI4_1_HW_ADDR='e45f019d4d95'
-RPI4_2_HW_ADDR='e45f019d4ca8'
-RPI4_3_HW_ADDR='e45f019d4e19'
+RPI4_1_HW_ADDR='e45f019d4e19'
+RPI4_2_HW_ADDR='e45f019d4d95'
+RPI4_3_HW_ADDR='e45f019d4ca8'
 
 # Copy the configs
 cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
@@ -185,6 +185,15 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ```
 
 ## Setup Cilium CNI
+Wait until you see the following message:
+```bash
+192.168.77.162: user: warning: [2023-03-05T08:56:23.329747866Z]: [talos] task labelNodeAsControlPlane (1/1): done, 1m36.057918733s
+192.168.77.162: user: warning: [2023-03-05T08:56:23.341618866Z]: [talos] phase labelControlPlane (20/22): done, 1m36.077209996s
+192.168.77.162: user: warning: [2023-03-05T08:56:23.353128866Z]: [talos] phase uncordon (21/22): 1 tasks(s)
+192.168.77.162: user: warning: [2023-03-05T08:56:23.360720866Z]: [talos] task uncordonNode (1/1): starting
+```
+
+Install Cilium
 ```bash
 helm repo add cilium https://helm.cilium.io/
 helm repo update
@@ -193,6 +202,7 @@ export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
 export KUBERNETES_API_SERVER_PORT=6443
 
 helm install cilium cilium/cilium \
+    --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --version "${CILIUM_VERSION}" \
     --namespace kube-system \
     --set ipam.mode=kubernetes \
@@ -201,13 +211,34 @@ helm install cilium cilium/cilium \
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}"
 
 # Check the progress of the CNI install
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -A
+NAMESPACE     NAME                                         READY   STATUS     RESTARTS       AGE
+kube-system   cilium-d4wbv                                 0/1     Init:0/5   0              54s
+kube-system   cilium-operator-5c6c66956-q2wm8              1/1     Running    0              54s
+kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0              54s
+...
+
+# You should then see the following
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+...
+192.168.77.162: kern:    info: [2023-03-05T09:01:29.260535383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_net: link becomes ready
+192.168.77.162: kern:    info: [2023-03-05T09:01:29.269130383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_host: link becomes ready
+192.168.77.162: kern:    info: [2023-03-05T09:02:09.753480383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxc_health: link becomes ready
+192.168.77.162: kern:    info: [2023-03-05T09:02:23.617665383Z]: eth0: renamed from tmp450b6
+192.168.77.162: kern:    info: [2023-03-05T09:02:23.660361383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+192.168.77.162: kern:    info: [2023-03-05T09:02:23.668475383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxce6f8cf488dfa: link becomes ready
+192.168.77.162: kern:    info: [2023-03-05T09:02:24.546442383Z]: eth0: renamed from tmp69ebb
+192.168.77.162: kern:    info: [2023-03-05T09:02:24.585055383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxc27818c5af043: link becomes ready
+192.168.77.162: user: warning: [2023-03-05T09:04:53.187945002Z]: [talos] task uncordonNode (1/1): done, 8m29.482576827s
+192.168.77.162: user: warning: [2023-03-05T09:04:53.196419002Z]: [talos] phase uncordon (21/22): done, 8m29.498662815s
+192.168.77.162: user: warning: [2023-03-05T09:04:53.204620002Z]: [talos] phase bootloader (22/22): 1 tasks(s)
+192.168.77.162: user: warning: [2023-03-05T09:04:53.212291002Z]: [talos] task updateBootloader (1/1): starting
+192.168.77.162: user: warning: [2023-03-05T09:04:53.269665002Z]: [talos] task updateBootloader (1/1): done, 57.382106ms
+192.168.77.162: user: warning: [2023-03-05T09:04:53.277062002Z]: [talos] phase bootloader (22/22): done, 72.47031ms
+192.168.77.162: user: warning: [2023-03-05T09:04:53.284080002Z]: [talos] boot sequence: done: 11m27.904096412s
 
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
-
-# The node's status should become Ready when you see a bunch of `cni0` related logs appear after the above
-# As Talos only marks the cluster bootstrap as complete after the CNI has come up
 ```
 
 ## Onboard the other Control Plane nodes

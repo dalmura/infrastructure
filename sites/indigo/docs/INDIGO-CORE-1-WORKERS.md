@@ -45,9 +45,9 @@ cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-
 cp templates/dal-indigo-core-1/worker.yaml "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
 # Edit and set
-gsed -i "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
-gsed -i "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
-gsed -i "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
+gsed -i "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
 gsed -i 's/<NODE_INSTANCE_TYPE>/rpi4.8gb.arm64/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
 gsed -i 's/<K8S_NODE_GROUP>/rpi4-worker-pool/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
