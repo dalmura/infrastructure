@@ -25,9 +25,9 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.155
-RPI4_2_IP=192.168.77.161
-RPI4_3_IP=192.168.77.162
+RPI4_1_IP=192.168.77.158
+RPI4_2_IP=192.168.77.162
+RPI4_3_IP=192.168.77.166
 ```
 
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
@@ -106,8 +106,8 @@ talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node from above, for example:
-RPI4_1_HW_ADDR='e45f019d4e19'
-RPI4_2_HW_ADDR='e45f019d4d95'
+RPI4_1_HW_ADDR='e45f019d4d95'
+RPI4_2_HW_ADDR='e45f019d4e19'
 RPI4_3_HW_ADDR='e45f019d4ca8'
 
 # Copy the configs
@@ -155,15 +155,10 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig bootstrap
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 
 # Keep an eye until you see the following logs fly past:
-192.168.77.20: user: warning: [2022-11-19T01:39:08.487418318Z]: [talos] phase labelControlPlane (17/19): done, 1m43.004679272s
-192.168.77.20: user: warning: [2022-11-19T01:39:08.497915318Z]: [talos] phase uncordon (18/19): 1 tasks(s)
-192.168.77.20: user: warning: [2022-11-19T01:40:11.102102078Z]: [talos] task uncordonNode (1/1): done, 1m2.212281572s
-192.168.77.20: user: warning: [2022-11-19T01:40:11.110591078Z]: [talos] phase uncordon (18/19): done, 1m2.228608374s
-192.168.77.20: user: warning: [2022-11-19T01:40:11.118872078Z]: [talos] phase bootloader (19/19): 1 tasks(s)
-192.168.77.20: user: warning: [2022-11-19T01:40:11.126706078Z]: [talos] task updateBootloader (1/1): starting
-192.168.77.20: user: warning: [2022-11-19T01:40:11.187985078Z]: [talos] task updateBootloader (1/1): done, 61.278313ms
-192.168.77.20: user: warning: [2022-11-19T01:40:11.195462078Z]: [talos] phase bootloader (19/19): done, 76.612441ms
-192.168.77.20: user: warning: [2022-11-19T01:40:11.202824078Z]: [talos] boot sequence: done: 4m26.855228102s
+192.168.77.158: user: warning: [2023-03-06T11:00:58.84029738Z]: [talos] task labelNodeAsControlPlane (1/1): done, 1m16.097862012s
+192.168.77.158: user: warning: [2023-03-06T11:00:58.85223238Z]: [talos] phase labelControlPlane (20/22): done, 1m16.118437632s
+192.168.77.158: user: warning: [2023-03-06T11:00:58.86377438Z]: [talos] phase uncordon (21/22): 1 tasks(s)
+192.168.77.158: user: warning: [2023-03-06T11:00:58.87140838Z]: [talos] task uncordonNode (1/1): starting
 
 # Verify you can ping the floating Virtual IP (VIP)
 # This assumes you're on a network segment that can do this!
@@ -180,20 +175,10 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig kubeconfig kubeco
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
-# You will then see the progress stop as Talos waits for the CNI to be provisioned
-talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+# This will be NotReady until we apply the CNI
 ```
 
 ## Setup Cilium CNI
-Wait until you see the following message:
-```bash
-192.168.77.162: user: warning: [2023-03-05T08:56:23.329747866Z]: [talos] task labelNodeAsControlPlane (1/1): done, 1m36.057918733s
-192.168.77.162: user: warning: [2023-03-05T08:56:23.341618866Z]: [talos] phase labelControlPlane (20/22): done, 1m36.077209996s
-192.168.77.162: user: warning: [2023-03-05T08:56:23.353128866Z]: [talos] phase uncordon (21/22): 1 tasks(s)
-192.168.77.162: user: warning: [2023-03-05T08:56:23.360720866Z]: [talos] task uncordonNode (1/1): starting
-```
-
-Install Cilium
 ```bash
 helm repo add cilium https://helm.cilium.io/
 helm repo update
@@ -208,8 +193,13 @@ helm install cilium cilium/cilium \
     --set ipam.mode=kubernetes \
     --set kubeProxyReplacement=strict \
     --set enableXTSocketFallback=false \
+    --set securityContext.privileged=true \
     --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}"
+
+# We need --securityContext.privileged because of
+# https://github.com/cilium/cilium/issues/21603
+# This issue was causing the coredns pods to never become Ready
 
 # Check the progress of the CNI install
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -A
@@ -217,6 +207,8 @@ NAMESPACE     NAME                                         READY   STATUS     RE
 kube-system   cilium-d4wbv                                 0/1     Init:0/5   0              54s
 kube-system   cilium-operator-5c6c66956-q2wm8              1/1     Running    0              54s
 kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0              54s
+
+# Wait until these become Ready
 ...
 
 # You should then see the following
@@ -240,6 +232,9 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
+
+# And confirm coredns is Running
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace kube-system get pods
 ```
 
 ## Onboard the other Control Plane nodes
