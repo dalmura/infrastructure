@@ -69,6 +69,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
+  * Cilium in Strict Mode as the CNI
 * 3x rpi4.8gb.arm64 Worker nodes
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN

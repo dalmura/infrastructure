@@ -192,6 +192,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace openebs delete pv
 
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
+  * Cilium in Strict Mode as the CNI
 * 3x rpi4.8gb.arm64 Worker nodes
   * OpenEBS Jiva configured as a CSI Storage Class
 * Floating VIPs for easy k8s Control Plane access
