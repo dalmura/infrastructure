@@ -20,6 +20,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
   * kube-proxy replacement
 * [OpenEBS Jiva](https://openebs.io/docs/concepts/jiva)
   * Replicated container volumes
+* [ArgoCD](https://argo-cd.readthedocs.io/en/stable/)
+  * Deployment tool managing all other applications
 
 ## Configuration
 
@@ -27,3 +29,4 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
 * [`dal-indigo-core-1` Workers](docs/INDIGO-CORE-1-WORKERS.md)
   * [`dal-indigo-core-1` Workers - OpenEBS Jiva](docs/INDIGO-CORE-1-WORKERS-JIVA.md)
+  * [`dal-indigo-core-1` Workers - ArgoCD](docs/INDIGO-CORE-1-WORKERS-ARGOCD.md)
