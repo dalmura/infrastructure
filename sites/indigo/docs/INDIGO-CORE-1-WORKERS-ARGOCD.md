@@ -3,7 +3,7 @@
 We assume you've got dal-indigo-core-1's `rpi4.8gb.arm` Workers running and Ready according to `kubectl get nodes`!
 
 Install the non-HA Argo CD into its own namespace
-```
+```bash
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-namespace.yaml
 namespace/argocd created
 
@@ -31,6 +31,20 @@ argocd-repo-server-74f6bfdf54-k276v                 0/1     Init:0/1            
 argocd-server-76fdbd5f78-mkx2p                      0/1     ContainerCreating   0          82s
 ```
 
+You can then verify the application is operational via port forwarding:
+```bash
+# Retrieve the default password
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+
+# Setup port forwarding
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/argocd-server -n argocd 8080:443
+
+# Go to https://localhost:8080
+# Login with `admin` and the above password
+# Immediately go to User Info => Update Password and set a new one
+# Delete the default password secret
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argocd-initial-admin-secret
+```
 
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
