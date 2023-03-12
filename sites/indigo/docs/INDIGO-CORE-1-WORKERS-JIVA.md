@@ -1,12 +1,12 @@
-# Provision OpenEBS for dal-indigo-core-1's `rpi4.8gb.arm` Workers
+# Provision OpenEBS Jiva for dal-indigo-core-1's `rpi4.8gb.arm` Workers
 
 We assume you've got dal-indigo-core-1's `rpi4.8gb.arm` Workers running and Ready according to `kubectl get nodes`!
 
 Export the worker nodes:
 ```bash
-RPI4_1_IP=192.168.77.155
-RPI4_2_IP=192.168.77.161
-RPI4_3_IP=192.168.77.162
+RPI4_1_IP=192.168.77.157
+RPI4_2_IP=192.168.77.167
+RPI4_3_IP=192.168.77.168
 ```
 
 Install isci talos extension:
@@ -77,7 +77,11 @@ We then install the helm chart
 ```bash
 helm repo add openebs-jiva https://openebs.github.io/jiva-operator
 helm repo update
-helm upgrade --kubeconfig kubeconfigs/dal-indigo-core-1 --install --namespace openebs --version 3.4.0 --values patches/dal-indigo-core-1-worker-jiva-helm-values.yaml openebs-jiva openebs-jiva/jiva
+helm install openebs-jiva openebs-jiva/jiva \
+    --kubeconfig kubeconfigs/dal-indigo-core-1 \
+    --version 3.4.0 \
+    --namespace openebs \
+    --values patches/dal-indigo-core-1-worker-jiva-helm-values.yaml
 ```
 
 You can now verify if the pods are coming up
@@ -115,15 +119,14 @@ persistentvolumeclaim/example-jiva-csi-pvc created
 
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace openebs get pvc
 
-NAME                                                          STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS               AGE
-example-jiva-csi-pvc                                          Bound     pvc-c43f4d36-9da1-4175-89e3-64567cfcbaa6   4Gi        RWO            openebs-jiva-csi-default   15s
-openebs-pvc-c43f4d36-9da1-4175-89e3-64567cfcbaa6-jiva-rep-0   Pending                                                                        openebs-hostpath           12s
-openebs-pvc-c43f4d36-9da1-4175-89e3-64567cfcbaa6-jiva-rep-1   Pending                                                                        openebs-hostpath           12s
-openebs-pvc-c43f4d36-9da1-4175-89e3-64567cfcbaa6-jiva-rep-2   Pending                                                                        openebs-hostpath           12s
+NAME                                                          STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                     AGE
+example-jiva-csi-pvc                                          Bound     pvc-d8cdb9a2-e1aa-4768-9928-36d995eb8e11   4Gi        RWO            openebs-jiva-worker-replicated   8s
+openebs-pvc-d8cdb9a2-e1aa-4768-9928-36d995eb8e11-jiva-rep-0   Pending                                                                        openebs-hostpath                 5s
+openebs-pvc-d8cdb9a2-e1aa-4768-9928-36d995eb8e11-jiva-rep-1   Pending                                                                        openebs-hostpath                 5s
 
 # It will take some time for the pvc-abc123-jiva-ctrl to come up
 # As it takes some time to pull all the container images
-# We can see here the volume will have 3x replicas
+# We can see here the volume will have 2x replicas
 # This can be configured to be lower/higher in the Helm chart values
 
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace openebs apply --filename patches/dal-indigo-core-1-worker-jiva-test-deployment.yaml
