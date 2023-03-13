@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: externaldns
+
+resources:
+  - github.com/dalmura/workloads/externaldns?ref=HEAD
+
+secretGenerator:
+  - name: iam-credentials
+    type: Opaque
+    files:
+      - credentials
+
+patchesStrategicMerge:
+  - aws_deployment.yaml

@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    path: cert-manager
+    repoURL: https://github.com/dalmura/workloads
+    targetRevision: HEAD
+  destination:
+    namespace: cert-manager
+    server: {{ .Values.spec.destination.server }}

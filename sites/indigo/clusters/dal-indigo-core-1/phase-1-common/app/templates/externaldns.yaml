@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: externaldns
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dalmura/infrastructure
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-1-common/overlays/externaldns
+    targetRevision: HEAD
+  destination:
+    namespace: externaldns
+    server: {{ .Values.spec.destination.server }}
