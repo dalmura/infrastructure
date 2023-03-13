@@ -39,9 +39,15 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-i
 # Setup port forwarding
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/argocd-server -n argocd 8080:443
 
-# Go to https://localhost:8080
-# Login with `admin` and the above password
-# Immediately go to User Info => Update Password and set a new one
+# Install CLI tool
+brew install argocd
+
+# Log in via the CLI
+argocd login localhost:8080
+
+# Update the default password
+argocd account update-password
+
 # Delete the default password secret
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argocd-initial-admin-secret
 ```
