@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/metallb/metallb
+    repoURL: https://github.com/metallb/metallb.git
     path: config/native
     targetRevision: v0.13.9
   destination:

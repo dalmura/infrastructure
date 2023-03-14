@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     path: cert-manager
-    repoURL: https://github.com/dalmura/workloads
+    repoURL: https://github.com/dalmura/workloads.git
     targetRevision: HEAD
   destination:
     namespace: cert-manager
