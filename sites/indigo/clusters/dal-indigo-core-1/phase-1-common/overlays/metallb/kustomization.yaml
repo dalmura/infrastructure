@@ -5,5 +5,5 @@ namespace: externaldns
 
 resources:
   - github.com/metallb/metallb/config/native?ref=v0.13.9
-  - address_pools.yaml
-  - l2_advertisements.yaml
+  - pools.yaml
+  - advertisements.yaml
