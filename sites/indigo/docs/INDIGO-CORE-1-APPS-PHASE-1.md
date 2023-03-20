@@ -16,14 +16,19 @@ pushd clusters/dal-indigo-core-1/phase-1-common/app/templates/
 % cat metallb.yaml
 ...
   source:
-    repoURL: https://github.com/metallb/metallb.git
-    path: config/native
-    targetRevision: v0.13.9
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-1-common/overlays/metallb
+    targetRevision: HEAD
 ...
 
 # This would equate to the following kustomize command
 # All k8s resources that would be created are printed out by this
-kubectl kustomize 'https://github.com/metallb/metallb.git/config/native?ref=v0.13.9'
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-1-common/overlays/metallb?ref=HEAD'
+
+# Other phase-1 apps
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-1-common/overlays/externaldns?ref=HEAD'
+
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-1-common/overlays/cert-manager?ref=HEAD'
 ```
 
 ## Create the phase-1 parent app
