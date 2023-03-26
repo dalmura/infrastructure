@@ -7,6 +7,36 @@ These are:
 
 We assume you've followed the steps at [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster.
 
+We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 0 - Secrets](INDIGO-CORE-1-APPS-PHASE-0.md) and have all the precursor phases up, running and tested, especially `kubeseal`.
+
+## Create and seal the Secrets
+A few resources require secrets to be created and committed into the repo
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/phase-1-common/overlays'
+
+# Secret 'aws-route53-credentials-secret' for cert-manager
+kubectl create secret generic \
+  aws-route53-credentials-secret \
+  --namespace cert-manager \
+  --dry-run=client \
+  --from-literal 'ACCESS_KEY_ID=<your-access-key-id-here>' \
+  --from-literal 'SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/cert-manager/aws-route53-credentials-secret.sealed.yaml
+
+# Secret 'iam-credentials' for externaldns
+echo '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_access_key = <your-secret-access-key-here>' \
+  | kubectl create secret generic \
+  iam-credentials \
+  --namespace externaldns \
+  --dry-run=client \
+  --from-file 'credentials=/dev/stdin' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/externaldns/credentials.sealed.yaml
+```
+
 ## Verifying apps
 
 You can verify the k8s resources emitted by each app by running `kustomize` yourself

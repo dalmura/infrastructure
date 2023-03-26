@@ -5,12 +5,7 @@ namespace: externaldns
 
 resources:
   - github.com/dalmura/workloads/externaldns?ref=HEAD
-
-secretGenerator:
-  - name: iam-credentials
-    type: Opaque
-    files:
-      - credentials
+  - credentials.sealed.yaml
 
 patchesStrategicMerge:
   - aws_deployment.yaml

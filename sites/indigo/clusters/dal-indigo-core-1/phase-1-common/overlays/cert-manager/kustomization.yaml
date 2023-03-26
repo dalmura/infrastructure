@@ -5,10 +5,5 @@ namespace: cert-manager
 
 resources:
   - github.com/dalmura/workloads/cert-manager?ref=HEAD
+  - aws-route53-credentials-secret.sealed.yaml
   - issuer.yaml
-
-secretGenerator:
-  - name: aws-route53-credentials-secret
-    type: Opaque
-    envs:
-      - credentials.env
