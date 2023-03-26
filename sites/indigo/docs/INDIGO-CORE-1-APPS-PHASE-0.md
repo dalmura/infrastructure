@@ -34,3 +34,21 @@ argocd app create phase-0-secrets \
 
 argocd app sync phase-0-secrets
 ```
+
+## Install kubeseal
+```bash
+# Mac
+brew install kubeseal
+
+# Linux
+VERSION='0.20.2'
+wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${VERSION}/kubeseal-${VERSION}-linux-amd64.tar.gz"
+tar -xvzf "kubeseal-${VERSION}-linux-amd64.tar.gz" kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+You can then test it out:
+```bash
+# Print out the public key of this server
+kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 --fetch-cert
+```
