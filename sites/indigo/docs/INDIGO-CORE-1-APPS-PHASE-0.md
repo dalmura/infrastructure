@@ -32,7 +32,11 @@ argocd app create phase-0-secrets \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/phase-0-secrets/app
 
+# Create the child applications
 argocd app sync phase-0-secrets
+
+# Deploy the child applications
+argocd app sync -l app.kubernetes.io/instance=phase-0-secrets
 ```
 
 ## Install kubeseal
