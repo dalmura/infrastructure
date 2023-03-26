@@ -69,5 +69,9 @@ argocd app create phase-1-common \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/phase-1-common/app
 
+# Create the child applications
 argocd app sync phase-1-common
+
+# Deploy the child applications
+argocd app sync -l app.kubernetes.io/instance=phase-1-common
 ```
