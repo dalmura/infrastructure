@@ -45,11 +45,13 @@ brew install argocd
 # Log in via the CLI
 argocd login localhost:8080
 
-# Update the default password
+# Update the default password for admin
 argocd account update-password
 
 # Delete the default password secret
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argocd-initial-admin-secret
+
+# Navigate to https://localhost:8080 and log in with your credentials
 ```
 
 Now our k8s cluster should be running with:
