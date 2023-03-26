@@ -29,6 +29,11 @@ argocd-notifications-controller-5fd999cb79-9p7wn    0/1     ContainerCreating   
 argocd-redis-6b7c6f67db-kmn74                       1/1     Running             0          82s
 argocd-repo-server-74f6bfdf54-k276v                 0/1     Init:0/1            0          82s
 argocd-server-76fdbd5f78-mkx2p                      0/1     ContainerCreating   0          82s
+
+# Lastly apply an override for the default project to ignore Cilium resources
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-default-project.yaml
+
+# This works around https://github.com/cilium/cilium/issues/17349
 ```
 
 You can then verify the application is operational via port forwarding:
