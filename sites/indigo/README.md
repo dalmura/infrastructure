@@ -18,6 +18,7 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [Cilium CNI](https://cilium.io/get-started/)
   * Network Policies
   * kube-proxy replacement
+  * Built-in Ingress Controller
 * [OpenEBS Jiva](https://openebs.io/docs/concepts/jiva)
   * Replicated container volumes
 * [ArgoCD](https://argo-cd.readthedocs.io/en/stable/)
@@ -30,8 +31,6 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
   * TLS Certificate management (mainly internal hosted websites)
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns)
   * AWS Route53 record management
-* [Traefik Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
-  * Managing HTTPS connections into the cluster
 
 ## Configuration
 

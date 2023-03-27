@@ -1,6 +1,6 @@
 apiVersion: v2
-name: phase-2-ingress
-description: Cluster Ingress controller
+name: phase-2-auth
+description: Auth for all workload apps
 
 type: application
 
