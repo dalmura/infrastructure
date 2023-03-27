@@ -211,10 +211,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --namespace kube-system \
     --reuse-values \
     # Provide new values below, remember to update the above too
-    --set ingressController.enabled=true \
-    --set ingressController.default=true \
-    --set ingressController.loadbalancerMode=shared \
-    --set ingressController.service.annotations.external-dns\.alpha\.kubernetes\.io/target=indigo.dalmura.cloud
+    --set ingressController.enabled=false \
 
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --namespace kube-system \
