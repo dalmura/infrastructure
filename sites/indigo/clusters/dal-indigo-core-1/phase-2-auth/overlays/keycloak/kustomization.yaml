@@ -4,5 +4,5 @@ kind: Kustomization
 namespace: keycloak
 
 resources:
-  - github.com/dalmura/workloads/keycloak?ref=HEAD
+  - github.com/dalmura/workloads/keycloak-demo?ref=HEAD
   - ingress.yaml
