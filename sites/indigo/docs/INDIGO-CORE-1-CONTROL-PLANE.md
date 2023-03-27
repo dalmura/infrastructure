@@ -180,15 +180,15 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 ## Setup Cilium CNI
 ```bash
-helm repo add cilium https://helm.cilium.io/
-helm repo update
+% helm repo add cilium https://helm.cilium.io/
+% helm repo update
 
-export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
-export KUBERNETES_API_SERVER_PORT=6443
+% export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
+% export KUBERNETES_API_SERVER_PORT=6443
 
-helm install cilium cilium/cilium \
-    --kubeconfig kubeconfigs/dal-indigo-core-1 \
+% helm install cilium cilium/cilium \
     --version "${CILIUM_VERSION}" \
+    --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --namespace kube-system \
     --set ipam.mode=kubernetes \
     --set kubeProxyReplacement=strict \
@@ -198,7 +198,26 @@ helm install cilium cilium/cilium \
     --set=cgroup.autoMount.enabled=false \
     --set=cgroup.hostRoot=/sys/fs/cgroup \
     --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
-    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}"
+    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
+    --set ingressController.enabled=true \
+    --set ingressController.loadbalancerMode=shared
+
+# To upgrade/change the above you can
+% helm upgrade cilium cilium/cilium \
+    --version "${CILIUM_VERSION}" \
+    --kubeconfig kubeconfigs/dal-indigo-core-1 \
+    --namespace kube-system \
+    --reuse-values \
+    # Provide new values below, remember to update the above too
+    --set ingressController.enabled=true \
+    --set ingressController.loadbalancerMode=shared
+
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
+    --namespace kube-system \
+    rollout restart deployment/cilium-operator
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
+    --namespace kube-system \
+    rollout restart ds/cilium
 
 # Check the progress of the CNI install
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -A
@@ -210,7 +229,7 @@ kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0 
 # Wait until these become Ready
 
 # You should then see the following
-talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+% talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ...
 192.168.77.162: kern:    info: [2023-03-05T09:01:29.260535383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_net: link becomes ready
 192.168.77.162: kern:    info: [2023-03-05T09:01:29.269130383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_host: link becomes ready
