@@ -200,9 +200,9 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
     --set ingressController.enabled=true \
-    --set ingressController.default=true \
     --set ingressController.loadbalancerMode=shared \
-    --set 'ingressController.service.annotations.external-dns\.alpha\.kubernetes\.io/target=indigo.dalmura.cloud'
+    --set hubble.relay.enabled=true \
+    --set hubble.ui.enabled=true
 
 # To upgrade/change the above you can
 % helm upgrade cilium cilium/cilium \
