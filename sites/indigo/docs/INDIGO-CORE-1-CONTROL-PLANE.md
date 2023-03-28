@@ -202,7 +202,8 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --set ingressController.enabled=true \
     --set ingressController.loadbalancerMode=shared \
     --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --set hubble.ui.enabled=true \
+    --set hubble.peerService.clusterDomain=core-1.indigo.dalmura.cloud
 
 # To upgrade/change the above you can
 % helm upgrade cilium cilium/cilium \
@@ -254,6 +255,21 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 # And confirm coredns is Running
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace kube-system get pods
+```
+
+## Install Cilium CLI
+
+See the [doco here](https://docs.cilium.io/en/v1.13/gettingstarted/k8s-install-default/#install-the-cilium-cli) and follow the steps to install.
+
+Verify Cilium is running:
+```bash
+export KUBECONFIG='kubeconfigs/dal-indigo-core-1'
+
+# Report on the setup status
+cilium status --wait
+
+# Open Hubble and verify
+cilium hubble ui
 ```
 
 ## Onboard the other Control Plane nodes

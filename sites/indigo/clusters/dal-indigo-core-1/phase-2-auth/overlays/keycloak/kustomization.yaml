@@ -6,3 +6,6 @@ namespace: keycloak
 resources:
   - github.com/dalmura/workloads/keycloak-demo?ref=HEAD
   - ingress.yaml
+
+patchesStrategicMerge:
+  - deployment_override.yaml
