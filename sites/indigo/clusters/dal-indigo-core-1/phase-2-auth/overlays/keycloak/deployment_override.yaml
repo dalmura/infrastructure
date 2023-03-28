@@ -6,5 +6,5 @@
 - op: add
   path: "/spec/template/spec/containers/0/env/0"
   value:
-    name: KEYCLOAK_LOGLEVEL
+    name: KC_LOG_LEVEL
     value: DEBUG
