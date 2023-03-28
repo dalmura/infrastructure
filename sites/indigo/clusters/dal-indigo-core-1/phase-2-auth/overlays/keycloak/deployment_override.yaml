@@ -3,3 +3,8 @@
   value:
     name: KC_HOSTNAME
     value: "auth.dalmura.cloud"
+- op: add
+  path: "/spec/template/spec/containers/0/env/0"
+  value:
+    name: KEYCLOAK_LOGLEVEL
+    value: DEBUG
