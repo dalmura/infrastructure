@@ -2,8 +2,8 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.3.5
-export CILIUM_VERSION=1.13.0
+export TALOS_VERSION=v1.4.0
+export CILIUM_VERSION=1.13.2
 ```
 
 ## Form the k8s cluster
@@ -61,7 +61,6 @@ talosctl gen config \
     --talos-version "${TALOS_VERSION}" \
     --with-cluster-discovery=false \
     --additional-sans 'core-1.indigo.dalmura.cloud' \
-    --dns-domain 'core-1.indigo.dalmura.cloud' \
     --config-patch @patches/dal-indigo-core-1-all-init.yaml \
     --config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml \
     --config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml \
@@ -81,8 +80,6 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 `--with-cluster-discovery=false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
 
 `--additional-sans` eventually the cluster will be accessed via these hostnames
-
-`--dns-domain` internal domain all pods use, not required, but nice to have set
 
 `--config-patch @patches/dal-indigo-core-1-all-init.yaml` contains:
 * General node labels for this site
@@ -186,6 +183,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 % export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
 % export KUBERNETES_API_SERVER_PORT=6443
 
+# Proper mode but broken on 1.13.2 (with the install cni binary feature)
 % helm install cilium cilium/cilium \
     --version "${CILIUM_VERSION}" \
     --kubeconfig kubeconfigs/dal-indigo-core-1 \
@@ -200,10 +198,25 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
     --set ingressController.enabled=true \
-    --set ingressController.loadbalancerMode=shared \
+    --set ingressController.loadbalancerMode=dedicated \
     --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true \
-    --set hubble.peerService.clusterDomain=core-1.indigo.dalmura.cloud
+    --set hubble.ui.enabled=true
+
+# Privileged mode to work around bugs
+% helm install cilium cilium/cilium \
+    --version "${CILIUM_VERSION}" \
+    --kubeconfig kubeconfigs/dal-indigo-core-1 \
+    --namespace kube-system \
+    --set ipam.mode=kubernetes \
+    --set kubeProxyReplacement=strict \
+    --set enableXTSocketFallback=false \
+    --set securityContext.privileged=true \
+    --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
+    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
+    --set ingressController.enabled=true \
+    --set ingressController.loadbalancerMode=dedicated \
+    --set hubble.relay.enabled=true \
+    --set hubble.ui.enabled=true
 
 # To upgrade/change the above you can
 % helm upgrade cilium cilium/cilium \
