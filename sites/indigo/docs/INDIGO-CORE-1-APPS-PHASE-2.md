@@ -35,7 +35,6 @@ argocd app create phase-2-auth \
 argocd app sync phase-2-auth
 ```
 
-
 ## Access Keycloak
 
 You can find the IP Address that is being announced by MetalLB by checking the Ingress resource in ArgoCD's UI or by running:
