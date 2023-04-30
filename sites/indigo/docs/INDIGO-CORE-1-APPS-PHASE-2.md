@@ -34,3 +34,15 @@ argocd app create phase-2-auth \
 
 argocd app sync phase-2-auth
 ```
+
+
+## Access Keycloak
+
+You can find the IP Address that is being announced by MetalLB by checking the Ingress resource in ArgoCD's UI or by running:
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n keycloak get ingress
+NAME       CLASS    HOSTS                ADDRESS          PORTS     AGE
+keycloak   cilium   auth.dalmura.cloud   192.168.77.141   80, 443   19m
+```
+
+Ensure that you have a local /etc/hosts override pointing auth.dalmura.cloud => Address then navigate to auth.dalmura.cloud from your browser.
