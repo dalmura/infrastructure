@@ -2,7 +2,7 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.4.0
+export TALOS_VERSION=v1.4.1
 export CILIUM_VERSION=1.13.2
 ```
 
@@ -25,9 +25,9 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.157
-RPI4_2_IP=192.168.77.167
-RPI4_3_IP=192.168.77.168
+RPI4_1_IP=192.168.77.252
+RPI4_2_IP=192.168.77.253
+RPI4_3_IP=192.168.77.254
 ```
 
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
@@ -103,9 +103,9 @@ talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node from above, for example:
-RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4e19'
-RPI4_3_HW_ADDR='e45f019d4d95'
+RPI4_1_HW_ADDR='e45f019d4d95'
+RPI4_2_HW_ADDR='e45f019d4e95'
+RPI4_3_HW_ADDR='e45f019d4ca8'
 
 # Copy the configs
 cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"

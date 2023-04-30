@@ -45,10 +45,12 @@ argocd app sync -l app.kubernetes.io/instance=phase-0-secrets
 brew install kubeseal
 
 # Linux
-VERSION='0.20.2'
-wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${VERSION}/kubeseal-${VERSION}-linux-amd64.tar.gz"
-tar -xvzf "kubeseal-${VERSION}-linux-amd64.tar.gz" kubeseal
+KUBESEAL_VERSION='0.20.5'
+wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
+tar -xvzf "kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" kubeseal
 sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+rm "kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
+rm kubeseal
 ```
 
 You can then test it out:
