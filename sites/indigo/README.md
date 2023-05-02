@@ -18,7 +18,6 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [Cilium CNI](https://cilium.io/get-started/)
   * Network Policies
   * kube-proxy replacement
-  * Built-in Ingress Controller
 * [OpenEBS Jiva](https://openebs.io/docs/concepts/jiva)
   * Replicated container volumes
 * [ArgoCD](https://argo-cd.readthedocs.io/en/stable/)
@@ -31,6 +30,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
   * TLS Certificate management (mainly internal hosted websites)
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns)
   * AWS Route53 record management
+* [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
+  * Ingress Controller
 
 ## Configuration
 
@@ -42,3 +43,4 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [`dal-indigo-core-1` Apps - Phase 0 - Secrets](docs/INDIGO-CORE-1-APPS-PHASE-0.md)
 * [`dal-indigo-core-1` Apps - Phase 1 - Common](docs/INDIGO-CORE-1-APPS-PHASE-1.md)
 * [`dal-indigo-core-1` Apps - Phase 2 - Ingress](docs/INDIGO-CORE-1-APPS-PHASE-2.md)
+* [`dal-indigo-core-1` Apps - Phase 3 - Auth](docs/INDIGO-CORE-1-APPS-PHASE-3.md)

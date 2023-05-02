@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-public
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-public
+    targetRevision: HEAD
+  destination:
+    namespace: traefik-public
+    server: {{ .Values.spec.destination.server }}

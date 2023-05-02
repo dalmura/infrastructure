@@ -1,0 +1,8 @@
+apiVersion: v2
+name: phase-2-ingress
+description: Ingress Controller for all workload apps
+
+type: application
+
+version: 1.0.0
+appVersion: "1.0.0"
