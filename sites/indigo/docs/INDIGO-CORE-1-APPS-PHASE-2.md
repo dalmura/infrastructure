@@ -11,11 +11,11 @@ You can verify the k8s resources emitted by each app by running `kustomize` your
 ```bash
 pushd clusters/dal-indigo-core-1/phase-2-auth/app/templates/
 
-% cat traefik.yaml
+% cat traefik-public.yaml
 ...
   source:
     repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-public
     targetRevision: HEAD
 ...
 
