@@ -21,7 +21,7 @@ pushd clusters/dal-indigo-core-1/phase-2-auth/app/templates/
 
 # This would equate to the following kustomize command
 # All k8s resources that would be created are printed out by this
-kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik?ref=HEAD'
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-public?ref=HEAD'
 ```
 
 ## Create the phase-2 parent app
