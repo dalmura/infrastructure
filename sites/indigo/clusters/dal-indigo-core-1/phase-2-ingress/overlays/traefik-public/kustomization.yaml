@@ -5,7 +5,7 @@ namespace: traefik-public
 
 resources:
   - namespace.yaml
-  - github.com/dalmura/workloads/traefik-ingress?ref=HEAD
+  - github.com/dalmura/workloads/traefik-ingress-controller?ref=HEAD
 
 patchesStrategicMerge:
   - service_account.yaml
