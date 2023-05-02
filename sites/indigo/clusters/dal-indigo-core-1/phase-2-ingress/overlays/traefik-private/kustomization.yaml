@@ -7,3 +7,4 @@ resources:
   - namespace.yaml
   - github.com/dalmura/workloads/traefik-ingress-controller?ref=HEAD
   - cluster_role_binding.yaml
+  - service.yaml

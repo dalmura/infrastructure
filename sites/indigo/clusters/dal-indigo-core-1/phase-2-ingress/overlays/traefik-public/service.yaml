@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-ingress-controller
+  annotations:
+    metallb.universe.tf/address-pool: servers-vlan
+spec:
+  selector:
+    app.kubernetes.io/name: traefik-ingress-controller
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: web
+    - protocol: TCP
+      port: 443
+      targetPort: websecure
+  type: LoadBalancer
