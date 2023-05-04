@@ -5,7 +5,7 @@ namespace: keycloak
 
 resources:
   - github.com/dalmura/workloads/keycloak-demo?ref=HEAD
-  - ingress.yaml
+  - ingressroute.yaml
 
 patches:
   - path: deployment_override.yaml

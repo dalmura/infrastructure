@@ -1,0 +1,22 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: keycloak
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: auth.dalmura.cloud
+    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+    metallb.universe.tf/address-pool: servers-vlan
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`auth.dalmura.cloud`)
+      kind: Rule
+      services:
+      - name: keycloak
+        port: 8080
+  tls:
+    domains:
+      - main: auth.dalmura.cloud
+    secretName: keycloak-cert
