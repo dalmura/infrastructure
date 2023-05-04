@@ -8,3 +8,6 @@ resources:
   - github.com/dalmura/workloads/traefik-ingress-controller?ref=HEAD
   - cluster_role_binding.yaml
   - service.yaml
+
+patchesStrategicMerge:
+  - deployment_overlay.yaml
