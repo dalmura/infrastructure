@@ -10,5 +10,5 @@ spec:
           args:
             - --api.insecure=true
             - --api.dashboard=true
-            - --providers.kubernetescrd
-            - --providers.kubernetescrd.ingressClass=ingress-public
+            - --providers.kubernetesingress
+            - --providers.kubernetesingress.ingressClass=ingress-public
