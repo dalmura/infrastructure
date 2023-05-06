@@ -13,3 +13,4 @@ spec:
     targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}
+  revisionHistoryLimit: 2

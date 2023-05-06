@@ -14,3 +14,4 @@ spec:
   destination:
     namespace: traefik-private
     server: {{ .Values.spec.destination.server }}
+  revisionHistoryLimit: 2
