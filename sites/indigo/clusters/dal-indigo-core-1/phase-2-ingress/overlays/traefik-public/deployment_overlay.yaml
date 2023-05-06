@@ -8,6 +8,7 @@ spec:
       containers:
         - name: traefik
           args:
+            - --log.level=DEBUG
             - --api.insecure=true
             - --api.dashboard=true
             - --providers.kubernetesingress
