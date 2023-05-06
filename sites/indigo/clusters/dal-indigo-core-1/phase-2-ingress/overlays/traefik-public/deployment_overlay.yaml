@@ -17,3 +17,4 @@ spec:
             - --entryPoints.websecure.address=:443
             - --providers.kubernetesingress
             - --providers.kubernetesingress.ingressClass=ingress-public
+            - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-public/traefik-ingress-controller
