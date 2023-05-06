@@ -14,3 +14,4 @@ spec:
   destination:
     namespace: keycloak
     server: {{ .Values.spec.destination.server }}
+  revisionHistoryLimit: 2
