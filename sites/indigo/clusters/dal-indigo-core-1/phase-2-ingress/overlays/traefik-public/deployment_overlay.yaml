@@ -18,3 +18,5 @@ spec:
             - --providers.kubernetesingress
             - --providers.kubernetesingress.ingressClass=ingress-public
             - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-public/traefik-ingress-controller
+            - --providers.kubernetesingress.allowEmptyServices=true
+            - --providers.kubernetesingress.allowexternalnameservices=true
