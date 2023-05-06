@@ -8,7 +8,6 @@ metadata:
     external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     metallb.universe.tf/address-pool: servers-vlan
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    kubernetes.io/ingress.class: ingress-public
 spec:
   ingressClassName: ingress-public
   tls:
