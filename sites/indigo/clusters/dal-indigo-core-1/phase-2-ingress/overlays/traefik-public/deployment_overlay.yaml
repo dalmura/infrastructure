@@ -20,3 +20,4 @@ spec:
             - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-public/traefik-ingress-controller
             - --providers.kubernetesingress.allowEmptyServices=true
             - --providers.kubernetesingress.allowexternalnameservices=true
+            - --accesslog=true
