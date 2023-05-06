@@ -17,4 +17,3 @@ spec:
             - --entryPoints.websecure.address=:443
             - --providers.kubernetesingress
             - --providers.kubernetesingress.ingressClass=ingress-public
-            - --providers.kubernetesingress.allowCrossNamespace=true
