@@ -7,6 +7,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: auth.dalmura.cloud
     external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     metallb.universe.tf/address-pool: servers-vlan
+    kubernetes.io/ingress.class: traefik-public
 spec:
   entryPoints:
     - websecure
