@@ -8,7 +8,6 @@ spec:
       containers:
         - name: traefik
           args:
-            - --log.level=DEBUG
             - --global.checknewversion=false
             - --global.sendAnonymousUsage=false
             - --api.insecure=true
@@ -16,4 +15,7 @@ spec:
             - --entryPoints.web.address=:80
             - --entryPoints.websecure.address=:443
             - --providers.kubernetesingress
-            - --providers.kubernetesingress.ingressClass=ingress-public
+            - --providers.kubernetesingress.ingressClass=ingress-private
+            - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-private/traefik-ingress-controller
+            #- --log.level=DEBUG
+            #- --accesslog=true
