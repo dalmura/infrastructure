@@ -8,11 +8,14 @@ machine:
     hostname: "talos-<HW_ADDRESS>"
 
     interfaces:
-      - interface: eth0
+      - interface: "enx<HW_ADDRESS>"
         mtu: 1500
         dhcp: true
         dhcpOptions:
           routeMetric: 2048
 
   install:
-    disk: /dev/sdb
+    diskSelector:
+      model: SanDisk*
+      type: HDD
+      size: '<= 150GB'

@@ -4,7 +4,7 @@ machine:
 
   network:
     interfaces:
-      - interface: eth0
+      - interface: "enx<HW_ADDRESS>"
         vlans:
           - # SERVERS
             vlanId: 103

@@ -2,18 +2,23 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.4.1
-export CILIUM_VERSION=1.13.2
+export TALOS_VERSION=v1.6.5
+export CILIUM_VERSION=1.15.1
 ```
 
 ## Form the k8s cluster
-Have kubectl and talosctl installed with their latest compatible versions
+Have kubectl and talosctl installed with their latest compatible versions.
 
-Download the `metal-rpi_generic-arm64.img.xz` artifact from the latest supported Talos release from above, and `dd` it onto the 128 GB USB Flash Drives via another machine:
+Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the following image:
+1. Select the Talos Version from above
+2. Select the following System Extensions
+   * siderolabs/iscsi-tools
+3. Provide the extra kernel command line argument: `todo`
+4. Download the `metal-rpi_generic-arm64.raw.xz` by copying one of the asset links and changing the asset name (filename in the URL) to the one mentioned here
+   4.1 The download may take some time to start as the Talos Image Factory generates the assets on the backend
+
+You can then `dd` it onto the 128 GB USB Flash Drives via another machine:
 ```bash
-# Download the latest supported release
-wget "https://github.com/siderolabs/talos/releases/download/${TALOS_VERSION}/metal-rpi_generic-arm64.img.xz"
-
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
 xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
@@ -25,7 +30,7 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.252
+RPI4_1_IP=192.168.77.150
 RPI4_2_IP=192.168.77.253
 RPI4_3_IP=192.168.77.254
 ```
@@ -67,9 +72,9 @@ talosctl gen config \
     --output-dir templates/dal-indigo-core-1/
 ```
 
-You can also use the above to just generate new `talosconfig` files with `--output-types talosconfig`
+You can also use the above to just generate new `talosconfig` files with `--output-types talosconfig` for when certificates expire.
 
-`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yml#L52) for assignment of this specific IP.
+`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yaml#L54) for assignment of this specific IP.
 
 `--with-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
 
@@ -97,27 +102,25 @@ Configure each nodes config file:
 ```bash
 mkdir -p nodes/dal-indigo-core-1/
 
-# Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id=="eth0") | .spec.hardwareAddr' -r | tr -d ':'
+# Since Talos now uses predictable network interfaces, for rpi's this means all ethernet interfaces are named like `enx<HW_MAC_ADDR>` eg. a MAC address of `e4:5f:01:1d:3c:a8` results in `enxe45f019d4d95`
+
+# Use these commands to discover the interface names and mac addresses
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node from above, for example:
 RPI4_1_HW_ADDR='e45f019d4d95'
 RPI4_2_HW_ADDR='e45f019d4e95'
 RPI4_3_HW_ADDR='e45f019d4ca8'
 
-# Copy the configs
-cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
-cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
-cp templates/dal-indigo-core-1/controlplane.yaml "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
-
-# Edit and set:
+# Create the per-device Control Plane configs with these overrides
 # machine.network.hostname: "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
-# (mac is gsed, linux is sed)
-gsed -i "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
-gsed -i "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
-gsed -i "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
+# machine.network.interfaces[0].interface: "enx<HW_ADDRESS>" => "enx${RPI4_X_HW_ADDR}"
+
+cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
 ```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.
