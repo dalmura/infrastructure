@@ -1,7 +1,7 @@
 # Provision the Phase 2 applications for dal-indigo-core-1
 
 These are:
-* [Traefik Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) for incoming connections to the cluster
+* [[Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/) for persistent, distributed, replicated and backed up Block and Object storage
 
 We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 1 - Common](INDIGO-CORE-1-APPS-PHASE-1.md) and have all the precursor phases up, running and tested.
 
@@ -9,28 +9,28 @@ We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 1 - Com
 
 You can verify the k8s resources emitted by each app by running `kustomize` yourself
 ```bash
-pushd clusters/dal-indigo-core-1/phase-2-auth/app/templates/
+pushd clusters/dal-indigo-core-1/phase-2-storage/app/templates/
 
-% cat traefik-public.yaml
+% cat longhorn.yaml
 ...
   source:
     repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-public
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn
     targetRevision: HEAD
 ...
 
 # This would equate to the following kustomize command
 # All k8s resources that would be created are printed out by this
-kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-public?ref=HEAD'
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn?ref=HEAD'
 ```
 
 ## Create the phase-2 parent app
 ```bash
-argocd app create phase-2-ingress \
+argocd app create phase-2-storage \
     --dest-namespace argocd \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
-    --path sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/app
+    --path sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/app
 
-argocd app sync phase-2-ingress
+argocd app sync phase-2-storage
 ```

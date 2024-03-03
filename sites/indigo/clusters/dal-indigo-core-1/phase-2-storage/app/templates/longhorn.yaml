@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn
+    targetRevision: HEAD
+  destination:
+    namespace: longhorn
+    server: {{ .Values.spec.destination.server }}
+  revisionHistoryLimit: 2

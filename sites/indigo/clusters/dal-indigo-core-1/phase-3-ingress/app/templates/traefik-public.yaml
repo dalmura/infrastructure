@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: keycloak
+  name: traefik-public
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -9,9 +9,9 @@ spec:
   project: default
   source:
     repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/phase-3-auth/overlays/keycloak
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-3-ingress/overlays/traefik-public
     targetRevision: HEAD
   destination:
-    namespace: keycloak
+    namespace: traefik-public
     server: {{ .Values.spec.destination.server }}
   revisionHistoryLimit: 2

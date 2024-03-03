@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-ingress/overlays/traefik-cluster
+    path: sites/indigo/clusters/dal-indigo-core-1/phase-3-ingress/overlays/traefik-cluster
     targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}

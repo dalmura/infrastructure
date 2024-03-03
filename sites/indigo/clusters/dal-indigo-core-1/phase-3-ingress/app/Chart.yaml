@@ -1,5 +1,5 @@
 apiVersion: v2
-name: phase-2-ingress
+name: phase-3-ingress
 description: Ingress Controller for all workload apps
 
 type: application
