@@ -63,6 +63,7 @@ talosctl gen config \
     --with-secrets secrets.yaml \
     --with-docs=false \
     --with-examples=false \
+    --install-disk='' \
     --talos-version "${TALOS_VERSION}" \
     --with-cluster-discovery=false \
     --additional-sans 'core-1.indigo.dalmura.cloud' \
@@ -79,6 +80,8 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 `--with-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
 
 `--with-docs=false` and `--with-examples=false` just disable verbose configs, just refer to the online doco instead
+
+`--install-disk=''` removes the default /dev/sda entry as we use disk-selector (see config for example)
 
 `--talos-version` needs to be consistent across regeneration of files, as the config generated is minor version specific
 
@@ -155,10 +158,10 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig bootstrap
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 
 # Keep an eye until you see the following logs fly past:
-192.168.77.158: user: warning: [2023-03-06T11:00:58.84029738Z]: [talos] task labelNodeAsControlPlane (1/1): done, 1m16.097862012s
-192.168.77.158: user: warning: [2023-03-06T11:00:58.85223238Z]: [talos] phase labelControlPlane (20/22): done, 1m16.118437632s
-192.168.77.158: user: warning: [2023-03-06T11:00:58.86377438Z]: [talos] phase uncordon (21/22): 1 tasks(s)
-192.168.77.158: user: warning: [2023-03-06T11:00:58.87140838Z]: [talos] task uncordonNode (1/1): starting
+192.168.77.150: user: warning: [2024-03-03T01:03:59.13141591Z]: [talos] created /v1/ConfigMap/coredns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
+192.168.77.150: user: warning: [2024-03-03T01:03:59.58673191Z]: [talos] created apps/v1/Deployment/coredns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
+192.168.77.150: user: warning: [2024-03-03T01:03:59.97196491Z]: [talos] created /v1/Service/kube-dns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
+192.168.77.150: user: warning: [2024-03-03T01:04:00.33167191Z]: [talos] created /v1/ConfigMap/kubeconfig-in-cluster {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
 
 # Verify you can ping the floating Virtual IP (VIP)
 # This assumes you're on a network segment that can do this!
@@ -183,37 +186,23 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 % helm repo add cilium https://helm.cilium.io/
 % helm repo update
 
-% export KUBERNETES_API_SERVER_ADDRESS=192.168.77.2
-% export KUBERNETES_API_SERVER_PORT=6443
+% export KUBERNETES_API_SERVER_ADDRESS=localhost
+% export KUBERNETES_API_SERVER_PORT=7445
+# localhost & 7445 is for KubePrism
+# 192.168.77.2 & 6443 is for the external VIP endpoint
 
-# Proper mode but broken on 1.13.2 (with the install cni binary feature)
-% helm install cilium cilium/cilium \
+% helm install \
+    cilium \
+    cilium/cilium \
     --version "${CILIUM_VERSION}" \
     --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --namespace kube-system \
     --set ipam.mode=kubernetes \
-    --set kubeProxyReplacement=strict \
-    --set enableXTSocketFallback=false \
+    --set kubeProxyReplacement=true \
     --set=securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
     --set=securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
     --set=cgroup.autoMount.enabled=false \
     --set=cgroup.hostRoot=/sys/fs/cgroup \
-    --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
-    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
-    --set ingressController.enabled=true \
-    --set ingressController.loadbalancerMode=dedicated \
-    --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
-
-# Privileged mode to work around bugs
-% helm install cilium cilium/cilium \
-    --version "${CILIUM_VERSION}" \
-    --kubeconfig kubeconfigs/dal-indigo-core-1 \
-    --namespace kube-system \
-    --set ipam.mode=kubernetes \
-    --set kubeProxyReplacement=strict \
-    --set enableXTSocketFallback=false \
-    --set securityContext.privileged=true \
     --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
     --set ingressController.enabled=true \
@@ -249,22 +238,10 @@ kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0 
 
 # You should then see the following
 % talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
+```
 ...
-192.168.77.162: kern:    info: [2023-03-05T09:01:29.260535383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_net: link becomes ready
-192.168.77.162: kern:    info: [2023-03-05T09:01:29.269130383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): cilium_host: link becomes ready
-192.168.77.162: kern:    info: [2023-03-05T09:02:09.753480383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxc_health: link becomes ready
-192.168.77.162: kern:    info: [2023-03-05T09:02:23.617665383Z]: eth0: renamed from tmp450b6
-192.168.77.162: kern:    info: [2023-03-05T09:02:23.660361383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-192.168.77.162: kern:    info: [2023-03-05T09:02:23.668475383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxce6f8cf488dfa: link becomes ready
-192.168.77.162: kern:    info: [2023-03-05T09:02:24.546442383Z]: eth0: renamed from tmp69ebb
-192.168.77.162: kern:    info: [2023-03-05T09:02:24.585055383Z]: IPv6: ADDRCONF(NETDEV_CHANGE): lxc27818c5af043: link becomes ready
-192.168.77.162: user: warning: [2023-03-05T09:04:53.187945002Z]: [talos] task uncordonNode (1/1): done, 8m29.482576827s
-192.168.77.162: user: warning: [2023-03-05T09:04:53.196419002Z]: [talos] phase uncordon (21/22): done, 8m29.498662815s
-192.168.77.162: user: warning: [2023-03-05T09:04:53.204620002Z]: [talos] phase bootloader (22/22): 1 tasks(s)
-192.168.77.162: user: warning: [2023-03-05T09:04:53.212291002Z]: [talos] task updateBootloader (1/1): starting
-192.168.77.162: user: warning: [2023-03-05T09:04:53.269665002Z]: [talos] task updateBootloader (1/1): done, 57.382106ms
-192.168.77.162: user: warning: [2023-03-05T09:04:53.277062002Z]: [talos] phase bootloader (22/22): done, 72.47031ms
-192.168.77.162: user: warning: [2023-03-05T09:04:53.284080002Z]: [talos] boot sequence: done: 11m27.904096412s
+192.168.77.150: user: warning: [2024-03-03T00:46:36.779201095Z]: [talos] machine is running and ready {"component": "controller-runtime", "controller": "runtime.MachineStatusController"}
+...
 
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
@@ -273,9 +250,20 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace kube-system get pods
 ```
 
+If it's still just a single node/CP only you will need to edit the `hubble-relay` and `hubble-ui` Deployments and set in `spec.template.spec`:
+```yaml
+tolerations:
+  - effect: NoSchedule
+  key: node-role.kubernetes.io/control-plane
+
+```
+
+This will allow the hubble UI and Relay's to run on the CP nodes.
+
+
 ## Install Cilium CLI
 
-See the [doco here](https://docs.cilium.io/en/v1.13/gettingstarted/k8s-install-default/#install-the-cilium-cli) and follow the steps to install.
+See the [doco here](https://docs.cilium.io/en/v1.15/gettingstarted/k8s-install-default/#install-the-cilium-cli) and follow the steps to install.
 
 Verify Cilium is running:
 ```bash

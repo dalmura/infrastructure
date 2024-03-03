@@ -27,8 +27,8 @@ machine:
         - mountpoint: /var/mnt/attached_ssd
 
 cluster:
-  proxy:
-    disabled: true
   network:
     cni:
       name: none
+  proxy:
+    disabled: true
