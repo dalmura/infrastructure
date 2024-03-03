@@ -118,9 +118,6 @@ RPI4_2_HW_ADDR='e45f019d4e95'
 RPI4_3_HW_ADDR='e45f019d4ca8'
 
 # Create the per-device Control Plane configs with these overrides
-# machine.network.hostname: "talos-<HW_ADDRESS>" => "talos-${RPI4_X_HW_ADDR}"
-# machine.network.interfaces[0].interface: "enx<HW_ADDRESS>" => "enx${RPI4_X_HW_ADDR}"
-
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
