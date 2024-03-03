@@ -13,6 +13,7 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the 
 1. Select the Talos Version from above
 2. Select the following System Extensions
    * siderolabs/iscsi-tools
+   * siderolabs/util-linux-tools
 3. Provide the extra kernel command line argument: `todo`
 4. Download the `metal-rpi_generic-arm64.raw.xz` by copying one of the asset links and changing the asset name (filename in the URL) to the one mentioned here
    4.1 The download may take some time to start as the Talos Image Factory generates the assets on the backend

@@ -20,4 +20,4 @@ machine:
     - device: /dev/sda
       # Above is hardcoded until https://github.com/siderolabs/talos/issues/5320
       partitions:
-        - mountpoint: /var/openebs/local
+        - mountpoint: /var/lib/longhorn

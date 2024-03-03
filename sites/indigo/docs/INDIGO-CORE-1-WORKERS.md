@@ -3,11 +3,8 @@
 We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) and are ready to onboard the `rpi4.8gb.arm` Worker nodes.
 
 ## Create the `rpi4.8gb.arm` Worker templates
-Download the `metal-rpi_generic-arm64.img.xz` artifact matching the same Talos version you used for the Control Plane step, and `dd` it onto the 128 GB USB Flash Drives via another machine:
+Reuse the existing `metal-rpi_generic-arm64.raw.xz` from the previous Control Plane process.
 ```bash
-# Download the version used when setting up the Control Plane nodes
-wget "https://github.com/siderolabs/talos/releases/download/${TALOS_VERSION}/metal-rpi_generic-arm64.img.xz"
-
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
 xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
