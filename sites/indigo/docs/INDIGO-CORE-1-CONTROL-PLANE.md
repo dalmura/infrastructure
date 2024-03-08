@@ -2,7 +2,7 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.6.5
+export TALOS_VERSION=v1.6.6
 export CILIUM_VERSION=1.15.1
 ```
 
@@ -18,6 +18,13 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the 
 4. Download the `metal-rpi_generic-arm64.raw.xz` by copying one of the asset links and changing the asset name (filename in the URL) to the one mentioned here
    4.1 The download may take some time to start as the Talos Image Factory generates the assets on the backend
 
+# Example image ID & curl command
+```bash
+IMAGE_ID='613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245'
+
+curl "https://factory.talos.dev/image/${IMAGE_ID}/${TALOS_VERSION}/metal-rpi_generic-arm64.raw.xz"
+```
+
 You can then `dd` it onto the 128 GB USB Flash Drives via another machine:
 ```bash
 # Linux, eg. USB Flash Drive is /dev/sdb
@@ -31,9 +38,9 @@ flush
 
 Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.150
-RPI4_2_IP=192.168.77.253
-RPI4_3_IP=192.168.77.254
+RPI4_1_IP=192.168.77.152
+RPI4_2_IP=
+RPI4_3_IP=
 ```
 
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
@@ -115,8 +122,8 @@ talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metada
 
 # Repeat noting down the HW ADDR for each node from above, for example:
 RPI4_1_HW_ADDR='e45f019d4d95'
-RPI4_2_HW_ADDR='e45f019d4e95'
-RPI4_3_HW_ADDR='e45f019d4ca8'
+RPI4_2_HW_ADDR=''
+RPI4_3_HW_ADDR=''
 
 # Create the per-device Control Plane configs with these overrides
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
@@ -258,6 +265,12 @@ tolerations:
 
 This will allow the hubble UI and Relay's to run on the CP nodes.
 
+A *better* way would also be to remove the NoSchedule control-plane taint:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 taint nodes "talos-${RPI4_1_HW_ADDR}" node-role.kubernetes.io/control-plane:NoSchedule-
+```
+
+But ideally you just wait and let it report a few errors until you onboard some worker nodes run Hubble Relay & Hubble UI
 
 ## Install Cilium CLI
 

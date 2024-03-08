@@ -16,9 +16,9 @@ flush
 
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.151
-RPI4_2_IP=192.168.77.254
-RPI4_3_IP=192.168.77.251
+RPI4_1_IP=192.168.77.153
+RPI4_2_IP=192.168.77.154
+RPI4_3_IP=
 ```
 
 Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
@@ -33,8 +33,8 @@ talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metada
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
 RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4ca8'
-RPI4_3_HW_ADDR='e45f019d4e19'
+RPI4_2_HW_ADDR='e45f019d4e19'
+RPI4_3_HW_ADDR=''
 
 # Copy the configs
 
@@ -68,6 +68,8 @@ Verify the nodes become Ready:
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 ```
+
+You can now quickly go back to the (Control Plane)[./INDIGO-CORE-1-CONTROL-PLANE.md] doco and verify Cilium's Hubble Relay & UI have come up correctly.
 
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
