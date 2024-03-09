@@ -48,6 +48,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/argocd-serve
 brew install argocd
 
 # Log in via the CLI
+# It will prompt about insecure certificate (self signed) just accept
 argocd login localhost:8080
 
 # Update the default password for admin
@@ -63,7 +64,6 @@ Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
   * Cilium in Strict Mode as the CNI
 * 3x rpi4.8gb.arm64 Worker nodes
-  * OpenEBS Jiva configured as a CSI Storage Class
   * ArgoCD ready to deploy _everything else_
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
