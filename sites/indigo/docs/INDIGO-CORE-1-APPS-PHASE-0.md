@@ -24,7 +24,7 @@ pushd clusters/dal-indigo-core-1/phase-0-secrets/app/templates/
 kubectl kustomize 'https://github.com/dalmura/workloads.git/sealed-secrets?ref=HEAD'
 ```
 
-## Create the phase-0 parent app
+## Create the phase-0 parent app & deploy children
 ```bash
 argocd app create phase-0-secrets \
     --dest-namespace argocd \

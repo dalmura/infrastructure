@@ -7,24 +7,9 @@ We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 1 - Com
 
 ## Verifying apps
 
-You can verify the k8s resources emitted by each app by running `kustomize` yourself
-```bash
-pushd clusters/dal-indigo-core-1/phase-2-storage/app/templates/
+Longhorn uses Helm to deploy, which we integrate into ArgoCD's Application CRD, so there's no easy way to render this locally apart from building the `helm template` command locally.
 
-% cat longhorn.yaml
-...
-  source:
-    repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn
-    targetRevision: HEAD
-...
-
-# This would equate to the following kustomize command
-# All k8s resources that would be created are printed out by this
-kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn?ref=HEAD'
-```
-
-## Create the phase-2 parent app
+## Create the phase-2 parent app & deploy children
 ```bash
 argocd app create phase-2-storage \
     --dest-namespace argocd \
@@ -32,5 +17,14 @@ argocd app create phase-2-storage \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/app
 
+# Create the child applications
 argocd app sync phase-2-storage
+
+# Deploy the child applications
+argocd app sync -l app.kubernetes.io/instance=phase-2-storage
+```
+
+This will take a couple of minutes, but after that you can setup a kube proxy before we deploy the ingress controllers:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system port-forward svc/longhorn-frontend 8081:80
 ```

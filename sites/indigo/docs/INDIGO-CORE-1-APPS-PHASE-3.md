@@ -24,7 +24,7 @@ pushd clusters/dal-indigo-core-1/phase-3-ingress/app/templates/
 kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-3-ingress/overlays/traefik-public?ref=HEAD'
 ```
 
-## Create the phase-3 parent app
+## Create the phase-3 parent app & deploy children
 ```bash
 argocd app create phase-3-ingress \
     --dest-namespace argocd \

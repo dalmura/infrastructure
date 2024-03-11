@@ -64,7 +64,7 @@ kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/cl
 popd
 ```
 
-## Create the phase-1 parent app
+## Create the phase-1 parent app & deploy children
 ```bash
 argocd app create phase-1-common \
     --dest-namespace argocd \

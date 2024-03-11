@@ -24,7 +24,7 @@ pushd clusters/dal-indigo-core-1/phase-4-auth/app/templates/
 kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/phase-4-auth/overlays/keycloak?ref=HEAD'
 ```
 
-## Create the phase-4 parent app
+## Create the phase-4 parent app & deploy children
 ```bash
 argocd app create phase-4-auth \
     --dest-namespace argocd \
