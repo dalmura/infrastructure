@@ -9,7 +9,6 @@ spec:
         - name: external-dns
           args:
             - --events
-            - --source=gateway-httproute
             - --source=service
             - --source=ingress
             - --provider=aws
