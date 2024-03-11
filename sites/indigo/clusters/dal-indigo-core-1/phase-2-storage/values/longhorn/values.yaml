@@ -1,0 +1,9 @@
+---
+preUpgradeChecker:
+  jobEnabled: false
+  upgradeVersionCheck: false
+
+defaultSettings:
+  allowCollectingLonghornUsageMetrics: false
+  backupTarget: "s3://dal-site-backups/indigo/"
+  backupTargetCredentialSecret: aws-s3-credentials-secret 

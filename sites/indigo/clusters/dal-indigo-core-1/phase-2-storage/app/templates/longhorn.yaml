@@ -13,10 +13,13 @@ spec:
       targetRevision: v1.6.0
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn/values.yaml
+        - $values/sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/values/longhorn/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/phase-2-storage/overlays/longhorn
+      targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}
     namespace: longhorn-system

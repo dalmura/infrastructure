@@ -3,7 +3,25 @@
 These are:
 * [[Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/) for persistent, distributed, replicated and backed up Block and Object storage
 
-We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 1 - Common](INDIGO-CORE-1-APPS-PHASE-1.md) and have all the precursor phases up, running and tested.
+We assume you've followed the steps at [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster.
+
+We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 0 - Secrets](INDIGO-CORE-1-APPS-PHASE-0.md) and have all the precursor phases up, running and tested, especially `kubeseal`.
+
+## Create and seal the Secrets
+A few resources require secrets to be created and committed into the repo
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/phase-2-storage/overlays'
+
+# Secret 'aws-s3-credentials-secret' for longhorn
+kubectl create secret generic \
+  aws-s3-credentials-secret \
+  --namespace longhorn-system \
+  --dry-run=client \
+  --from-literal 'AWS_ACCESS_KEY_ID=<your-access-key-id-here>' \
+  --from-literal 'AWS_SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/longhorn/aws-s3-credentials-secret.sealed.yaml
 
 ## Verifying apps
 
