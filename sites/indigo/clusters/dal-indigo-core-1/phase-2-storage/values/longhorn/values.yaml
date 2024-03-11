@@ -5,5 +5,5 @@ preUpgradeChecker:
 
 defaultSettings:
   allowCollectingLonghornUsageMetrics: false
-  backupTarget: "s3://dal-site-backups/indigo/"
+  backupTarget: s3://dal-site-backups@us-east-1/indigo/
   backupTargetCredentialSecret: aws-s3-credentials-secret 
