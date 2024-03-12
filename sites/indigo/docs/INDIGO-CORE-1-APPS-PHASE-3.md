@@ -34,5 +34,9 @@ argocd app create phase-3-ingress \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/phase-3-ingress/app
 
+# Create the child applications
 argocd app sync phase-3-ingress
+
+# Deploy the child applications
+argocd app sync -l app.kubernetes.io/instance=phase-3-ingress
 ```
