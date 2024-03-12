@@ -10,5 +10,5 @@ resources:
   - service.yaml
   - ingressclass.yaml
 
-patchesStrategicMerge:
-  - deployment_overlay.yaml
+patches:
+  - path: deployment_overlay.yaml

@@ -3,7 +3,9 @@
 These are:
 * [Traefik Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) for incoming connections to the cluster
 
-We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 2 - Storage](INDIGO-CORE-1-APPS-PHASE-2.md) and have all the precursor phases up, running and tested.
+We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 2 - Storage](INDIGO-CORE-1-APPS-PHASE-2.md) and have all the precursors up and running, for example:
+* `argocd` is logged in
+* Longhorn is running w/default StorageClass
 
 ## Verifying apps
 

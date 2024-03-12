@@ -16,4 +16,8 @@ spec:
       protocol: TCP
       port: 443
       targetPort: websecure
+    - name: dashboard
+      protocol: TCP
+      port: 8080
+      targetPort: dashboard
   type: LoadBalancer
