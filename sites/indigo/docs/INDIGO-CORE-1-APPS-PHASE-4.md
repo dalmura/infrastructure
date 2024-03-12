@@ -3,7 +3,10 @@
 These are:
 * [Keycloak](https://github.com/keycloak/keycloak) for Authentication
 
-We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 3 - Ingress](INDIGO-CORE-1-APPS-PHASE-3.md) and have tested the Ingress resource.
+We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 3 - Ingress](INDIGO-CORE-1-APPS-PHASE-3.md) and have all the precursors up and running, including:
+* `argocd` is logged in
+* Longorn is running w/default StorageClass
+* Traefik ingress controller
 
 ## Verifying apps
 
@@ -32,7 +35,11 @@ argocd app create phase-4-auth \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/phase-4-auth/app
 
+# Create the child applications
 argocd app sync phase-4-auth
+
+# Deploy the child applications
+argocd app sync -l app.kubernetes.io/instance=phase-4-auth
 ```
 
 ## Access Keycloak

@@ -5,7 +5,6 @@ These are:
 
 We assume you've followed the steps at [`dal-indigo-core-1` Apps - Phase 2 - Storage](INDIGO-CORE-1-APPS-PHASE-2.md) and have all the precursors up and running, for example:
 * `argocd` is logged in
-* Longhorn is running w/default StorageClass
 
 ## Verifying apps
 
