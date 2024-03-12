@@ -46,3 +46,11 @@ This will take a couple of minutes, but after that you can setup a kube proxy be
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system port-forward svc/longhorn-frontend 8081:80
 ```
+
+## Validation
+
+Longhorn will deploy itself as the default StorageClass on the cluster, this can be checked via:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get storageclass
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 describe storageclass longhorn
+```
