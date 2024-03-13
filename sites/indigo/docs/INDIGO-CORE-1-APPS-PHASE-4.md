@@ -40,7 +40,10 @@ argocd app sync phase-4-auth
 
 # Deploy the child applications
 argocd app sync -l app.kubernetes.io/instance=phase-4-auth
+
 ```
+
+This will take a solid 3-5 mins as the Pod comes up and the certificate is issued.
 
 ## Access Keycloak
 
@@ -51,4 +54,6 @@ NAME       CLASS    HOSTS                ADDRESS          PORTS     AGE
 keycloak   cilium   auth.dalmura.cloud   192.168.77.141   80, 443   19m
 ```
 
-Ensure that you have a local /etc/hosts override pointing auth.dalmura.cloud => Address then navigate to auth.dalmura.cloud from your browser.
+Ensure that you have a local `/etc/hosts` override pointing `auth.dalmura.cloud` => Above Address, then navigate to `auth.dalmura.cloud` from your browser.
+
+Later when `auth.dalmura.cloud` is public you can remove the `/etc/hosts` override.
