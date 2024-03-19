@@ -1,6 +1,6 @@
 apiVersion: v2
-name: wave-4
-description: Wave 4 Applications
+name: wave-3
+description: Wave 3 Applications
 
 type: application
 

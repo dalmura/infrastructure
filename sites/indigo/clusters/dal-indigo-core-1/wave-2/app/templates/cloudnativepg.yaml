@@ -13,7 +13,7 @@ spec:
       targetRevision: 0.20.2
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-3/values/cloudnativepg/values.yaml
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/cloudnativepg/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values

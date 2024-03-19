@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/wave-4/overlays/keycloak
+    path: sites/indigo/clusters/dal-indigo-core-1/wave-3/overlays/keycloak
     targetRevision: HEAD
   destination:
     namespace: keycloak
