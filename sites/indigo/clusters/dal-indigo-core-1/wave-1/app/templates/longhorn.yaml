@@ -13,12 +13,12 @@ spec:
       targetRevision: v1.6.0
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/longhorn/values.yaml
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-1/values/longhorn/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/longhorn
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/longhorn
       targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}

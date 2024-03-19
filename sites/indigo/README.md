@@ -15,15 +15,16 @@ We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.com/) or [Sidero Metal](https://www.sidero.dev/) won't be used due to high cost and hardware incompatibilities respectively. See [archived/indigo-sidero](/sites/archived/indigo-sidero/) for an initial attempt at getting Sidero Metal working, but ultimately failing due to hardware incompatibilites.
 
 ## Cluster Composition
+
 * [Cilium CNI](https://cilium.io/get-started/)
   * Network Policies
   * kube-proxy replacement
 * [ArgoCD](https://argo-cd.readthedocs.io/en/stable/)
   * Deployment tool managing all other applications
-* Wave 0
+* ArgoCD - Wave 0
    * [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets/)
       * Ability to store secrets for all workloads in-repo
-* Wave 1
+* ArgoCD - Wave 1
    * [MetalLB](https://metallb.universe.tf/)
       * Load Balancing into the Cluster itself
    * [cert-manager](https://cert-manager.io/docs/)
@@ -34,12 +35,16 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * PVC Storage Class
       * Replicated container volumes & block storage
       * Offsite S3 backups
-* Wave 2
+* ArgoCD - Wave 2
    * [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
       * Ingress Controller
    * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
       * PostgreSQL Cluster Operator
-* Wave 4
+   * Ingress resources for various management UI
+      * Cilium
+      * ArgoCD
+      * Longhorn
+* ArgoCD - Wave 3
    * [Keycloak](https://www.keycloak.org/)
       * OIDC Identity Provider
    * [Hashicorp Vault](https://developer.hashicorp.com/vault#what-is-vault)
