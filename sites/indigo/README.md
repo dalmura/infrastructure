@@ -20,20 +20,30 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
   * kube-proxy replacement
 * [ArgoCD](https://argo-cd.readthedocs.io/en/stable/)
   * Deployment tool managing all other applications
-* [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets/)
-  * Ability to store secrets for all workloads in-repo
-* [MetalLB](https://metallb.universe.tf/)
-  * Load Balancing into the Cluster itself
-* [cert-manager](https://cert-manager.io/docs/)
-  * TLS Certificate management (mainly internal hosted websites)
-* [ExternalDNS](https://github.com/kubernetes-sigs/external-dns)
-  * AWS Route53 record management
-* [Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/)
-  * Replicated container volumes
-  * Replicated block storage
-  * Remote backups to S3
-* [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
-  * Ingress Controller
+* Wave 0
+   * [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets/)
+      * Ability to store secrets for all workloads in-repo
+* Wave 1
+   * [MetalLB](https://metallb.universe.tf/)
+      * Load Balancing into the Cluster itself
+   * [cert-manager](https://cert-manager.io/docs/)
+      * TLS Certificate management (mainly internal hosted websites)
+   * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns)
+      * AWS Route53 record management
+   * [Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/)
+      * PVC Storage Class
+      * Replicated container volumes & block storage
+      * Offsite S3 backups
+* Wave 2
+   * [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
+      * Ingress Controller
+   * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
+      * PostgreSQL Cluster Operator
+* Wave 4
+   * [Keycloak](https://www.keycloak.org/)
+      * OIDC Identity Provider
+   * [Hashicorp Vault](https://developer.hashicorp.com/vault#what-is-vault)
+      * Cluster Secrets Management
 
 ## Configuration
 
@@ -41,8 +51,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
 * [`dal-indigo-core-1` Workers](docs/INDIGO-CORE-1-WORKERS.md)
   * [`dal-indigo-core-1` Workers - ArgoCD](docs/INDIGO-CORE-1-WORKERS-ARGOCD.md)
-* [`dal-indigo-core-1` Apps - Wave 0 - Secrets](docs/INDIGO-CORE-1-APPS-WAVE-0.md)
-* [`dal-indigo-core-1` Apps - Wave 1 - Common](docs/INDIGO-CORE-1-APPS-WAVE-1.md)
-* [`dal-indigo-core-1` Apps - Wave 2 - Storage](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
-* [`dal-indigo-core-1` Apps - Wave 3 - Ingress](docs/INDIGO-CORE-1-APPS-WAVE-3.md)
-* [`dal-indigo-core-1` Apps - Wave 4 - Auth](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
+* [`dal-indigo-core-1` Apps - Wave 0](docs/INDIGO-CORE-1-APPS-WAVE-0.md)
+* [`dal-indigo-core-1` Apps - Wave 1](docs/INDIGO-CORE-1-APPS-WAVE-1.md)
+* [`dal-indigo-core-1` Apps - Wave 2](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
+* [`dal-indigo-core-1` Apps - Wave 3](docs/INDIGO-CORE-1-APPS-WAVE-3.md)
+* [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
