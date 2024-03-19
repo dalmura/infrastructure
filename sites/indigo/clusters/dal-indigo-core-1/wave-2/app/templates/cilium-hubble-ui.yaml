@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium-hubble-ui
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/cilium-hubble-ui
+    targetRevision: HEAD
+  destination:
+    namespace: kube-system
+    server: {{ .Values.spec.destination.server }}

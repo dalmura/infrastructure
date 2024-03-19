@@ -4,6 +4,7 @@ These are:
 * [MetalLB](https://metallb.universe.tf/) for Load Balancing
 * [cert-manager](https://cert-manager.io/docs/) for TLS certificates
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) for Route53 record management
+* [Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/) for persistent, distributed, replicated and backed up Block and Object storage
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster
@@ -35,6 +36,17 @@ echo '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_acces
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/externaldns/credentials.sealed.yaml
+
+# Secret 'aws-s3-credentials-secret' for longhorn
+kubectl create secret generic \
+  aws-s3-credentials-secret \
+  --namespace longhorn-system \
+  --dry-run=client \
+  --from-literal 'AWS_ACCESS_KEY_ID=<your-access-key-id-here>' \
+  --from-literal 'AWS_SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/longhorn/aws-s3-credentials-secret.sealed.yaml
 ```
 
 ## Verifying apps
@@ -64,6 +76,8 @@ kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/cl
 popd
 ```
 
+Longhorn uses Helm to deploy, which we integrate into ArgoCD's Application CRD, so there's no easy way to render this locally apart from building the `helm template` command locally.
+
 ## Create the wave-1 parent app & deploy children
 ```bash
 argocd app create wave-1 \
@@ -89,3 +103,15 @@ OutOfSync  Missing        Internal error occurred: failed calling webhook "ipadd
 ```
 
 This is because we are deploying resources that have a Validating Webhook that's run by the application itself, and it hasn't yet created the container to validate the webhook. So just wait a minute and just rerun the deployment again and it'll work. Nothing to be worried about!
+
+Longhorn will take a couple of minutes, but after that you can setup a kube proxy before we deploy the ingress controllers:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system port-forward svc/longhorn-frontend 8081:80
+```
+
+## Validation
+
+Longhorn will deploy itself as the default StorageClass on the cluster, this can be checked via:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get storageclass
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 describe storageclass longhorn
