@@ -2,34 +2,38 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.6.6
-export CILIUM_VERSION=1.15.1
+export TALOS_VERSION=v1.9.4
+export CILIUM_VERSION=1.17.0
 ```
 
 ## Form the k8s cluster
 Have kubectl and talosctl installed with their latest compatible versions.
 
-Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the following image:
-1. Select the Talos Version from above
-2. Select the following System Extensions
+Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the following images:
+
+### Image 1 - Raspberry Pis
+1. Select 'Single Board Computer'
+2. Select the Talos Version from above
+3. Select 'Raspberry Pi Series'
+4. Select the following System Extensions:
    * siderolabs/iscsi-tools
    * siderolabs/util-linux-tools
-3. Provide the extra kernel command line argument: `todo`
-4. Download the `metal-rpi_generic-arm64.raw.xz` by copying one of the asset links and changing the asset name (filename in the URL) to the one mentioned here
-   4.1 The download may take some time to start as the Talos Image Factory generates the assets on the backend
+5. Skip the Kernel command line or overlay options
+6. Download the linked *Disk Image* `metal-arm64.raw.xz`
+   6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
 
-# Example image ID & curl command
-```bash
-IMAGE_ID='613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245'
+Note down the following attributes:
+```
+SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 
-curl "https://factory.talos.dev/image/${IMAGE_ID}/${TALOS_VERSION}/metal-rpi_generic-arm64.raw.xz"
+FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.9.4'
 ```
 
-You can then `dd` it onto the 128 GB USB Flash Drives via another machine:
+You can then `dd` it onto the 128 GB USB Drives via another machine:
 ```bash
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
-xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
+xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
 # Mac
@@ -43,6 +47,27 @@ RPI4_2_IP=
 RPI4_3_IP=
 ```
 
+### Image 2 - Beelink EQ14's
+1. Select 'Bare-metal Machie'
+2. Select the Talos Version from above
+3. Select 'amd64', ensuring SecureBoot is *not* selected
+4. Select the following System Extensions:
+   * siderolabs/iscsi-tools
+   * siderolabs/util-linux-tools
+   * siderolabs/intel-ucode
+   * siderolabs/i915
+5. Skip the Kernel command line or overlay options
+6. Download the linked *ISO* `metal-amd64.iso`
+   6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
+
+Note down the following attributes:
+```
+SCHEMATIC_ID='249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f'
+
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.4'
+```
+
+### Generate secrets and cluster configuration
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
 ```bash
 talosctl gen secrets \
@@ -83,7 +108,7 @@ talosctl gen config \
 
 You can also use the above to just generate new `talosconfig` files with `--output-types talosconfig` for when certificates expire.
 
-`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.3/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yaml#L54) for assignment of this specific IP.
+`192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.9/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yaml#L54) for assignment of this specific IP.
 
 `--with-secrets secrets.yaml` loads our own previously generated secrets bundle, this allows for regeneration of files on other user devices
 
@@ -113,7 +138,7 @@ Configure each nodes config file:
 ```bash
 mkdir -p nodes/dal-indigo-core-1/
 
-# Since Talos now uses predictable network interfaces, for rpi's this means all ethernet interfaces are named like `enx<HW_MAC_ADDR>` eg. a MAC address of `e4:5f:01:1d:3c:a8` results in `enxe45f019d4d95`
+# Since Talos now uses predictable network interfaces, for rpi's this means all ethernet interfaces are named like `enx<HW_MAC_ADDR>` eg. a MAC address of `e4:5f:01:9d:4d:95` results in `enxe45f019d4d95`
 
 # Use these commands to discover the interface names and mac addresses
 talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
@@ -126,6 +151,7 @@ RPI4_2_HW_ADDR=''
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Control Plane configs with these overrides
+# (uses gsed on a Mac with brew sed installed)
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
 cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
@@ -173,7 +199,7 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ping 192.168.77.2
 ```
 
-Verify the node is Ready and we can onboard new nodes:
+Verify the node waiting for the CNI install:
 ```bash
 mkdir kubeconfigs
 
@@ -212,6 +238,9 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
     --set ingressController.enabled=true \
     --set ingressController.loadbalancerMode=dedicated \
+    --set gatewayAPI.enabled=true \
+    --set gatewayAPI.enableAlpn=true \
+    --set gatewayAPI.enableAppProtocol=true \
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true
 
@@ -223,6 +252,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --reuse-values \
     # Provide new values below, remember to update the above too
     # And remove this comment when running
+    # For example, let's remove the ingressController
     --set ingressController.enabled=false
 
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
@@ -259,7 +289,7 @@ If it's still just a single node/CP only you will need to edit the `hubble-relay
 ```yaml
 tolerations:
   - effect: NoSchedule
-  key: node-role.kubernetes.io/control-plane
+    key: node-role.kubernetes.io/control-plane
 
 ```
 
@@ -274,7 +304,7 @@ But ideally you just wait and let it report a few errors until you onboard some 
 
 ## Install Cilium CLI
 
-See the [doco here](https://docs.cilium.io/en/v1.15/gettingstarted/k8s-install-default/#install-the-cilium-cli) and follow the steps to install.
+See the [doco here](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli) and follow the steps to install.
 
 Verify Cilium is running:
 ```bash
@@ -284,6 +314,8 @@ export KUBECONFIG='kubeconfigs/dal-indigo-core-1'
 cilium status --wait
 
 # Open Hubble and verify
+# Assuming you've got it running on the current node(s) setup
+# Or just check later once it's available
 cilium hubble ui
 ```
 
