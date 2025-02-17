@@ -3,12 +3,12 @@
 In order to bootstrap the Indigo site you will need:
 * 3x rpi4.4gb.arm64
 * 3x rpi4.8gb.arm64
+* 3x Beelink EQ14 N150 16GB w/>=500GB Storage
 
 See the site's [`config.yaml`](../config.yaml) for further info about identifying info for hardware.
 
 Standard accessories assumed included for all Raspberry Pi 4's are:
 * Raspberry Pi PoE+ Hat
-* 128GB USB Flash Drive
 * \>128GB SSD Drive w/USB adaptor
 
 Rack accessories include:
@@ -22,7 +22,7 @@ We are assuming you have separately:
   * Boot order: SD Card (`1`), USB Drive (`4`), Retry (`f`)
   * Boot order is [documented here](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
   * This is because all nodes have Talos manually installed and boot that directly (no PXE/etc)
-* Plugged in the 128GB Flash Drive and \>128GB SSD Drive into the blue USB 3.0 ports on the Raspberry Pis
+* Plugged in the \>128GB SSD Drive into a blue USB 3.0 port on the Raspberry Pis
 * All drives should be completely wiped and empty
 * Labelled each node with the MAC address of the primary network interface that Talos will see
   * We will use this to set the hostname of the node
@@ -33,3 +33,4 @@ This will form 1x k8s clusters:
 |-------------------|---------------|-----------------|----------|
 | dal-indigo-core-1 | Control Plane | rpi4.4gb.arm64  |        3 |
 | dal-indigo-core-1 | Workers       | rpi4.8gb.arm64  |        3 |
+| dal-indigo-core-1 | Workers       | Beelink EQ14    |        3 |
