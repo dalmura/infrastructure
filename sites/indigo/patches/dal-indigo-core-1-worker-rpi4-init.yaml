@@ -1,9 +1,15 @@
 machine:
   nodeLabels:
+    node.kubernetes.io/instance-type: "<NODE_INSTANCE_TYPE>"
     k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
 
   network:
     interfaces:
+      - interface: "enx<HW_ADDRESS>"
+        mtu: 1500
+        dhcp: true
+        dhcpOptions:
+          routeMetric: 2048
       - interface: "enx<HW_ADDRESS>"
         vlans:
           - # SERVERS
@@ -15,9 +21,3 @@ machine:
     nameservers:
       - 192.168.77.1
       - 192.168.77.129
-
-  disks:
-    - device: /dev/sda
-      # Above is hardcoded until https://github.com/siderolabs/talos/issues/5320
-      partitions:
-        - mountpoint: /var/lib/longhorn
