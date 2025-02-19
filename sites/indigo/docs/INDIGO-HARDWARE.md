@@ -7,16 +7,17 @@ In order to bootstrap the Indigo site you will need:
 
 See the site's [`config.yaml`](../config.yaml) for further info about identifying info for hardware.
 
-Standard accessories assumed included for all Raspberry Pi 4's are:
+## Raspberry Pi 4 Accessories
 * Raspberry Pi PoE+ Hat
 * \>128GB SSD Drive w/USB adaptor
 
-Rack accessories include:
+## Rack Accessories
 * [UCTRONICS 5x rpi4 + SSDs 1U rack (SKU U6264)](https://www.uctronics.com/cluster-and-rack-mount/uctronics-19-1u-raspberry-pi-rackmount-ssd-bracket-for-any-2-5-ssds.html)
 * [UCTRONICS SATA to USB 3.0 Adaptor (SKU U6193)](https://www.uctronics.com/uctronics-sata-usb-adapter-cable-sata-hard-drive-disk-converter.html)
 * M2.5 x 15mm bolts to thread the POE+ hat => rpi4 board => rack caddy
+* TODO: Investigate Beelink EQ14 rack mount options
 
-We are assuming you have separately:
+## Raspberry Pi 4 Setup
 * Upgraded the EEPROM for all Raspberry Pi's to the latest version
 * Ensure all Raspberry Pi's boot order is `0xf41`
   * Boot order: SD Card (`1`), USB Drive (`4`), Retry (`f`)
@@ -27,6 +28,9 @@ We are assuming you have separately:
 * Labelled each node with the MAC address of the primary network interface that Talos will see
   * We will use this to set the hostname of the node
   * To ease any troubleshooting of node identification
+
+## Beelink EQ14 Setup
+* TODO
 
 This will form 1x k8s clusters:
 | Cluster           | Role          | Hardware        | Quantity |

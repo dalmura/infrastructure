@@ -3,15 +3,17 @@
 Set a few basic config vars for below
 ```bash
 export TALOS_VERSION=v1.9.4
-export CILIUM_VERSION=1.17.0
+export CILIUM_VERSION=1.17.1
 ```
 
 ## Form the k8s cluster
-Have kubectl and talosctl installed with their latest compatible versions.
+Have kubectl and talosctl installed with their latest compatible versions. Talos have a [Support Matrix](https://www.talos.dev/latest/introduction/support-matrix/) to help out here.
 
 Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the following images:
 
-### Image 1 - Raspberry Pis
+### Image 1 - Raspberry Pi 4s
+This image will be used for the control plane nodes and the worker nodes that are Raspberry Pi 4s.
+
 1. Select 'Single Board Computer'
 2. Select the Talos Version from above
 3. Select 'Raspberry Pi Series'
@@ -29,10 +31,12 @@ SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.9.4'
 ```
 
-You can then `dd` it onto the 128 GB USB Drives via another machine:
+You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:
 ```bash
-# Linux, eg. USB Flash Drive is /dev/sdb
+# Linux
 sudo lsblk
+
+# Note down the drive device path from above, eg. /dev/sdb
 xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
@@ -40,7 +44,7 @@ flush
 # Just use Raspberry Pi Imager tool
 ```
 
-Boot the 3x `rpi4.4gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
+Boot the 3x `rpi4.4gb.arm64` nodes for the control plane, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
 RPI4_1_IP=192.168.77.152
 RPI4_2_IP=
@@ -48,6 +52,8 @@ RPI4_3_IP=
 ```
 
 ### Image 2 - Beelink EQ14's
+This image will be used for the worker nodes that are Beelink EQ14's.
+
 1. Select 'Bare-metal Machie'
 2. Select the Talos Version from above
 3. Select 'amd64', ensuring SecureBoot is *not* selected
@@ -56,6 +62,7 @@ RPI4_3_IP=
    * siderolabs/util-linux-tools
    * siderolabs/intel-ucode
    * siderolabs/i915
+   * siderolabs/realtek-firmware (TODO: need to confirm this)
 5. Skip the Kernel command line or overlay options
 6. Download the linked *ISO* `metal-amd64.iso`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
