@@ -1,4 +1,4 @@
-# Provision dal-indigo-core-1's Control Plane
+# Provision dal-indigo-core-1's `rpi4.4gb.arm` Control Plane
 
 Set a few basic config vars for below
 ```bash
@@ -6,14 +6,10 @@ export TALOS_VERSION=v1.9.4
 export CILIUM_VERSION=1.17.1
 ```
 
-## Form the k8s cluster
 Have kubectl and talosctl installed with their latest compatible versions. Talos have a [Support Matrix](https://www.talos.dev/latest/introduction/support-matrix/) to help out here.
 
-Navigate to the [Talos Image Factory](https://factory.talos.dev/) and build the following images:
-
-### Image 1 - Raspberry Pi 4s
-This image will be used for the control plane nodes and the worker nodes that are Raspberry Pi 4s.
-
+## Prepare image and boot nodes
+Navigate to the [Talos Image Factory](https://factory.talos.dev/):
 1. Select 'Single Board Computer'
 2. Select the Talos Version from above
 3. Select 'Raspberry Pi Series'
@@ -51,30 +47,7 @@ RPI4_2_IP=
 RPI4_3_IP=
 ```
 
-### Image 2 - Beelink EQ14's
-This image will be used for the worker nodes that are Beelink EQ14's.
-
-1. Select 'Bare-metal Machie'
-2. Select the Talos Version from above
-3. Select 'amd64', ensuring SecureBoot is *not* selected
-4. Select the following System Extensions:
-   * siderolabs/iscsi-tools
-   * siderolabs/util-linux-tools
-   * siderolabs/intel-ucode
-   * siderolabs/i915
-   * siderolabs/realtek-firmware (TODO: need to confirm this)
-5. Skip the Kernel command line or overlay options
-6. Download the linked *ISO* `metal-amd64.iso`
-   6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
-
-Note down the following attributes:
-```
-SCHEMATIC_ID='249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f'
-
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.4'
-```
-
-### Generate secrets and cluster configuration
+## Generate secrets and cluster configuration
 Generate the cluster `secrets.yaml` we'll need to durably and securely store long term:
 ```bash
 talosctl gen secrets \

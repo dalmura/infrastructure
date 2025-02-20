@@ -1,25 +1,49 @@
-# Provision dal-indigo-core-1's `rpi4.8gb.arm` Workers
+# Provision dal-indigo-core-1's `eq14.16gb.amd64` Workers
 
-We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) and are ready to onboard the `rpi4.8gb.arm` Worker nodes.
+We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) and are ready to onboard the `eq14.16gb.amd64` Worker nodes.
 
-## Create the `rpi4.8gb.arm` Worker templates
-Reuse the existing `metal-rpi_generic-arm64.raw.xz` from the previous Control Plane process.
+## Prepare image and boot nodes
+Navigate to the [Talos Image Factory](https://factory.talos.dev/):
+1. Select 'Bare-metal Machie'
+2. Select the Talos Version from above
+3. Select 'amd64', ensuring SecureBoot is *not* selected
+4. Select the following System Extensions:
+   * siderolabs/iscsi-tools
+   * siderolabs/util-linux-tools
+   * siderolabs/intel-ucode
+   * siderolabs/i915
+   * siderolabs/realtek-firmware (TODO: need to confirm this)
+5. Skip the Kernel command line or overlay options
+6. Download the linked *ISO* `metal-amd64.iso`
+   6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
+
+Note down the following attributes:
+```
+SCHEMATIC_ID='249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f'
+
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.4'
+```
+
+Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
+
 ```bash
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
-xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
+sudo dd if=metal-amd64.iso of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
 # Mac
 # Just use Raspberry Pi Imager tool
 ```
 
-Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
+Boot the 3x `eq14.16gb.amd64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.153
-RPI4_2_IP=192.168.77.154
-RPI4_3_IP=
+EQ14_1_IP=192.168.77.153
+EQ14_2_IP=192.168.77.154
+EQ14_3_IP=192.168.77.155
 ```
+
+## Create the `eq14.16gb.amd64` Worker templates
 
 Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
 
