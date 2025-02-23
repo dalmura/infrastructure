@@ -79,14 +79,15 @@ talosctl gen config \
     --install-disk='' \
     --talos-version "${TALOS_VERSION}" \
     --with-cluster-discovery=false \
+    --with-kubespan=false \
     --additional-sans 'core-1.indigo.dalmura.cloud' \
     --config-patch @patches/dal-indigo-core-1-all-init.yaml \
     --config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml \
-    --config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml \
-    --output-dir templates/dal-indigo-core-1/
+    --output-dir templates/dal-indigo-core-1/ \
+    --output-types controlplane,talosconfig
 ```
 
-You can also use the above to just generate new `talosconfig` files with `--output-types talosconfig` for when certificates expire.
+You can also use the above to just generate new `talosconfig` files with `--output-types talosconfig` for when certificates expire. This assumes you've got the original `secrets.yaml` used to generate the original configs (they hold the CA PKI credentials).
 
 `192.168.77.2` will be our [Virtual IP](https://www.talos.dev/v1.9/talos-guides/network/vip/) that is advertised between all controlplane nodes in the cluster, see the [Dalmura Network repo](https://github.com/dalmura/network/blob/main/sites/indigo/networks.yaml#L54) for assignment of this specific IP.
 
@@ -98,7 +99,7 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 
 `--talos-version` needs to be consistent across regeneration of files, as the config generated is minor version specific
 
-`--with-cluster-discovery=false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
+`--with-cluster-discovery=false` and `--with-kubespan=false` because `dal-indigo-core-1` is not participating in KubeSpan there's no point enabling this
 
 `--additional-sans` eventually the cluster will be accessed via these hostnames
 
@@ -109,12 +110,13 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 `--config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml` contains:
 * Configures the VIPs on all interfaces and configures VLANs
 
-`--config-patch-worker @patches/dal-indigo-core-1-worker-init.yaml` contains:
-* Configures further node labels for node groups and configures VLANs
+`--output-dir templates/dal-indigo-core-1/` writes the outputs into the templates file, these cannot be directly applied and must be rendered first (see below)
 
-The above will output generic `controlplane.yaml` and `worker.yaml` config files. Unfortunately these are both unable to be directly applied, we need to specialise each of these for each node (as we have unique node hostnames). We'll do the `controlplane.yaml` and `worker.yaml` later on.
+`--output-types controlplane,talosconfig` don't write the workers out yet as we will write per-worker-class configs later
 
-Configure each nodes config file:
+The above will output a generic `controlplane.yaml` config file along with a `talosconfig` file we can use to authenticate to the Talos API on the cluster (once it's bootstrapped).
+
+Configure each control plane nodes config file:
 ```bash
 mkdir -p nodes/dal-indigo-core-1/
 
@@ -125,10 +127,10 @@ talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
 
-# Repeat noting down the HW ADDR for each node from above, for example:
+# Note down the HW ADDR for each node from above, for example:
 RPI4_1_HW_ADDR='e45f019d4d95'
-RPI4_2_HW_ADDR=''
-RPI4_3_HW_ADDR=''
+RPI4_2_HW_ADDR='e45f019d4d96'
+RPI4_3_HW_ADDR='e45f019d4d97'
 
 # Create the per-device Control Plane configs with these overrides
 # (uses gsed on a Mac with brew sed installed)
@@ -153,9 +155,10 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig config nodes "${R
 
 First we verify if the Talos API is running on the node:
 ```bash
+# We should see the server version printed as well, matching the Talos version you selected when generating the image at the factory website
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig version
 
-# Look at the logs
+# Look at the logs and see the progress
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 
 # Wait until you see something like
@@ -179,7 +182,9 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ping 192.168.77.2
 ```
 
-Verify the node waiting for the CNI install:
+The node (aka cluster) should be in a state where it's now waiting for the CNI to be installed!
+
+We can verify this by connecting to the k8s API and checking the Node status:
 ```bash
 mkdir kubeconfigs
 
