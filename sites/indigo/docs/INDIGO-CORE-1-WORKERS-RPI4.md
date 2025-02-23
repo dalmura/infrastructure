@@ -2,12 +2,16 @@
 
 We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) and are ready to onboard the `rpi4.8gb.arm` Worker nodes.
 
-## Create the `rpi4.8gb.arm` Worker templates
-Reuse the existing `metal-rpi_generic-arm64.raw.xz` from the previous Control Plane process.
+## Prepare image and boot nodes
+Reuse the existing `metal-arm64.raw.xz` from the previous Control Plane process.
+
+You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:
 ```bash
-# Linux, eg. USB Flash Drive is /dev/sdb
+# Linux
 sudo lsblk
-xz -dc metal-rpi_generic-arm64.img.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
+
+# Note down the drive device path from above, eg. /dev/sdb
+xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
 # Mac
@@ -18,8 +22,10 @@ Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns fr
 ```bash
 RPI4_1_IP=192.168.77.153
 RPI4_2_IP=192.168.77.154
-RPI4_3_IP=
+RPI4_3_IP=192.168.77.155
 ```
+
+## Create the `rpi4.8gb.arm` Worker templates
 
 Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
 

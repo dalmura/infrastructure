@@ -50,9 +50,9 @@ Using the config generated as part of the Control Plane bootstrap, we'll copy an
 Apply the config for each node:
 ```bash
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${EQ14_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${EQ14_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${EQ14_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
@@ -93,7 +93,7 @@ Verify the nodes become Ready:
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 ```
 
-You can now quickly go back to the (Control Plane)[./INDIGO-CORE-1-CONTROL-PLANE.md] doco and verify Cilium's Hubble Relay & UI have come up correctly.
+You can now quickly go back to the [Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) doco and verify Cilium's Hubble Relay & UI have come up correctly.
 
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes

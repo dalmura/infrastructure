@@ -314,9 +314,13 @@ Wait until all nodes become `Ready`:
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 ```
 
-You now have a basic k8s cluster running with:
+You now have a k8s cluster with just Control Plane nodes running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
   * Cilium in Strict Mode as the CNI
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
+
+Before deploying any workloads you will need to deploy one or more Worker nodes:
+* [Raspberry Pi 4 nodes aka `rpi4.8gb.arm`](INDIGO-CORE-1-WORKERS-RPI4.md)
+* [Beelink EQ14 nodes aka `eq14.16gb.amd64`](INDIGO-CORE-1-WORKERS-EQ14.md)

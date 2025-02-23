@@ -54,8 +54,9 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 
 * [`Site hardware`](docs/INDIGO-HARDWARE.md)
 * [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
-* [`dal-indigo-core-1` Workers](docs/INDIGO-CORE-1-WORKERS.md)
-  * [`dal-indigo-core-1` Workers - ArgoCD](docs/INDIGO-CORE-1-WORKERS-ARGOCD.md)
+* [`dal-indigo-core-1` Workers - `rpi4.8gb.arm`](docs/INDIGO-CORE-1-WORKERS-RPI4.md)
+* [`dal-indigo-core-1` Workers - `eq14.16gb.amd64`](docs/INDIGO-CORE-1-WORKERS-EQ14.md)
+* [`dal-indigo-core-1` Apps - ArgoCD](docs/INDIGO-CORE-1-APPS-ARGOCD.md)
 * [`dal-indigo-core-1` Apps - Wave 0](docs/INDIGO-CORE-1-APPS-WAVE-0.md)
 * [`dal-indigo-core-1` Apps - Wave 1](docs/INDIGO-CORE-1-APPS-WAVE-1.md)
 * [`dal-indigo-core-1` Apps - Wave 2](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
