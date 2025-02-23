@@ -1,6 +1,6 @@
-# Provision Argo CD for dal-indigo-core-1's `rpi4.8gb.arm` Workers
+# Provision Argo CD for dal-indigo-core-1
 
-We assume you've got dal-indigo-core-1's `rpi4.8gb.arm` Workers running and Ready according to `kubectl get nodes`!
+We assume you've got a few Workers running and have a Ready status according to `kubectl get nodes`!
 
 Install the non-HA Argo CD into its own namespace
 ```bash
@@ -61,10 +61,11 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argoc
 ```
 
 Now our k8s cluster should be running with:
-* 3x rpi4.4gb.arm64 Control Plane nodes
+* 3x `rpi4.4gb.arm64` Control Plane nodes
   * Cilium in Strict Mode as the CNI
-* 3x rpi4.8gb.arm64 Worker nodes
-  * ArgoCD ready to deploy _everything else_
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
+* 3x `rpi4.8gb.arm64` Worker nodes
+* 3x `eq14.16gb.amd64` Worker nodes
+* ArgoCD ready to deploy _everything else_

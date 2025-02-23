@@ -27,7 +27,31 @@ RPI4_3_IP=192.168.77.155
 
 ## Create the `rpi4.8gb.arm` Worker templates
 
-Using the config generated as part of the Control Plane bootstrap, we'll copy and configure the `templates/dal-indigo-core-1/worker.yaml` for each node (as we have unqiue node hostnames).
+We assume you have a working directory that contains the `secrets.yaml` that was used to create the cluster initially as part of the control plane setup, and also have the following environment variables set:
+* TALOS_VERSION
+
+First we need to create the worker config for the rpi4 worker class:
+```bash
+talosctl gen config \
+    dal-indigo-core-1 \
+    'https://192.168.77.2:6443/' \
+    --with-secrets secrets.yaml \
+    --with-docs=false \
+    --with-examples=false \
+    --install-disk='' \
+    --talos-version "${TALOS_VERSION}" \
+    --with-cluster-discovery=false \
+    --with-kubespan=false \
+    --additional-sans 'core-1.indigo.dalmura.cloud' \
+    --config-patch @patches/dal-indigo-core-1-all-init.yaml \
+    --config-patch-worker @patches/dal-indigo-core-1-worker-rpi4-init.yaml \
+    --output-dir templates/dal-indigo-core-1/ \
+    --output-types worker
+
+mv templates/dal-indigo-core-1/worker.yaml templates/dal-indigo-core-1/worker-rpi4.yaml
+```
+
+We then need to specialise `worker-rpi4.yaml` for each node.
 
 Apply the config for each node:
 ```bash
@@ -45,9 +69,9 @@ RPI4_3_HW_ADDR=''
 # Copy the configs
 
 # Create the per-device Worker configs with these overrides
-cat templates/dal-indigo-core-1/worker.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
 gsed -i 's/<NODE_INSTANCE_TYPE>/rpi4.8gb.arm64/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
 gsed -i 's/<K8S_NODE_GROUP>/rpi4-worker-pool/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
@@ -75,12 +99,14 @@ Verify the nodes become Ready:
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 ```
 
-You can now quickly go back to the (Control Plane)[./INDIGO-CORE-1-CONTROL-PLANE.md] doco and verify Cilium's Hubble Relay & UI have come up correctly.
-
 Now our k8s cluster should be running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
   * Cilium in Strict Mode as the CNI
-* 3x rpi4.8gb.arm64 Worker nodes
 * Floating VIPs for easy k8s Control Plane access
   * 192.168.77.2 on the SERVERS VLAN
   * 192.168.77.130 on the SERVERS_STAGING VLAN
+* 3x rpi4.8gb.arm64 Worker nodes
+
+If this is the first group of workers for this cluster, you can now quickly go back to the [Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) doco and verify Cilium's Hubble Relay & UI have come up correctly.
+
+You can proceed to onboard [other worker classes](INDIGO-CORE-1-WORKERS-EQ14.md) or proceed to [deploying application wave management](INDIGO-CORE-1-APPS-ARGOCD.md).

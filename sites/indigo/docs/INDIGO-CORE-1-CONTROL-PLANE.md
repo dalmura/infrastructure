@@ -68,7 +68,7 @@ gpg --output secrets.yaml \
     --decrypt secrets.yaml.gpg
 ```
 
-Generate a config to bootstrap k8s on that node:
+Generate the control plane config and the initial talosctl config file:
 ```bash
 talosctl gen config \
     dal-indigo-core-1 \
