@@ -15,7 +15,13 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
 flush
 
 # Mac
-# Just use Raspberry Pi Imager tool
+# Use the Disk Utility to identify the Device name, eg. disk3
+
+# Write the file to the SSD
+xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progress
+
+# Or just use Raspberry Pi Imager tool
+# It is compatible with metal-arm64.raw.xz files
 ```
 
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
