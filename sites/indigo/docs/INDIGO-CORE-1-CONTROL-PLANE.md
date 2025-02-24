@@ -48,7 +48,7 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 
 Boot the 3x `rpi4.4gb.arm64` nodes for the control plane, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.152
+RPI4_1_IP=192.168.77.192
 RPI4_2_IP=
 RPI4_3_IP=
 ```
@@ -129,14 +129,14 @@ mkdir -p nodes/dal-indigo-core-1/
 # Since Talos now uses predictable network interfaces, for rpi's this means all ethernet interfaces are named like `enx<HW_MAC_ADDR>` eg. a MAC address of `e4:5f:01:9d:4d:95` results in `enxe45f019d4d95`
 
 # Use these commands to discover the interface names and mac addresses
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Note down the HW ADDR for each node from above, for example:
 RPI4_1_HW_ADDR='e45f019d4d95'
-RPI4_2_HW_ADDR='e45f019d4d96'
-RPI4_3_HW_ADDR='e45f019d4d97'
+RPI4_2_HW_ADDR=''
+RPI4_3_HW_ADDR=''
 
 # Create the per-device Control Plane configs with these overrides
 # (uses gsed on a Mac with brew sed installed)
