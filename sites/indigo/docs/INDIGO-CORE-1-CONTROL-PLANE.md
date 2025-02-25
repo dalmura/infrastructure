@@ -175,13 +175,8 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig bootstrap
 
 # Wait for the cluster to settle down
+# It will just keep repeating the same similar messages
 talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
-
-# Keep an eye until you see the following logs fly past:
-192.168.77.150: user: warning: [2024-03-03T01:03:59.13141591Z]: [talos] created /v1/ConfigMap/coredns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
-192.168.77.150: user: warning: [2024-03-03T01:03:59.58673191Z]: [talos] created apps/v1/Deployment/coredns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
-192.168.77.150: user: warning: [2024-03-03T01:03:59.97196491Z]: [talos] created /v1/Service/kube-dns {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
-192.168.77.150: user: warning: [2024-03-03T01:04:00.33167191Z]: [talos] created /v1/ConfigMap/kubeconfig-in-cluster {"component": "controller-runtime", "controller": "k8s.ManifestApplyController"}
 
 # Verify you can ping the floating Virtual IP (VIP)
 # This assumes you're on a network segment that can do this!
@@ -272,7 +267,7 @@ kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0 
 # Get the nodes status
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
-# And confirm coredns is Running
+# Wait until coredns pods status goes to Running
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace kube-system get pods
 ```
 
@@ -302,7 +297,10 @@ Verify Cilium is running:
 export KUBECONFIG='kubeconfigs/dal-indigo-core-1'
 
 # Report on the setup status
-cilium status --wait
+cilium status
+
+# If you're proceeding with 1x Control Plane node without removing the taint/etc
+# Expect the Operator to be 1/2, and the Relay and Hubble to be unavailable
 
 # Open Hubble and verify
 # Assuming you've got it running on the current node(s) setup
