@@ -26,9 +26,9 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.153
-RPI4_2_IP=192.168.77.154
-RPI4_3_IP=192.168.77.155
+RPI4_1_IP=192.168.77.193
+RPI4_2_IP=
+RPI4_3_IP=
 ```
 
 ## Create the `rpi4.8gb.arm` Worker templates
@@ -62,17 +62,15 @@ We then need to specialise `worker-rpi4.yaml` for each node.
 Apply the config for each node:
 ```bash
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
 RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4e19'
+RPI4_2_HW_ADDR=''
 RPI4_3_HW_ADDR=''
-
-# Copy the configs
 
 # Create the per-device Worker configs with these overrides
 cat templates/dal-indigo-core-1/worker-rpi4.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"

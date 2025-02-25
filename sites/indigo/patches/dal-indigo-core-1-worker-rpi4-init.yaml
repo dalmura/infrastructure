@@ -21,3 +21,7 @@ machine:
     nameservers:
       - 192.168.77.1
       - 192.168.77.129
+
+  install:
+    diskSelector:
+      model: SSD 870 EVO 250G
