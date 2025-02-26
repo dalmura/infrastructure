@@ -22,6 +22,9 @@ Note down the following attributes:
 SCHEMATIC_ID='249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f'
 
 FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.4'
+
+# From the `Initial Installation` section
+export INSTALLER_IMAGE_URI='factory.talos.dev/installer/249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f:v1.9.4'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
@@ -36,11 +39,13 @@ flush
 # Just use Raspberry Pi Imager tool
 ```
 
-Boot the 3x `eq14.16gb.amd64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
+Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from the USB. F7 from a locally attached keyboard will bring up the boot menu.
+
+Once booted, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-EQ14_1_IP=192.168.77.153
-EQ14_2_IP=192.168.77.154
-EQ14_3_IP=192.168.77.155
+EQ14_1_IP=192.168.77.194
+EQ14_2_IP=
+EQ14_3_IP=
 ```
 
 ## Create the `eq14.16gb.amd64` Worker templates
@@ -48,7 +53,7 @@ EQ14_3_IP=192.168.77.155
 We assume you have a working directory that contains the `secrets.yaml` that was used to create the cluster initially as part of the control plane setup, and also have the following environment variables set:
 * TALOS_VERSION
 
-First we need to create the worker config for the rpi4 worker class:
+First we need to create the worker config for the eq14 worker class:
 ```bash
 talosctl gen config \
     dal-indigo-core-1 \
@@ -74,14 +79,16 @@ We then need to specialise `worker-eq14.yaml` for each node.
 Apply the config for each node:
 ```bash
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
-talosctl -n "${EQ14_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${EQ14_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
-talosctl -n "${EQ14_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enx")) | .spec.hardwareAddr' -r | tr -d ':'
+# These will print out 2x MAC Addresses for each of the ports
+# Find the correct one by looking at the DHCP leases to see which one is active
+talosctl -n "${EQ14_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${EQ14_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
+talosctl -n "${EQ14_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
 
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
-EQ14_1_HW_ADDR='e45f019d4ca8'
-EQ14_2_HW_ADDR='e45f019d4e19'
+EQ14_1_HW_ADDR='e8ff1ed8884c'
+EQ14_2_HW_ADDR=''
 EQ14_3_HW_ADDR=''
 
 # Copy the configs
@@ -93,12 +100,14 @@ cat templates/dal-indigo-core-1/worker-eq14.yaml | gsed "s/<HW_ADDRESS>/${EQ14_3
 
 gsed -i 's/<NODE_INSTANCE_TYPE>/eq14.16gb.amd64/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
 gsed -i 's/<K8S_NODE_GROUP>/eq14-worker-pool/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+gsed -i "s|<INSTALLER_IMAGE_URI>|${INSTALLER_IMAGE_URI}|g" nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
 
 talosctl apply-config --insecure -n "${EQ14_1_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${EQ14_2_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${EQ14_3_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml
 
-# If you want to watch the individual nodes bootstrap
+# It will initially take some time to download the image and get the node booted
+# Once it's booted into the new image (about 3-5 mins), you can proceed:
 talosctl -n "${EQ14_1_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 talosctl -n "${EQ14_2_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 talosctl -n "${EQ14_3_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow

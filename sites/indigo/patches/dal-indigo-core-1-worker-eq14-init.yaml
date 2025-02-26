@@ -23,8 +23,7 @@ machine:
       - 192.168.77.129
 
   install:
+    image: <INSTALLER_IMAGE_URI>
+
     diskSelector:
-      # TODO Confirm selector for Beelink
-      model: SanDisk*
-      type: HDD
-      size: '<= 150GB'
+      model: 512GB SSD
