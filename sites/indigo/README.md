@@ -52,6 +52,9 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 
 ## Configuration
 
+Here is the overall process to bringing up the k8s cluster and deploying all the required applications (via waves).
+
+Follow this list in order:
 * [`Site hardware`](docs/INDIGO-HARDWARE.md)
 * [`dal-indigo-core-1` Control Plane](docs/INDIGO-CORE-1-CONTROL-PLANE.md)
 * [`dal-indigo-core-1` Workers - `rpi4.8gb.arm`](docs/INDIGO-CORE-1-WORKERS-RPI4.md)
