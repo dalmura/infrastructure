@@ -1,6 +1,14 @@
 # Provision Argo CD for dal-indigo-core-1
 
-We assume you've got a few Workers running and have a Ready status according to `kubectl get nodes`!
+We assume you've got a few Workers running via:
+* [RPI4 worker class](INDIGO-CORE-1-WORKERS-RPI4.md)
+* [EQ14 worker class](INDIGO-CORE-1-WORKERS-EQ14.md)
+
+And additionally:
+* Have a Ready status according to `kubectl get nodes` across all nodes
+* Have cilium reporting everything is green and fully deployed via `cilium status`
+
+If not go back to previous steps and troubleshoot, the cluster needs to be in a healthy state before we deploy anything.
 
 Install the non-HA Argo CD into its own namespace
 ```bash
