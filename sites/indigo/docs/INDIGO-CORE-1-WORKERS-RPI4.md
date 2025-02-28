@@ -27,7 +27,7 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
 RPI4_1_IP=192.168.77.193
-RPI4_2_IP=
+RPI4_2_IP=192.168.77.195
 RPI4_3_IP=
 ```
 
@@ -69,7 +69,7 @@ talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metada
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
 RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR=''
+RPI4_2_HW_ADDR='e45f019d4e19'
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Worker configs with these overrides
@@ -83,6 +83,8 @@ gsed -i 's/<K8S_NODE_GROUP>/rpi4-worker-pool/g' nodes/dal-indigo-core-1/worker-r
 talosctl apply-config --insecure -n "${RPI4_1_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${RPI4_2_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${RPI4_3_IP}" -f nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml
+
+# This should be pretty instant as we don't need to download any new images and reboot the machine
 
 # If you want to watch the individual nodes bootstrap
 talosctl -n "${RPI4_1_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow

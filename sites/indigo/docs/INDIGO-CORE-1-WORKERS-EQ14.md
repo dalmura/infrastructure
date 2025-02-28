@@ -107,7 +107,7 @@ talosctl apply-config --insecure -n "${EQ14_2_IP}" -f nodes/dal-indigo-core-1/wo
 talosctl apply-config --insecure -n "${EQ14_3_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml
 
 # It will initially take some time to download the image and get the node booted
-# Once it's booted into the new image (about 3-5 mins), you can proceed:
+# Once it's booted into the new image (about 3-5 mins), you can tail the logs:
 talosctl -n "${EQ14_1_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 talosctl -n "${EQ14_2_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 talosctl -n "${EQ14_3_IP}" --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
