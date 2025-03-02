@@ -23,6 +23,9 @@ pushd clusters/dal-indigo-core-1/wave-0/app/templates/
 # This would equate to the following kustomize command
 # All k8s resources that would be created are printed out by this
 kubectl kustomize 'https://github.com/dalmura/workloads.git/sealed-secrets?ref=HEAD'
+
+# Go back to the site directory
+popd
 ```
 
 ## Create the wave-0 parent app & deploy children
@@ -33,11 +36,15 @@ argocd app create wave-0 \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/wave-0/app
 
+# Path above is for the git repo, not your local path
+
 # Create the child applications
 argocd app sync wave-0
 
 # Deploy the child applications
 argocd app sync -l app.kubernetes.io/instance=wave-0
+
+# Verify the status via the Web UI, once it's Healthy you can continue
 ```
 
 ## Install kubeseal
@@ -46,7 +53,7 @@ argocd app sync -l app.kubernetes.io/instance=wave-0
 brew install kubeseal
 
 # Linux
-KUBESEAL_VERSION='0.26.0'
+KUBESEAL_VERSION='0.28.0'
 wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
 tar -xvzf "kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" kubeseal
 sudo install -m 755 kubeseal /usr/local/bin/kubeseal
