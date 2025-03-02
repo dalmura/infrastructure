@@ -41,13 +41,14 @@ argocd-server-76fdbd5f78-mkx2p                      0/1     ContainerCreating   
 # Lastly apply an override for the default project to ignore Cilium resources
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-default-project.yaml
 
+# You'll see a Warning about 'prefer a domain-qualified finalizer name', just ignore it, some context: https://github.com/Infisical/infisical/issues/2503
 # This works around https://github.com/cilium/cilium/issues/17349
 ```
 
 You can then verify the application is operational via port forwarding:
 ```bash
 # Retrieve the default password
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d | sed 's/$/\n/g'
 
 # Setup port forwarding
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/argocd-server -n argocd 8080:443
@@ -57,6 +58,8 @@ brew install argocd
 
 # Log in via the CLI
 # It will prompt about insecure certificate (self signed) just accept
+# Username: admin
+# Password: <from above>
 argocd login localhost:8080
 
 # Update the default password for admin
