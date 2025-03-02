@@ -49,6 +49,8 @@ kubectl create secret generic \
   > ${OVERLAY_DIR}/longhorn/aws-s3-credentials-secret.sealed.yaml
 ```
 
+Ensure you have committed and pushed the above credentials up into git as the below command (and final deployment) all rely on what's in git, not what's local.
+
 ## Verifying apps
 
 You can verify the k8s resources emitted by each app by running `kustomize` yourself
@@ -104,14 +106,20 @@ OutOfSync  Missing        Internal error occurred: failed calling webhook "ipadd
 
 This is because we are deploying resources that have a Validating Webhook that's run by the application itself, and it hasn't yet created the container to validate the webhook. So just wait a minute and just rerun the deployment again and it'll work. Nothing to be worried about!
 
+If you don't see the errors above but other errors, it possibly can help to wait some minutes anyway and rerun the above deployment to see if it was temporary or some other ordering issue within the deployment apps.
+
+If you get any errors around SealedSecrets and 'no key found to decrypt' maybe you forgot to commit and push the steps earlier that updated the sealed secret credentials?
+
 Longhorn will take a couple of minutes, but after that you can setup a kube proxy before we deploy the ingress controllers:
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system port-forward svc/longhorn-frontend 8081:80
 ```
 
-## Validation
+Once you can run the deployment command without any errors, and you've validated in the ArgoCD web UI that all apps are green/synced/healthy, we can move on.
 
+## Validation
 Longhorn will deploy itself as the default StorageClass on the cluster, this can be checked via:
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get storageclass
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 describe storageclass longhorn
+```
