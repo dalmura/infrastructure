@@ -9,6 +9,7 @@ resources:
   - cluster_role_binding.yaml
   - service.yaml
   - ingressclass.yaml
+  - ingress.yaml
 
 patches:
   - path: deployment_overlay.yaml
