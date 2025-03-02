@@ -7,5 +7,5 @@ resources:
   - github.com/dalmura/workloads/externaldns?ref=HEAD
   - credentials.sealed.yaml
 
-patchesStrategicMerge:
-  - aws_deployment.yaml
+patches:
+  - path: aws_deployment.yaml
