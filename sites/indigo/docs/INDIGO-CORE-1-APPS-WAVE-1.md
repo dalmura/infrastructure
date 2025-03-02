@@ -118,7 +118,31 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system port-forwa
 Once you can run the deployment command without any errors, and you've validated in the ArgoCD web UI that all apps are green/synced/healthy, we can move on.
 
 ## Validation
-Longhorn will deploy itself as the default StorageClass on the cluster, this can be checked via:
+### cert-manager
+You can just check that the pod(s) are up and running, nothing much to check here yet, once we start minting certificates later on we'll be able to validate.
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace cert-manager get pods
+```
+
+### external-dns
+You can just check that the pod(s) are up and running, nothing much to check here yet, once we start creating web services later on we'll be able to validate.
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace externaldns get pods
+```
+
+### MetalLB
+You can just check that the pod(s) are up and running, nothing much to check here yet, once we start
+creating web services later on we'll be able to validate.
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace metallb-system get pods
+
+# You can also check some of the CRD resources to ensure the configuration matches our overlay values:
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get -A ipaddresspools
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get -A l2advertisements
+```
+
+### Longhorn
+Longhorn will deploy itself as the default StorageClass on the cluster, later on we can validate that Longhorn is correctly provisioning PVs.
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get storageclass
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 describe storageclass longhorn
