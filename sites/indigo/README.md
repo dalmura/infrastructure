@@ -75,3 +75,4 @@ Follow this list in order:
 * [`dal-indigo-core-1` Apps - Wave 2](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
 * [`dal-indigo-core-1` Apps - Wave 3](docs/INDIGO-CORE-1-APPS-WAVE-3.md)
 * [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
+* [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
