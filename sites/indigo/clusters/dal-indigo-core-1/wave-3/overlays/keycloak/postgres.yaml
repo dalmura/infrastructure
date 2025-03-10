@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keycloak-db
+spec:
+  instances: 1
+
+  primaryUpdateStrategy: unsupervised
+
+  # Persistent storage configuration
+  storage:
+    size: 10Gi
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: standard
+      volumeMode: Filesystem

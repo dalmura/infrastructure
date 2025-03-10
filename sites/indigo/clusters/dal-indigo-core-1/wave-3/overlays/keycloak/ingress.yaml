@@ -4,7 +4,7 @@ metadata:
   name: keycloak
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: auth.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: auth.indigo.dalmura.cloud
     external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
@@ -12,10 +12,10 @@ spec:
   ingressClassName: ingress-public
   tls:
     - hosts:
-      - auth.dalmura.cloud
+      - auth.indigo.dalmura.cloud
       secretName: keycloak-cert
   rules:
-  - host: auth.dalmura.cloud
+  - host: auth.indigo.dalmura.cloud
     http:
       paths:
       - path: /

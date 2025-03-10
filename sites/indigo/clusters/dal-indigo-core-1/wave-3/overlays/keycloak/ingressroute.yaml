@@ -4,7 +4,7 @@ metadata:
   name: keycloak
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: auth.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: auth.indigo.dalmura.cloud
     external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     metallb.universe.tf/address-pool: servers-vlan
     kubernetes.io/ingress.class: traefik-public
@@ -12,12 +12,12 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`auth.dalmura.cloud`)
+    - match: Host(`auth.indigo.dalmura.cloud`)
       kind: Rule
       services:
       - name: keycloak
         port: 8080
   tls:
     domains:
-      - main: auth.dalmura.cloud
+      - main: auth.indigo.dalmura.cloud
     secretName: keycloak-cert
