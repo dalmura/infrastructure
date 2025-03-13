@@ -4,4 +4,11 @@ kind: Kustomization
 namespace: argocd
 
 resources:
-  - ingress.yaml
+  # Not used anymore as Ingress cannot handle the gRPC proxy as well for argocd CLI
+  #- ingress.yaml
+
+  # Separate cert resource is required as cert-manager doesn't support IngressRoute discovery
+  - ingressroute_cert.yaml
+  - ingressroute.yaml
+
+  # Eventually need to move to Gateway API instead

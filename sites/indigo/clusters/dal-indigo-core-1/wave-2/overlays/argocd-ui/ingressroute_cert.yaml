@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-cert
+spec:
+  secretName: argocd-cert
+  dnsNames:
+    - "argocd.indigo.dalmura.cloud"
+  issuerRef:
+    name: dalmura-letsencrypt-prod
+    kind: ClusterIssuer

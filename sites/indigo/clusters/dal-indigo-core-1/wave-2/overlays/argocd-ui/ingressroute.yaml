@@ -1,0 +1,28 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-ui
+  cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: argocd.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.tls: true
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`argocd.indigo.dalmura.cloud`)
+      priority: 10
+      services:
+        - kind: Service
+          name: argocd-server
+          port: 443
+    - kind: Rule
+      match: Host(`argocd.indigo.dalmura.cloud`) && Header(`Content-Type`, `application/grpc`)
+      priority: 11
+      services:
+        - kind: Service
+          name: argocd-server
+          port: 443
+          scheme: h2c
+  tls:
+    secretName: argocd-cert
