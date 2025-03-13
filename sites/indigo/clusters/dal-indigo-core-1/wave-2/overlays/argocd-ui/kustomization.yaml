@@ -7,8 +7,7 @@ resources:
   # Not used anymore as Ingress cannot handle the gRPC proxy as well for argocd CLI
   #- ingress.yaml
 
-  # Separate cert resource is required as cert-manager doesn't support IngressRoute discovery
-  - ingressroute_cert.yaml
+  # Use of switchboard allows for automatic discovery for cert-manager and external-dns
   - ingressroute.yaml
 
   # Eventually need to move to Gateway API instead

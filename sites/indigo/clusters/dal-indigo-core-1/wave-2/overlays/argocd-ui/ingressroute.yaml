@@ -2,9 +2,9 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: argocd-ui
-  cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: argocd.indigo.dalmura.cloud
-    traefik.ingress.kubernetes.io/router.tls: true
 spec:
   entryPoints:
     - websecure
