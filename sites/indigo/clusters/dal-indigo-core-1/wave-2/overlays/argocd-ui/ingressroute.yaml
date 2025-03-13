@@ -5,6 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: argocd.indigo.dalmura.cloud
+    kubernetes.io/ingress.class: ingress-private
 spec:
   entryPoints:
     - websecure

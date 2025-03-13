@@ -38,6 +38,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * ArgoCD - Wave 2
    * [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
       * Ingress Controller
+   * [Switchboard](https://github.com/borchero/switchboard/)
+      * Integrates `cert-manager` and `ExternalDNS` with Traefik's `IngressRoute`
    * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
       * PostgreSQL Cluster Operator
    * Ingress resources for various management UI

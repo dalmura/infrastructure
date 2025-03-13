@@ -1,0 +1,21 @@
+cert-manager:
+  installCRDs: false
+
+external-dns:
+  crd:
+    create: false
+
+integrations:
+  certManager:
+    enabled: true
+    issuer: dalmura-letsencrypt-prod
+
+  externalDNS:
+    enabled: true
+
+    targetService:
+      namespace: traefik-public
+      name:traefik-ingress-controller
+
+selector:
+  ingressClass: ingress-public
