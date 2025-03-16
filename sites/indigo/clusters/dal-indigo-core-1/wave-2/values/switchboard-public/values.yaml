@@ -15,7 +15,7 @@ integrations:
 
     targetService:
       namespace: traefik-public
-      name:traefik-ingress-controller
+      name: traefik-ingress-controller
 
 selector:
   ingressClass: ingress-public
