@@ -8,7 +8,11 @@ external-dns:
 integrations:
   certManager:
     enabled: true
-    certificateTemplate: {}
+    certificateTemplate:
+      spec:
+        issuerRef:
+          kind: ClusterIssuer
+          name: dalmura-letsencrypt-prod
     issuer: dalmura-letsencrypt-prod
 
   externalDNS:
