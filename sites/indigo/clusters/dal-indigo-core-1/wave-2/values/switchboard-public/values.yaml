@@ -3,7 +3,7 @@ cert-manager:
 
 external-dns:
   crd:
-    create: false
+    create: true
 
 integrations:
   certManager:
