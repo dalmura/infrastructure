@@ -8,6 +8,7 @@ external-dns:
 integrations:
   certManager:
     enabled: true
+    certificateTemplate: {}
     issuer: dalmura-letsencrypt-prod
 
   externalDNS:
