@@ -4,8 +4,4 @@ kind: Kustomization
 namespace: externaldns
 
 resources:
-  - github.com/dalmura/workloads/externaldns?ref=HEAD
   - credentials.sealed.yaml
-
-patches:
-  - path: aws_deployment.yaml

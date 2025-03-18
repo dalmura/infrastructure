@@ -1,0 +1,26 @@
+domainFilters:
+  - dalmura.au
+  - dalmura.cloud
+env:
+  - name: AWS_DEFAULT_REGION
+    value: us-east-1
+  - name: AWS_SHARED_CREDENTIALS_FILE
+    value: /.aws/credentials
+extraVolumeMounts:
+  - name: iam-credentials
+    mountPath: /.aws
+    readOnly: true
+extraVolumes:
+  - name: iam-credentials
+    secret:
+      secretName: iam-credentials
+provider:
+  name: aws
+registry: txt
+sources:
+  - service
+  - ingress
+  - crd
+triggerLoopOnEvent: true
+txtOwnerId: "dal-indigo-core-1"
+txtPrefix: "dal-"
