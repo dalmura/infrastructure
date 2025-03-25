@@ -2,8 +2,8 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.9.4
-export CILIUM_VERSION=1.17.1
+export TALOS_VERSION=v1.9.5
+export CILIUM_VERSION=1.17.2
 ```
 
 Have kubectl and talosctl installed with their latest compatible versions. Talos have a [Support Matrix](https://www.talos.dev/latest/introduction/support-matrix/) to help out here.
