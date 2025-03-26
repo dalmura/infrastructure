@@ -14,27 +14,29 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
    * siderolabs/i915
    * siderolabs/realtek-firmware (TODO: need to confirm this)
 5. Skip the Kernel command line or overlay options
+5. Provide the following Kernel command line option: `-talos.halt_if_installed`
 6. Download the linked *ISO* `metal-amd64.iso`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
 
 Note down the following attributes:
 ```
-SCHEMATIC_ID='9ba0b24a91c2b56085dceb616daaf013f0453bcf2f2036814be062733e583806'
+SCHEMATIC_ID='78050f2d4149310e8e1a26f6433ff4b9932025c6420ddff8f71d3fec22fc809c'
 
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.5'
-
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&board=undefined&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&secureboot=undefined&target=metal&version=1.9.5'
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/installer/9ba0b24a91c2b56085dceb616daaf013f0453bcf2f2036814be062733e583806:v1.9.5'
+export INSTALLER_IMAGE_URI='factory.talos.dev/installer/78050f2d4149310e8e1a26f6433ff4b9932025c6420ddff8f71d3fec22fc809c:v1.9.5'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
+
+We've deliberately removed `talos.halt_if_installed` as Talos OS refuses to boot off a USB if it detects Talos OS already installed on the system disk.
 
 ```bash
 # Linux, eg. USB Flash Drive is /dev/sdb
 sudo lsblk
 sudo dd if=metal-amd64.iso of=/dev/sdb conv=fsync bs=4M status=progress
-flush
+sync
 
 # Mac
 # Just use Raspberry Pi Imager tool
@@ -46,7 +48,7 @@ TODO: Optionally wipe the existing NVME drive as Talos doesn't like an existing 
 
 Once booted, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-EQ14_1_IP=192.168.77.194
+EQ14_1_IP=192.168.77.199
 EQ14_2_IP=
 EQ14_3_IP=
 ```

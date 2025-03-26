@@ -12,7 +12,7 @@ sudo lsblk
 
 # Note down the drive device path from above, eg. /dev/sdb
 xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
-flush
+sync
 
 # Mac
 # Use the Disk Utility to identify the Device name, eg. disk3
@@ -27,7 +27,7 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 Boot the 3x `rpi4.8gb.arm64` nodes, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
 RPI4_1_IP=192.168.77.193
-RPI4_2_IP=192.168.77.195
+RPI4_2_IP=192.168.77.192
 RPI4_3_IP=
 ```
 
@@ -69,7 +69,7 @@ talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metada
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
 RPI4_1_HW_ADDR='e45f019d4ca8'
-RPI4_2_HW_ADDR='e45f019d4e19'
+RPI4_2_HW_ADDR='e45f019d4d95'
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Worker configs with these overrides

@@ -34,7 +34,7 @@ sudo lsblk
 
 # Note down the drive device path from above, eg. /dev/sdb
 xz -dc metal-arm64.raw.xz | sudo dd of=/dev/sdb conv=fsync bs=4M status=progress
-flush
+sync
 
 # Mac
 # Use the Disk Utility to identify the Device name, eg. disk3
@@ -256,7 +256,7 @@ kube-system   cilium-operator-5c6c66956-vmzr5              0/1     Pending    0 
 
 # Wait until these become Ready
 
-# You should then see the following
+# You should then see the following (might take a minute, be patient)
 % talosctl --talosconfig templates/dal-indigo-core-1/talosconfig dmesg --follow
 ```
 ...
