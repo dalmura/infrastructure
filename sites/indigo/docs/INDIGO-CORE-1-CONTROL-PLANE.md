@@ -24,7 +24,7 @@ Note down the following attributes:
 ```
 SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 
-FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.9.4'
+FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.9.5'
 ```
 
 You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:

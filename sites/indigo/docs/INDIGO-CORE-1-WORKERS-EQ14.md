@@ -19,12 +19,13 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
 
 Note down the following attributes:
 ```
-SCHEMATIC_ID='249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f'
+SCHEMATIC_ID='9ba0b24a91c2b56085dceb616daaf013f0453bcf2f2036814be062733e583806'
 
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.4'
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.9.5'
+
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/installer/249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f:v1.9.4'
+export INSTALLER_IMAGE_URI='factory.talos.dev/installer/9ba0b24a91c2b56085dceb616daaf013f0453bcf2f2036814be062733e583806:v1.9.5'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
@@ -40,6 +41,8 @@ flush
 ```
 
 Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from the USB. F7 from a locally attached keyboard will bring up the boot menu.
+
+TODO: Optionally wipe the existing NVME drive as Talos doesn't like an existing Talos install existing
 
 Once booted, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
