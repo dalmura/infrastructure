@@ -48,7 +48,7 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 
 Boot the 3x `rpi4.4gb.arm64` nodes for the control plane, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.192
+RPI4_1_IP=192.168.77.196
 RPI4_2_IP=
 RPI4_3_IP=
 ```
@@ -134,15 +134,14 @@ talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Note down the HW ADDR for each node from above, for example:
-RPI4_1_HW_ADDR='e45f019d4d95'
+RPI4_1_HW_ADDR='e45f019d4e19'
 RPI4_2_HW_ADDR=''
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Control Plane configs with these overrides
-# (uses gsed on a Mac with brew sed installed)
-cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/controlplane.yaml | gsed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
 ```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.

@@ -97,13 +97,13 @@ EQ14_3_HW_ADDR=''
 # Copy the configs
 
 # Create the per-device Worker configs with these overrides
-cat templates/dal-indigo-core-1/worker-eq14.yaml | gsed "s/<HW_ADDRESS>/${EQ14_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-eq14.yaml | gsed "s/<HW_ADDRESS>/${EQ14_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-eq14.yaml | gsed "s/<HW_ADDRESS>/${EQ14_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml"
 
-gsed -i 's/<NODE_INSTANCE_TYPE>/eq14.16gb.amd64/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
-gsed -i 's/<K8S_NODE_GROUP>/eq14-worker-pool/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
-gsed -i "s|<INSTALLER_IMAGE_URI>|${INSTALLER_IMAGE_URI}|g" nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+sed -i 's/<NODE_INSTANCE_TYPE>/eq14.16gb.amd64/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+sed -i 's/<K8S_NODE_GROUP>/eq14-worker-pool/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+sed -i "s|<INSTALLER_IMAGE_URI>|${INSTALLER_IMAGE_URI}|g" nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
 
 talosctl apply-config --insecure -n "${EQ14_1_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml
 talosctl apply-config --insecure -n "${EQ14_2_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml

@@ -27,7 +27,7 @@ machine:
 
   install:
     diskSelector:
-      model: SSD 870 EVO 250G
+      model: 00SSD1
 
 cluster:
   network:
