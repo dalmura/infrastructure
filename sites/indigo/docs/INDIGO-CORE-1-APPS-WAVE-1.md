@@ -26,16 +26,16 @@ kubectl create secret generic \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/cert-manager/aws-route53-credentials-secret.sealed.yaml
 
-# Secret 'iam-credentials' for externaldns
+# Secret 'iam-credentials' for external-dns
 echo '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_access_key = <your-secret-access-key-here>' \
   | kubectl create secret generic \
   iam-credentials \
-  --namespace externaldns \
+  --namespace external-dns \
   --dry-run=client \
   --from-file 'credentials=/dev/stdin' \
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
-  > ${OVERLAY_DIR}/externaldns/credentials.sealed.yaml
+  > ${OVERLAY_DIR}/external-dns/credentials.sealed.yaml
 
 # Secret 'aws-s3-credentials-secret' for longhorn
 kubectl create secret generic \
@@ -70,7 +70,7 @@ pushd clusters/dal-indigo-core-1/wave-1/app/templates/
 kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/metallb?ref=HEAD'
 
 # Other wave-1 apps
-kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/externaldns?ref=HEAD'
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/external-dns?ref=HEAD'
 
 kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/cert-manager?ref=HEAD'
 
@@ -127,7 +127,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace cert-manager get 
 ### external-dns
 You can just check that the pod(s) are up and running, nothing much to check here yet, once we start creating web services later on we'll be able to validate.
 ```bash
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace externaldns get pods
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 --namespace external-dns get pods
 ```
 
 ### MetalLB
