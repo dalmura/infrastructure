@@ -5,7 +5,7 @@ env:
   - name: AWS_DEFAULT_REGION
     value: us-east-1
   - name: AWS_SHARED_CREDENTIALS_FILE
-    value: /.aws/iam-credentials
+    value: /.aws/credentials
 extraVolumeMounts:
   - name: iam-credentials
     mountPath: /.aws
