@@ -28,4 +28,4 @@ spec:
   tls:
     secretName: argocd-cert
     domains:
-      - main: argocd.indigo.dalmura.cloud`
+      - main: argocd.indigo.dalmura.cloud
