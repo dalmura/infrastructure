@@ -27,3 +27,5 @@ spec:
           scheme: h2c
   tls:
     secretName: argocd-cert
+    domains:
+      - main: argocd.indigo.dalmura.cloud`
