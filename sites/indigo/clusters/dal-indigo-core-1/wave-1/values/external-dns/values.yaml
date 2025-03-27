@@ -6,6 +6,8 @@ env:
     value: us-east-1
   - name: AWS_SHARED_CREDENTIALS_FILE
     value: /aws/credentials
+  - name: EXTERNAL_DNS_AWS_PROFILE
+    value: default
 extraVolumeMounts:
   - name: aws-credentials
     mountPath: /aws
