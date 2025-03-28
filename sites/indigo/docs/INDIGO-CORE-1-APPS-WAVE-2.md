@@ -43,3 +43,11 @@ argocd app sync wave-2
 # Deploy the child applications
 argocd app sync -l app.kubernetes.io/instance=wave-2
 ```
+
+## Testing Ingress rules
+Once done, the following URLs should be browsable:
+* [ArgoCD UI](https://argocd.indigo.dalmura.cloud/)
+* [Cilium Hubble UI](https://cilium-hubble.indigo.dalmura.cloud/)
+* [Longhorn UI](https://longhorn.indigo.dalmura.cloud/)
+* [Traefik Dashboard - Private](https://traefik-private.indigo.dalmura.cloud/dashboard/)
+* [Traefik Dashboard - Public](https://traefik-public.indigo.dalmura.cloud/dashboard/)
