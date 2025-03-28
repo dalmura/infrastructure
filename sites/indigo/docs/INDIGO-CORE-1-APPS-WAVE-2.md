@@ -49,6 +49,7 @@ The following URLs should be browsable:
 * [ArgoCD UI](https://argocd.indigo.dalmura.cloud/)
 * [Cilium Hubble UI](https://cilium-hubble.indigo.dalmura.cloud/)
 * [Longhorn UI](https://longhorn.indigo.dalmura.cloud/)
+* [Kubernetes Dashboard](https://kubernetes-dashboard.indigo.dalmura.cloud/)
 * [Traefik Dashboard - Private](https://traefik-private.indigo.dalmura.cloud/dashboard/)
 * [Traefik Dashboard - Public](https://traefik-public.indigo.dalmura.cloud/dashboard/)
 
