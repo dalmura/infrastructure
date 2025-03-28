@@ -1,6 +1,6 @@
 apiVersion: v2
 name: wave-1
-description: Wave 0 Applications
+description: Wave 1 Applications
 
 type: application
 
