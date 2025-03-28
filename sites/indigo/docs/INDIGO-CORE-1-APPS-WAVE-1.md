@@ -27,7 +27,7 @@ kubectl create secret generic \
   > ${OVERLAY_DIR}/cert-manager/aws-route53-credentials-secret.sealed.yaml
 
 # Secret 'iam-credentials' for external-dns
-echo '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_access_key = <your-secret-access-key-here>' \
+echo -e '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_access_key = <your-secret-access-key-here>' \
   | kubectl create secret generic \
   iam-credentials \
   --namespace external-dns \
