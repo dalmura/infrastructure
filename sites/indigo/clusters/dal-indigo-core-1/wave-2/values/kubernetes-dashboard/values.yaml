@@ -9,6 +9,7 @@ app:
     hosts:
       - kubernetes-dashboard.indigo.dalmura.cloud
     ingressClassName: ingress-private
+    useDefaultAnnotations: false
     issuer:
       name: dalmura-letsencrypt-prod
       scope: cluster
