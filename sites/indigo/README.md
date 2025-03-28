@@ -42,9 +42,9 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * Integrates `cert-manager` and `ExternalDNS` with Traefik's `IngressRoute`
    * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
       * PostgreSQL Cluster Operator
-   * Ingress resources for various management UI
+   * `Ingress`/`IngressRoute` resources for various management UI
+      * ArgoCD w/CLI support
       * Cilium
-      * ArgoCD
       * Longhorn
 * ArgoCD - Wave 3
    * [Keycloak](https://www.keycloak.org/)
@@ -61,6 +61,7 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * ArgoCD - Wave 5
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
+   * [Plex](https://hub.docker.com/r/linuxserver/plex)
 
 ## Configuration
 
