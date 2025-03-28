@@ -42,6 +42,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * Integrates `cert-manager` and `ExternalDNS` with Traefik's `IngressRoute`
    * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
       * PostgreSQL Cluster Operator
+   * [k8s Dashboard](https://github.com/kubernetes/dashboard)
+      * Kuberetes Overview UI
    * `Ingress`/`IngressRoute` resources for various management UI
       * ArgoCD w/CLI support
       * Cilium
