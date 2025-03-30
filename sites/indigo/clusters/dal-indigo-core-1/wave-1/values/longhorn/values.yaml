@@ -1,9 +1,16 @@
 ---
+persistence:
+  defaultClassReplicaCount: 2
+  defaultDataLocality: "best-effort"
+
 preUpgradeChecker:
   jobEnabled: false
   upgradeVersionCheck: false
 
 defaultSettings:
   allowCollectingLonghornUsageMetrics: false
+  backupExecutionTimeout: 5
+
+defaultBackupStore:
   backupTarget: "s3://dal-site-backups@us-east-1/indigo/"
-  backupTargetCredentialSecret: aws-s3-credentials-secret 
+  backupTargetCredentialSecret: aws-s3-credentials-secret

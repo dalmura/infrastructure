@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: keycloak
 
 resources:
-  - github.com/dalmura/workloads/keycloak-operator?ref=HEAD
   - postgres.yaml
   - keycloak.yaml
   - ingress.yaml

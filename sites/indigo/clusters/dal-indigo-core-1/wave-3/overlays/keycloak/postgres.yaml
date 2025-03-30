@@ -3,18 +3,13 @@ kind: Cluster
 metadata:
   name: keycloak-db
 spec:
+  description: "Keycloak DB"
   instances: 1
+
+  enableSuperuserAccess: true
 
   primaryUpdateStrategy: unsupervised
 
-  # Persistent storage configuration
   storage:
+    storageClass: longhorn-nobackup
     size: 10Gi
-    pvcTemplate:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 10Gi
-      storageClassName: standard
-      volumeMode: Filesystem
