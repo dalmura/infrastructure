@@ -11,5 +11,5 @@ spec:
   primaryUpdateStrategy: unsupervised
 
   storage:
-    storageClass: longhorn-nobackup
+    storageClass: cluster-nobackup
     size: 10Gi
