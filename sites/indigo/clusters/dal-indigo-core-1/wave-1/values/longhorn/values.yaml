@@ -1,7 +1,6 @@
 ---
 persistence:
-  defaultClassReplicaCount: 2
-  defaultDataLocality: "best-effort"
+  defaultClass: false
 
 preUpgradeChecker:
   jobEnabled: false

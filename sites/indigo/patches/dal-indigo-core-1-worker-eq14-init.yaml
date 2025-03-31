@@ -27,3 +27,13 @@ machine:
 
     diskSelector:
       model: 512GB SSD
+
+  # Required for Longhorn V2 Data Engine
+  sysctls:
+    vm.nr_hugepages: "1024"
+
+  # Required for Longhorn V2 Data Engine
+  kernel:
+    modules:
+      - name: nvme_tcp
+      - name: vfio_pci

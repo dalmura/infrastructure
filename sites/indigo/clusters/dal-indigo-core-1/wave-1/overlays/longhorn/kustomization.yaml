@@ -3,4 +3,5 @@ kind: Kustomization
 
 resources:
   - aws-s3-credentials-secret.sealed.yaml
-  - storageclass.yaml
+  - storageclass-regular.yaml
+  - storageclass-nobackup.yaml

@@ -25,3 +25,13 @@ machine:
   install:
     diskSelector:
       model: SSD 870 EVO 250G
+
+  # Required for Longhorn V2 Data Engine
+  sysctls:
+    vm.nr_hugepages: "1024"
+
+  # Required for Longhorn V2 Data Engine
+  kernel:
+    modules:
+      - name: nvme_tcp
+      - name: vfio_pci
