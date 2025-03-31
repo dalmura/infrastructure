@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://charts.longhorn.io/
       chart: longhorn
-      targetRevision: v1.7.3
+      targetRevision: v1.8.1
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-1/values/longhorn/values.yaml
