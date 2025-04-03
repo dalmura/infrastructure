@@ -10,6 +10,12 @@ spec:
 
   primaryUpdateStrategy: unsupervised
 
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
   storage:
     storageClass: cluster-nobackup
     size: 10Gi
