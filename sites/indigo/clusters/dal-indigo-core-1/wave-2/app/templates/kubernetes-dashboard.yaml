@@ -38,10 +38,10 @@ spec:
     name: kubernetes-dashboard-api
     namespace: kubernetes-dashboard
     jsonPointers:
-      - /metadata/annotations/checksum~1config
+      - /spec/template/metadata/annotations/checksum~1config
   - group: apps
     kind: Deployment
     name: kubernetes-dashboard-auth
     namespace: kubernetes-dashboard
     jsonPointers:
-      - /metadata/annotations/checksum~1config
+      - /spec/template/metadata/annotations/checksum~1config
