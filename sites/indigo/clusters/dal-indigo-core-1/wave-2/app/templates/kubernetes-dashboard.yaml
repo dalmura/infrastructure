@@ -32,4 +32,16 @@ spec:
     name: kubernetes-dashboard-csrf
     namespace: kubernetes-dashboard
     jsonPointers:
-    - /data/private.key
+      - /data/private.key
+  - group: apps
+    kind: Deployment
+    name: kubernetes-dashboard-api
+    namespace: kubernetes-dashboard
+    jsonPointers:
+      - /metadata/annotations/checksum~1config
+  - group: apps
+    kind: Deployment
+    name: kubernetes-dashboard-auth
+    namespace: kubernetes-dashboard
+    jsonPointers:
+      - /metadata/annotations/checksum~1config
