@@ -4,14 +4,7 @@ kind: Kustomization
 namespace: keycloak
 
 resources:
+  - keycloak-db-backup-secret.sealed.yaml
   - postgres.yaml
   - keycloak.yaml
   - ingress.yaml
-
-patches:
-  - path: deployment_override.yaml
-    target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: keycloak

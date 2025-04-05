@@ -1,3 +1,4 @@
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -19,3 +20,32 @@ spec:
   storage:
     storageClass: cluster-nobackup
     size: 10Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/indigo/postgres/keycloak-db/
+      s3Credentials:
+        accessKeyId:
+          name: keycloak-db-backup-secret
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: keycloak-db-backup-secret
+          key: ACCESS_SECRET_KEY
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+      tags:
+        site: indigo
+        service: keycloak
+        db: keycloak-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: keycloak-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: keycloak-db

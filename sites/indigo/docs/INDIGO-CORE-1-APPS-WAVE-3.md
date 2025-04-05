@@ -9,6 +9,25 @@ We assume you've followed the steps at:
 * Longorn is running w/default StorageClass
 * Traefik ingress controller
 
+## Create and seal the Secrets
+Keycloak has a PostgreSQL DB via cnpg, which needs credentials to backup to S3.
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/wave-3/overlays'
+
+# Secret 'keycloak-db-backup-secret' for keycloak
+kubectl create secret generic \
+  keycloak-db-backup-secret \
+  --namespace keycloak \
+  --dry-run=client \
+  --from-literal 'ACCESS_KEY_ID=<your-access-key-id-here>' \
+  --from-literal 'SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/keycloak/keycloak-db-backup-secret.sealed.yaml
+```
+
+Ensure you have committed and pushed the above credentials up into git as the below command (and final deployment) all rely on what's in git, not what's local.
+
 ## Verifying apps
 
 You can verify the k8s resources emitted by each app by running `kustomize` yourself
