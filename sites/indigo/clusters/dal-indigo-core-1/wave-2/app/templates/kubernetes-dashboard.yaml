@@ -27,3 +27,9 @@ spec:
     syncOptions:
     - CreateNamespace=true
   revisionHistoryLimit: 2
+  ignoreDifferences:
+  - kind: Secret
+    name: kubernetes-dashboard-csrf
+    namespace: kubernetes-dashboard
+    jsonPointers:
+    - /data/private.key
