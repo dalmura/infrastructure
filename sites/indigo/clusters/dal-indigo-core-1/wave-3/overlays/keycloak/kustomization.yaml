@@ -8,4 +8,3 @@ resources:
   - postgres.yaml
   - keycloak.yaml
   - ingress.yaml
-  - ingress-admin.yaml
