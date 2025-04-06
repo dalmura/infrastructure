@@ -15,6 +15,7 @@ spec:
     passwordSecret:
       name: keycloak-db-app
       key: password
+    database: app
   http:
     tlsSecret: keycloak-cert
   hostname:
