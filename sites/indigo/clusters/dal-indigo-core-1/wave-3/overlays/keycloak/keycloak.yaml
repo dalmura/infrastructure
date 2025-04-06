@@ -19,7 +19,7 @@ spec:
   http:
     tlsSecret: keycloak-cert
   hostname:
-    hostname: auth.indigo.dalmura.cloud
-    admin: admin.auth.indigo.dalmura.cloud
+    hostname: https://auth.indigo.dalmura.cloud
+    admin: https://admin.auth.indigo.dalmura.cloud
   proxy:
     headers: xforwarded
