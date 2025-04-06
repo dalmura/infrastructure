@@ -1,0 +1,24 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: dalmura-letsencrypt-prod
+spec:
+  acme:
+    email: infrastructure@dalmura.cloud
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-cluster-issuer-key
+    solvers:
+      - selector:
+          dnsZones:
+            - "dalmura.cloud"
+            - "dalmura.au"
+        dns01:
+          route53:
+            region: us-east-1
+            accessKeyIDSecretRef:
+              name: aws-route53-credentials-secret
+              key: ACCESS_KEY_ID
+            secretAccessKeySecretRef:
+              name: aws-route53-credentials-secret
+              key: SECRET_ACCESS_KEY

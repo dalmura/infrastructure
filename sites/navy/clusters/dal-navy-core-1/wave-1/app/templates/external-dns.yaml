@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/external-dns/
+      chart: external-dns
+      targetRevision: 1.15.2
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-1/values/external-dns/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/external-dns
+      targetRevision: HEAD
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: external-dns
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 2

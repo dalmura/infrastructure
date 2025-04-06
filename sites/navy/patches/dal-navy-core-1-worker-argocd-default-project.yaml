@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: application project
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  clusterResourceBlacklist:
+  - group: cilium.io
+    kind: CiliumIdentity
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: "*"
+    server: "*"
