@@ -4,6 +4,8 @@ metadata:
   name: indigo
 spec:
   instances: 1
+  ingress:
+    enabled: false
   db:
     vendor: postgres
     host: keycloak-db-rw
