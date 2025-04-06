@@ -103,3 +103,5 @@ Immediately perform the following steps:
 * Delete the old temporary user
 
 You cannot delete the `indigo-initial-admin` Secret as the operator will just recreate it. Deleting the user from Keycloak UI is the only way to ensure admin credentials are not just sitting there.
+
+After this you can proceed to [Keycloak Configuration](INDIGO-CORE-1-APPS-WAVE-3-KEYCLOAK.md) for configuring Keycloak itself.
