@@ -25,4 +25,4 @@ spec:
           service:
             name: indigo-service
             port:
-              number: 8080
+              number: 8443
