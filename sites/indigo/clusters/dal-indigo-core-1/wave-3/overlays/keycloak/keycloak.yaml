@@ -21,4 +21,4 @@ spec:
   hostname:
     hostname: auth.indigo.dalmura.cloud
   proxy:
-    headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers
+    headers: xforwarded
