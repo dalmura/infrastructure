@@ -1,3 +1,7 @@
+# Default permissions
+*               @dalmura/developers
+
+# Site specific entries
 sites/indigo/   @dalmura/site-indigo-owners
 sites/navy/     @dalmura/site-navy-owners
 sites/amethyst/ @dalmura/site-amethyst-owners
