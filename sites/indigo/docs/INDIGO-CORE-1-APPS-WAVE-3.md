@@ -60,20 +60,46 @@ argocd app sync wave-3
 
 # Deploy the child applications
 argocd app sync -l app.kubernetes.io/instance=wave-3
-
 ```
 
 This will take a solid 3-5 mins as the Pod comes up and the certificate is issued.
 
 ## Access Keycloak
 
+### Hostname & DNS
+Temporarily Keycloak is on the Traefik Public ingress but its DNS entry is privately resolving for initial use cases.
+
+When we want to make it public, the DNS entry will resolve to the Public IP of the site, and require traffic hairpin support or the below hack.
+
 You can find the IP Address that is being announced by MetalLB by checking the Ingress resource in ArgoCD's UI or by running:
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n keycloak get ingress
-NAME       CLASS    HOSTS                ADDRESS          PORTS     AGE
-keycloak   cilium   auth.dalmura.cloud   192.168.77.141   80, 443   19m
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n keycloak get ingress
+NAME       CLASS            HOSTS                       ADDRESS         PORTS     AGE
+keycloak   ingress-public   auth.indigo.dalmura.cloud   192.168.77.10   80, 443   71m
 ```
 
-Ensure that you have a local `/etc/hosts` override pointing `auth.dalmura.cloud` => Above Address, then navigate to `auth.dalmura.cloud` from your browser.
+Ensure that you have a local `/etc/hosts` override pointing `auth.indigo.dalmura.cloud` => Above Address, then navigate to `auth.indigo.dalmura.cloud` from your browser.
 
-Later when `auth.dalmura.cloud` is public you can remove the `/etc/hosts` override.
+Later when `auth.indigo.dalmura.cloud` is public and routable you can remove the `/etc/hosts` override.
+
+### Initial Username & Password
+You can retrieve the initial username and password from the `indigo-initial-admin` Secret created by the operator.
+
+```bash
+# Username
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n keycloak get secret indigo-initial-admin -o jsonpath='{.data.username}' | base64 -d | sed 's/$/\n/g'
+
+# Password
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n keycloak get secret indigo-initial-admin -o jsonpath='{.data.password}' | base64 -d | sed 's/$/\n/g'
+```
+
+Immediately perform the following steps:
+* Log in using the above credentials
+* Create a new `site-admin` user via the web UI
+* Set a password on the `site-admin` user
+* Assign the `admin` role to the `site-admin` user
+* Persist the new admin credentials into your password vault
+* Log out and log in as the new admin user
+* Delete the old temporary user
+
+You cannot delete the `indigo-initial-admin` Secret as the operator will just recreate it. Deleting the user from Keycloak UI is the only way to ensure admin credentials are not just sitting there.
