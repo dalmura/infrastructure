@@ -36,3 +36,15 @@ Max wait: 30
 ```
 SSO Session Idle: 1 Hours
 ```
+
+## Configure Authentication
+
+### Policies
+
+Password policy:
+```
+Minimum length: 8
+```
+
+## Setup Users
+Create whatever initial users you'd like. Their email is their username.
