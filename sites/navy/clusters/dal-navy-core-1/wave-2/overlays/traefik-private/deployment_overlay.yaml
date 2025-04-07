@@ -1,0 +1,23 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik-ingress-controller
+spec:
+  template:
+    spec:
+      containers:
+        - name: traefik
+          args:
+            - --global.checknewversion=false
+            - --global.sendAnonymousUsage=false
+            - --api.insecure=true
+            - --api.dashboard=true
+            - --entryPoints.web.address=:80
+            - --entryPoints.websecure.address=:443
+            - --providers.kubernetesingress
+            - --providers.kubernetesingress.ingressClass=ingress-private
+            - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-private/traefik-ingress-controller
+            - --providers.kubernetescrd.ingressclass=ingress-private
+            - --serversTransport.insecureSkipVerify=true
+            #- --log.level=DEBUG
+            #- --accesslog=true

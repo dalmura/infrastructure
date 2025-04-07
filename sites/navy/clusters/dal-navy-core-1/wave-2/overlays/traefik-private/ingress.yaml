@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-private-ui
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: traefik-private.navy.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+      - traefik-private.navy.dalmura.cloud
+      secretName: traefik-private-cert
+  rules:
+  - host: traefik-private.navy.dalmura.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: traefik-ingress-controller
+            port:
+              number: 8080

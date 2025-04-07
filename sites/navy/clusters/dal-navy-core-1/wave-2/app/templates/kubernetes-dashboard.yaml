@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubernetes-dashboard
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://kubernetes.github.io/dashboard
+      chart: kubernetes-dashboard
+      targetRevision: 7.11.1
+      helm:
+        valueFiles:
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-2/values/kubernetes-dashboard/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/navy/clusters/dal-navy-core-1/wave-2/overlays/kubernetes-dashboard
+      targetRevision: HEAD
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: kubernetes-dashboard
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 2
+  ignoreDifferences:
+  - kind: Secret
+    name: kubernetes-dashboard-csrf
+    namespace: kubernetes-dashboard
+    jsonPointers:
+      - /data/private.key
+  - group: apps
+    kind: Deployment
+    name: kubernetes-dashboard-api
+    namespace: kubernetes-dashboard
+    jsonPointers:
+      - /spec/template/metadata/annotations/checksum~1config
+  - group: apps
+    kind: Deployment
+    name: kubernetes-dashboard-auth
+    namespace: kubernetes-dashboard
+    jsonPointers:
+      - /spec/template/metadata/annotations/checksum~1config
