@@ -9,11 +9,33 @@ We assume you've followed the steps at:
 
 ## Create the `dalmura` Realm
 
+Create the `dalmura` Realm via the UI, ensure the `dalmura` Realm is chosen in the drop-down in the top left.
+
 Realm settings are below, unless specified settings are left as default.
 
 ### General
 ```
 Display name: Dalmura
+```
+
+### Email
+Ensure your `site-admin` user has an email address setup.
+
+So for this we'll need to ensure the right SMTP settings/etc are configured against `dalmura.cloud`.
+
+Details:
+```
+From: authentication+indigo@dalmura.cloud
+From display name: Dalmura Indigo Authentication
+Envelope from: authentication+indigo@dalmura.cloud
+
+
+Host: email-smtp.us-east-1.amazonaws.com
+Port: 465
+Enable SSL: true
+Enable Authentication: true
+Username: <TODO: get from IAM User>
+Password: <TODO: get from IAM User>
 ```
 
 ### Login
