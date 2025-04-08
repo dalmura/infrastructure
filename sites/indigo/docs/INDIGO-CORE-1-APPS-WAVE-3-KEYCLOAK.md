@@ -23,6 +23,8 @@ Ensure your `site-admin` user has an email address setup.
 
 So for this we'll need to ensure the right SMTP settings/etc are configured against `dalmura.cloud`.
 
+You can get the required AWS Credentials from the `dalmura/network` repo, the README.md contains the instructions how to get them.
+
 Details:
 ```
 From: authentication+indigo@dalmura.cloud
@@ -34,8 +36,8 @@ Host: email-smtp.us-east-1.amazonaws.com
 Port: 465
 Enable SSL: true
 Enable Authentication: true
-Username: <TODO: get from IAM User>
-Password: <TODO: get from IAM User>
+Username: <k8s_email_sender_key.id>
+Password: <k8s_email_sender_key.ses_smtp_password_v4>
 ```
 
 ### Login

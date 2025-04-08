@@ -9,6 +9,9 @@ We assume you've followed the steps at:
 * Longorn is running w/default StorageClass
 * Traefik ingress controller
 
+## Obtain AWS Credentials
+You can get the required AWS Credentials from the `dalmura/network` repo, the README.md contains the instructions how to get them.
+
 ## Create and seal the Secrets
 Keycloak has a PostgreSQL DB via cnpg, which needs credentials to backup to S3.
 ```bash
@@ -19,8 +22,8 @@ kubectl create secret generic \
   keycloak-db-backup-secret \
   --namespace keycloak \
   --dry-run=client \
-  --from-literal 'ACCESS_KEY_ID=<your-access-key-id-here>' \
-  --from-literal 'SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  --from-literal 'ACCESS_KEY_ID=<k8s_backups_key.id>' \
+  --from-literal 'SECRET_ACCESS_KEY=<k8s_backups_key.secret>' \
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/keycloak/keycloak-db-backup-secret.sealed.yaml
