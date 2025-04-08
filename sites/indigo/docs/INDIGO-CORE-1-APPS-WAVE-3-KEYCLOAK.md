@@ -27,9 +27,9 @@ You can get the required AWS Credentials from the `dalmura/network` repo, the RE
 
 Details:
 ```
-From: authentication+indigo@dalmura.cloud
+From: indigo+auth@dalmura.cloud
 From display name: Dalmura Indigo Authentication
-Envelope from: authentication+indigo@dalmura.cloud
+Envelope from: indigo+auth@dalmura.cloud
 
 
 Host: email-smtp.us-east-1.amazonaws.com
