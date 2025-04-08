@@ -31,7 +31,6 @@ From: indigo+auth@dalmura.cloud
 From display name: Dalmura Indigo Authentication
 Envelope from: indigo+auth@dalmura.cloud
 
-
 Host: email-smtp.us-east-1.amazonaws.com
 Port: 465
 Enable SSL: true
