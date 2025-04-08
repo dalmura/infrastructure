@@ -39,6 +39,8 @@ Username: <k8s_email_sender_key.id>
 Password: <k8s_email_sender_key.ses_smtp_password_v4>
 ```
 
+You can click the `Test connection` button and it should work.
+
 ### Login
 ```
 Remember me: true
