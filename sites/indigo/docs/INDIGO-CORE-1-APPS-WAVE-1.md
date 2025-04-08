@@ -10,6 +10,9 @@ We assume you've followed the steps at:
 * [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster
 * [`dal-indigo-core-1` Apps - Wave 0](INDIGO-CORE-1-APPS-WAVE-0.md) and have all the precursor waves up, running and tested, especially `kubeseal`
 
+## Obtain AWS Credentials
+You can get the required AWS Credentials from the `dalmura/network` repo, the README.md contains the instructions how to get them.
+
 ## Create and seal the Secrets
 A few resources require secrets to be created and committed into the repo
 ```bash
@@ -20,14 +23,14 @@ kubectl create secret generic \
   aws-route53-credentials-secret \
   --namespace cert-manager \
   --dry-run=client \
-  --from-literal 'ACCESS_KEY_ID=<your-access-key-id-here>' \
-  --from-literal 'SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  --from-literal 'ACCESS_KEY_ID=<k8s_dns_updater_key.id>' \
+  --from-literal 'SECRET_ACCESS_KEY=<k8s_dns_updater_key.secret>' \
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/cert-manager/aws-route53-credentials-secret.sealed.yaml
 
 # Secret 'iam-credentials' for external-dns
-echo -e '[default]\naws_access_key_id = <your-access-key-id-here>\naws_secret_access_key = <your-secret-access-key-here>' \
+echo -e '[default]\naws_access_key_id = <k8s_dns_updater_key.id>\naws_secret_access_key = <k8s_dns_updater_key.secret>' \
   | kubectl create secret generic \
   iam-credentials \
   --namespace external-dns \
@@ -42,8 +45,8 @@ kubectl create secret generic \
   aws-s3-credentials-secret \
   --namespace longhorn-system \
   --dry-run=client \
-  --from-literal 'AWS_ACCESS_KEY_ID=<your-access-key-id-here>' \
-  --from-literal 'AWS_SECRET_ACCESS_KEY=<your-secret-access-key-here>' \
+  --from-literal 'AWS_ACCESS_KEY_ID=<k8s_backups_key.id>' \
+  --from-literal 'AWS_SECRET_ACCESS_KEY=<k8s_backups_key.secret>' \
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/longhorn/aws-s3-credentials-secret.sealed.yaml
