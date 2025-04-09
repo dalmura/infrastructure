@@ -1,0 +1,12 @@
+global:
+  enabled: true
+
+injector:
+  enabled: true
+
+server:
+  ingress:
+    enabled: false
+
+ui:
+  enabled: true

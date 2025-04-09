@@ -51,6 +51,7 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * ArgoCD - Wave 3
    * [Keycloak](https://www.keycloak.org/)
       * OIDC Identity Provider
+      * w/CNPG PostgreSQL DB
    * [Hashicorp Vault](https://developer.hashicorp.com/vault#what-is-vault)
       * Cluster Secrets Management
 * ArgoCD - Wave 4
