@@ -5,3 +5,4 @@ namespace: vault
 
 resources:
   - ingress.yaml
+  - ingress-ui.yaml
