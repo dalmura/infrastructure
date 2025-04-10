@@ -73,3 +73,6 @@ Minimum length: 8
 
 ## Setup Users
 Create whatever initial users you'd like. Their email is their username.
+
+## Finally
+You can now proceed with setting up Vault: [`dal-indigo-core-1` Apps - Wave 3 - Vault Configuration](INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)
