@@ -53,6 +53,35 @@ Configure the client with the following settings:
 
 Click on the `Credentials` tab up top and note the `Client secret` field, we'll use that later.
 
+Click on the `Roles` tab up top and create the following roles:
+
+Administrator Role:
+* Role name: `administrators`
+* Description: `Read and write access to everything`
+
+Power Users Role:
+* Role name: `power-user`
+* Description: `Read access to most things, limited global write access`
+
+Basic User Role:
+* Role name: `basic-user`
+* Description: `Limited access to their own private space`
+
+Navigate back to the Client settings for the `vault` Client and click the `Client scopes` tab up top.
+
+Click on the `vault-dedicated` client scope on the page.
+
+Click 'Configure a new mapper', scrolling down and selecting `User Client Role` from the list.
+
+Create a new mapper with the following settings:
+* Name: `vault`
+* Client ID: `vault`
+* Ensure 'Multivalued' is On
+* Token Claim Name: `roles`
+* Claim JSON Type: `String`
+* Add to userinfo: Off
+
+
 ### Vault Configuration
 
 todo
