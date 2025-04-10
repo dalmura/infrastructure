@@ -100,4 +100,56 @@ Navigate back to the realm Groups and for each Group below setup:
 
 ### Vault Configuration
 
-todo
+Ensure the `vault` CLI tool is installed locally.
+
+Authenticate to vault:
+```
+export VAULT_ADDR=https://vault.indigo.dalmura.cloud
+vault login -method=token
+
+# Enter your root token from above
+```
+
+Create a few initial secret stores:
+```
+vault secrets enable -path=public -version=2 kv
+vault secrets enable -path=site -version=2 kv
+vault secrets enable -path=site-sensitive -version=2 kv
+```
+
+Create 3x policies for each of the Keycloak Client Roles above:
+
+`administrator` role:
+```
+vault policy write admin -<<EOF
+path "*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
+EOF
+```
+
+`power-user` role:
+```
+vault policy write admin -<<EOF
+path "site/" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
+EOF
+```
+
+`basic-user` role:
+```
+vault policy write basic-user -<<EOF
+path "public/users/{{identity.entity.name}}/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "users/metadata" {
+  capabilities = ["list"]
+}
+
+path "users/metadata/{{identity.entity.name}}/*" {
+  capabilities = ["list"]
+}
+EOF
+```
