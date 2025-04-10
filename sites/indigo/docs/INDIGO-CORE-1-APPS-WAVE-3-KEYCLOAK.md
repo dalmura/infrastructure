@@ -81,22 +81,24 @@ The high level concept is:
 * So, Users are indirectly assigned to Client Roles via Groups
 * Mappers in a Client, will map Client Roles into the oauth token for OIDC apps to manage internal roles
 
-### `spoke-user` Group
+Create the following Groups as defined below.
+
+### `spoke-users` Group
 General users, they get access to a set of user friendly applications, with basic permissions within these apps if supported.
 
-### `spoke-user-media` Group
+### `spoke-users-media` Group
 General users, this group is specific to media management applications, providing additional permissions to manually manage media.
 
-### `hub-power-user` Group
+### `hub-power-users` Group
 Technical users, they get access to most apps, with admin permissions, but maybe not certain site specific privileged apps.
 
-### `site-admin` Group
+### `site-admins` Group
 Owners of the site, default access to everything, along with admin permissions within all apps where possible.
 
 ## `dalmura` Management - Users
 Create whatever initial users you'd like. Their email is their username.
 
-Ideally at least 1x `site-admin` User, assigned to the `site-admin` Group.
+Ideally at least 1x User, assigned to the `site-admins` Group.
 
 ## Finally
 You can now proceed with setting up Vault: [`dal-indigo-core-1` Apps - Wave 3 - Vault Configuration](INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)

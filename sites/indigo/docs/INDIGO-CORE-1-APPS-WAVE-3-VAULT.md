@@ -56,10 +56,10 @@ Click on the `Credentials` tab up top and note the `Client secret` field, we'll 
 Click on the `Roles` tab up top and create the following roles:
 
 Administrator Role:
-* Role name: `administrators`
+* Role name: `administrator`
 * Description: `Read and write access to everything`
 
-Power Users Role:
+Power User Role:
 * Role name: `power-user`
 * Description: `Read access to most things, limited global write access`
 
@@ -81,6 +81,22 @@ Create a new mapper with the following settings:
 * Claim JSON Type: `String`
 * Add to userinfo: Off
 
+Navigate back to the realm Groups and for each Group below setup:
+
+`site-admins` Group:
+* Click 'Role mapping' tab and 'Assign role' button
+* Search for `vault` in the 'Search by role name' text box
+* Select the `administrator` role and click 'Assign'
+
+`hub-power-users` Group:
+* Click 'Role mapping' tab and 'Assign role' button
+* Search for `vault` in the 'Search by role name' text box
+* Select the `power-user` role and click 'Assign'
+
+`spoke-users` Group:
+* Click 'Role mapping' tab and 'Assign role' button
+* Search for `vault` in the 'Search by role name' text box
+* Select the `basic-user` role and click 'Assign'
 
 ### Vault Configuration
 
