@@ -13,6 +13,7 @@ Create the `dalmura` Realm via the UI, ensure the `dalmura` Realm is chosen in t
 
 Realm settings are below, unless specified settings are left as default.
 
+## `dalmura` Configuration - Realm Settings
 ### General
 ```
 Display name: Dalmura
@@ -62,7 +63,7 @@ Max wait: 30
 SSO Session Idle: 1 Hours
 ```
 
-## Configure Authentication
+## `dalmura` Configuration - Authentication
 
 ### Policies
 
@@ -71,8 +72,31 @@ Password policy:
 Minimum length: 8
 ```
 
-## Setup Users
+## `dalmura` Management - Groups
+We'll just setup a couple of initial groups, more will be added later as we go.
+
+The high level concept is:
+* Users are assigned to Groups
+* Client Roles are assigned to Groups
+* So, Users are indirectly assigned to Client Roles via Groups
+* Mappers in a Client, will map Client Roles into the oauth token for OIDC apps to manage internal roles
+
+### `spoke-user` Group
+General users, they get access to a set of user friendly applications, with basic permissions within these apps if supported.
+
+### `spoke-user-media` Group
+General users, this group is specific to media management applications, providing additional permissions to manually manage media.
+
+### `hub-power-user` Group
+Technical users, they get access to most apps, with admin permissions, but maybe not certain site specific privileged apps.
+
+### `site-admin` Group
+Owners of the site, default access to everything, along with admin permissions within all apps where possible.
+
+## `dalmura` Management - Users
 Create whatever initial users you'd like. Their email is their username.
+
+Ideally at least 1x `site-admin` User, assigned to the `site-admin` Group.
 
 ## Finally
 You can now proceed with setting up Vault: [`dal-indigo-core-1` Apps - Wave 3 - Vault Configuration](INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)

@@ -25,4 +25,34 @@ The root token will let you authenticate to vault as an admin that can do anythi
 
 ## Keycloak Integration
 
+### Keycloak Configuration
+
+These steps will setup Keycloak:
+
+Log into [Keycloak](https://auth.indigo.dalmura.cloud) as the `site-admin` user.
+
+Select the `dalmura` realm, navigate to Clients, and click 'Create Client'.
+
+Configure the client with the following settings:
+* Client Type: OpenID Connect
+* Client ID: `vault`
+* Name: `Vault`
+* Description: `Hashicorp Vault - Secret Management`
+* Next
+* Client authentication: On
+* Untick 'Direct access grants'
+* Leaving just 'Standard flow' ticked
+* Next
+* Root URL: `https://vault.indigo.dalmura.cloud/`
+* Home URL: `https://vault.indigo.dalmura.cloud/`
+* Valid redirect URIs: `https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc/oidc/callback`
+* Valid redirect URIs: `http://localhost:8250/oidc/callback`
+* Valid post logout redirect URIs: `https://vault.indigo.dalmura.cloud/ui/`
+* Web origins: `https://vault.indigo.dalmura.cloud/`
+* Save
+
+Click on the `Credentials` tab up top and note the `Client secret` field, we'll use that later.
+
+### Vault Configuration
+
 todo
