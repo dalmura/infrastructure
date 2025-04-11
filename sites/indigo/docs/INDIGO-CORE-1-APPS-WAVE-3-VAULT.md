@@ -117,11 +117,11 @@ vault secrets enable -path=site -version=2 kv
 vault secrets enable -path=site-sensitive -version=2 kv
 ```
 
-Create 3x policies for each of the Keycloak Client Roles above:
+Create 3x policies, one for each of the Keycloak Client Roles above:
 
 `administrator` role:
 ```
-vault policy write admin -<<EOF
+vault policy write administrator -<<EOF
 path "*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
@@ -130,8 +130,8 @@ EOF
 
 `power-user` role:
 ```
-vault policy write admin -<<EOF
-path "site/" {
+vault policy write power-user -<<EOF
+path "site/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
 EOF
@@ -140,16 +140,87 @@ EOF
 `basic-user` role:
 ```
 vault policy write basic-user -<<EOF
+path "public/+" {
+  capabilities = ["read", "list"]
+
+}
+
 path "public/users/{{identity.entity.name}}/*" {
-  capabilities = ["create", "read", "update", "delete"]
-}
-
-path "users/metadata" {
-  capabilities = ["list"]
-}
-
-path "users/metadata/{{identity.entity.name}}/*" {
-  capabilities = ["list"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 EOF
+```
+
+Policies will be additive and multiple assigned to users.
+
+Eg a `spoke-users` group member will just get the `basic-user` vault role, but a `hub-power-users` group member will get both the `power-user` and `basic-user` roles.
+
+Enable OIDC authentication:
+```
+vault auth enable oidc
+
+vault write auth/oidc/config \
+    oidc_discovery_url="https://auth.indigo.dalmura.cloud/realms/dalmura" \
+    oidc_client_id="vault" \
+    oidc_client_secret="<keycloak client secret from above>" \
+    default_role="default"
+
+vault write auth/oidc/role/default \
+    allowed_redirect_uris="https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc/oidc/callback" \
+    allowed_redirect_uris="http://localhost:8250/oidc/callback" \
+    user_claim="preferred_username" \
+    groups_claim="roles"
+```
+spoke-users
+Create the external groups that will eventually map Keycloak roles to the vault policies:
+```
+vault write identity/group \
+    name="spoke-users" \
+    policies="basic-user" \
+    type="external"
+
+# id: d81e4832-b5a8-80a6-ad2e-80125751259b
+
+
+vault write identity/group \
+    name="hub-power-users" \
+    policies="power-user,basic-user" \
+    type="external"
+
+# id: ac9fb913-c744-0775-1b56-75f25a8d6011
+
+
+vault write identity/group \
+    name="site-admins" \
+    policies="administrator" \
+    type="external"
+
+# id: 2446a6fb-aec2-6858-d4e4-deadb515241a
+```
+
+Note down the returned `id` value for each of the above groups as we'll use them below.
+
+Get the vault auth OIDC accessor 'id':
+```
+vault auth list -format json | jq -r '."oidc/".accessor'
+
+# accessor: auth_oidc_1bb7e06f
+```
+
+Create the group-aliases:
+```
+vault write identity/group-alias \
+    name="spoke-users" \
+    mount_accessor="auth_oidc_1bb7e06f" \
+    canonical_id="d81e4832-b5a8-80a6-ad2e-80125751259b"
+
+vault write identity/group-alias \
+    name="hub-power-users" \
+    mount_accessor="auth_oidc_1bb7e06f" \
+    canonical_id="ac9fb913-c744-0775-1b56-75f25a8d6011"
+
+vault write identity/group-alias \
+    name="site-admins" \
+    mount_accessor="auth_oidc_1bb7e06f" \
+    canonical_id="2446a6fb-aec2-6858-d4e4-deadb515241a"
 ```
