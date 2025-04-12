@@ -1,0 +1,123 @@
+mqtt:
+  enabled: true
+  host: mqtt
+  port: 1883
+  user: hass
+  password: <password>
+
+ffmpeg:
+  # rpi4/5 64 bit hardware accel
+  hwaccel_args: preset-rpi-64-h264
+
+  # Enable Audio passthrough
+  # Try to ensure it's AAC
+  output_args:
+    record: preset-record-generic-audio-copy
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+objects:
+  track:
+    - person
+    - dog
+    - cat
+
+go2rtc:
+  streams:
+    reolink:
+      - "ffmpeg:https://<camera-ip>/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=<username>&password=<password>#video=copy#audio=copy#audio=opus"
+    reolink_sub:
+      - "ffmpeg:https://<camera-ip>/flv?port=1935&app=bcs&stream=channel0_ext.bcs&user=<username>&password=<password>"
+    dahua:
+      - "rtsp://<username>:<password>@<camera-ip>:554/cam/realmonitor?channel=1&subtype=0&proto=Onvif"
+    dahua_sub:
+      - "rtsp://<username>:<password>@<camera-ip>:554/cam/realmonitor?channel=1&subtype=1&proto=Onvif"
+    tapo:
+      - "rtsp://<username>:<password>@<camera-ip>:554/stream1"
+    tapo_sub:
+      - "rtsp://<username>:<password>@<camera-ip>:554/stream2"
+    amcrest:
+      - "rtsp://<username>:<password>@<camera-ip>:554/cam/realmonitor?channel=1&subtype=0"
+    amcrest_sub:
+      - "rtsp://<username>:<password>@<camera-ip>:554/cam/realmonitor?channel=1&subtype=01"
+
+cameras:
+  reolink:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/reolink?video=copy&audio=aac
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/reolink_sub?video=copy
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+
+    detect:
+      enabled: True
+      width: 640
+      height: 480
+
+    record:
+      enabled: True
+      events:
+        retain:
+          default: 5
+
+    motion:
+      mask:
+        # Driveway
+        - 307,205,301,259,240,254,244,205
+        # Trees
+        - 266,103,265,175,195,118,187,83
+
+  amcrest:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/amcrest?video=copy&audio=aac
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/amcrest_sub?video=copy
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+
+    detect:
+      enabled: True
+      width: 640
+      height: 480
+
+    record:
+      enabled: True
+      events:
+        retain:
+          default: 5
+
+  dahua:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/dahua_sub
+          roles:
+            - detect
+
+    detect:
+      enabled: True
+      width: 704
+      height: 576
+
+  tapo:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/tapo_sub
+          roles:
+            - detect
+
+    detect:
+      enabled: True
+      width: 640
+      height: 360

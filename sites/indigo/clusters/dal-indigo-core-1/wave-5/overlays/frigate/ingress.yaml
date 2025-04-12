@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frigate
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: frigate.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+      - frigate.indigo.dalmura.cloud
+      secretName: frigate-cert
+  rules:
+  - host: frigate.indigo.dalmura.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frigate
+            portName: http-auth
