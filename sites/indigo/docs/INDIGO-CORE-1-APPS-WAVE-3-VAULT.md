@@ -175,27 +175,27 @@ spoke-users
 Create the external groups that will eventually map Keycloak roles to the vault policies:
 ```
 vault write identity/group \
-    name="spoke-users" \
+    name="basic-user" \
     policies="basic-user" \
     type="external"
 
-# id: d81e4832-b5a8-80a6-ad2e-80125751259b
+# id: 0f41c516-1176-73d6-e192-3116e0a3d326
 
 
 vault write identity/group \
-    name="hub-power-users" \
+    name="power-user" \
     policies="power-user,basic-user" \
     type="external"
 
-# id: ac9fb913-c744-0775-1b56-75f25a8d6011
+# id: 09623ddb-29be-ffb3-a4d5-57ea95c2570c
 
 
 vault write identity/group \
-    name="site-admins" \
+    name="administrator" \
     policies="administrator" \
     type="external"
 
-# id: 2446a6fb-aec2-6858-d4e4-deadb515241a
+# id: 010641cc-629e-2f09-301f-d2d0f7c1cb68
 ```
 
 Note down the returned `id` value for each of the above groups as we'll use them below.
@@ -210,17 +210,25 @@ vault auth list -format json | jq -r '."oidc/".accessor'
 Create the group-aliases:
 ```
 vault write identity/group-alias \
-    name="spoke-users" \
+    name="basic-user" \
     mount_accessor="auth_oidc_1bb7e06f" \
-    canonical_id="d81e4832-b5a8-80a6-ad2e-80125751259b"
+    canonical_id="0f41c516-1176-73d6-e192-3116e0a3d326"
 
 vault write identity/group-alias \
-    name="hub-power-users" \
+    name="power-user" \
     mount_accessor="auth_oidc_1bb7e06f" \
-    canonical_id="ac9fb913-c744-0775-1b56-75f25a8d6011"
+    canonical_id="09623ddb-29be-ffb3-a4d5-57ea95c2570c"
 
 vault write identity/group-alias \
-    name="site-admins" \
+    name="administrator" \
     mount_accessor="auth_oidc_1bb7e06f" \
-    canonical_id="2446a6fb-aec2-6858-d4e4-deadb515241a"
+    canonical_id="010641cc-629e-2f09-301f-d2d0f7c1cb68"
 ```
+
+The `name` of these group-alias' need to match the Keycloak Client Roles that you created earlier.
+
+A group-alias associates a role `name` from the ID token's group claim (found via the `mount_accessor` role, `default` in this case) to a Vault Group, represented by the `canonical_id`, which contains the Vault Policy(s) that apply.
+
+Once a user signs in a Vault Entity (aka user) is created, along with an Entity Alias, linking that Vault Entity <=> OIDC Entity.
+
+Users should now be able to autheticate with Vault via the OIDC authentication method (using the `default` profile).
