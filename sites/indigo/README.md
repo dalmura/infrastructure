@@ -54,6 +54,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * w/CNPG PostgreSQL DB
    * [Hashicorp Vault](https://developer.hashicorp.com/vault#what-is-vault)
       * Cluster Secrets Management
+   * [Vault Secrets Operator](https://developer.hashicorp.com/vault/docs/platform/k8s/vso)
+      * Vault integration with Kubernetes Secrets
 * ArgoCD - Wave 4
    * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
       * Cluster hardware, k8s and application monitoring

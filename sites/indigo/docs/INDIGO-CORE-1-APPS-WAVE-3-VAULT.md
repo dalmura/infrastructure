@@ -1,4 +1,4 @@
-# Provision Vault for dal-indigo
+# Provision Vault for dal-indigo-core-1
 
 This guide covers the overall setup of the Vault instance deployed as part of `wave-3`.
 
@@ -176,7 +176,7 @@ Create the external groups that will eventually map Keycloak roles to the vault 
 ```
 vault write identity/group \
     name="basic-user" \
-    policies="basic-user" \
+    policies="basic-user,default" \
     type="external"
 
 # id: 0f41c516-1176-73d6-e192-3116e0a3d326
@@ -184,7 +184,7 @@ vault write identity/group \
 
 vault write identity/group \
     name="power-user" \
-    policies="power-user,basic-user" \
+    policies="power-user,basic-user,default" \
     type="external"
 
 # id: 09623ddb-29be-ffb3-a4d5-57ea95c2570c
@@ -192,7 +192,7 @@ vault write identity/group \
 
 vault write identity/group \
     name="administrator" \
-    policies="administrator" \
+    policies="administrator,default" \
     type="external"
 
 # id: 010641cc-629e-2f09-301f-d2d0f7c1cb68
