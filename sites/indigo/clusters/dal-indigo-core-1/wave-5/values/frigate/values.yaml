@@ -12,7 +12,7 @@ extraVolumes:
 
 extraVolumeMounts:
   - name: vault-config
-    mountPath: /config/
+    mountPath: /config
     subPath: config.yaml
   - name: h8l
     mountPath: /dev/hailo0
