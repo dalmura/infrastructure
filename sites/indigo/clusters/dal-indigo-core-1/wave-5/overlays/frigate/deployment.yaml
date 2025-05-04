@@ -76,7 +76,7 @@ spec:
               name: dshm
             - mountPath: /tmp
               name: tmp
-            - mountPath: /config
+            - mountPath: /config/config.yaml
               name: vault-config
               subPath: config.yaml
             - mountPath: /dev/hailo0
