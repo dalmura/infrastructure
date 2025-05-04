@@ -29,7 +29,7 @@ See [`dal-indigo-core-1` Apps - Wave 3 - Vault Secrets Operator](INDIGO-CORE-1-A
 
 Paste the following into your logged in `vault` CLI:
 ```
-vault policy write workload-reader-example-app -<<EOF
+vault policy write workload-reader-frigate-secrets -<<EOF
 # Main secrets store
 path "site/data/wave-5/frigate/*" {
     capabilities = ["read", "list"]
@@ -40,7 +40,7 @@ EOF
 vault write auth/kubernetes/role/workload-reader-frigate-secrets \
    bound_service_account_names=frigate-secrets \
    bound_service_account_namespaces=frigate \
-   token_policies=workload-reader-example-app \
+   token_policies=workload-reader-frigate-secrets \
    audience=vault \
    ttl=24h
 ```
