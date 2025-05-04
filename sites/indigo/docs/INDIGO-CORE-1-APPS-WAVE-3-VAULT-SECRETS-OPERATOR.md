@@ -25,22 +25,55 @@ vault write auth/kubernetes/config \
    kubernetes_host="https://192.168.77.2:6443/"
 ```
 
-Create a role that our VSO service account will use:
+Enable the transit secret engine:
 ```
-vault policy write vault-secrets-operator -<<EOF
-path "site/data/*" {
+vault secrets enable transit
+
+vault write -force keys/vso-client-cache
+```
+
+Create a role that our VSO service account will use for transit encryption:
+```
+vault policy write vso-operator -<<EOF
+path "encrypt/vso-client-cache" {
+   capabilities = ["create", "update"]
+}
+path "decrypt/vso-client-cache" {
+   capabilities = ["create", "update"]
+}
+EOF
+
+vault write auth/kubernetes/role/auth-role-operator \
+   bound_service_account_names=vault-secrets-operator-controller-manager \
+   bound_service_account_namespaces=vault-secrets-operator-system \
+   token_ttl=0 \
+   token_period=120 \
+   token_policies=vso-operator \
+   audience=vault
+```
+
+### Configuration for Example App
+The below will need to be copied and customised for each workload app in the following waves.
+
+Create a policy in vault that allows example-app to read its secrets:
+```
+vault policy write workload-reader-example-app -<<EOF
+# Main secrets store
+path "site/data/example-app/*" {
     capabilities = ["read", "list"]
 }
 
-path "site-sensitive/data/*" {
+# Optional sensitive secrets store
+path "site-sensitive/data/example-app/*" {
     capabilities = ["read", "list"]
 }
 EOF
 
-vault write auth/kubernetes/role/vault-secrets-operator \
-   bound_service_account_names=vault-secrets-operator \
-   bound_service_account_namespaces=vault \
-   token_policies=vault-secrets-operator \
+# Allow the Kubernetes Namespace & SA usage of our above policy via this 'auth role'
+vault write auth/kubernetes/role/workload-reader-example-app \
+   bound_service_account_names=example-app-sa \
+   bound_service_account_namespaces=example-app \
+   token_policies=workload-reader-example-app \
    audience=vault \
    ttl=24h
 ```
