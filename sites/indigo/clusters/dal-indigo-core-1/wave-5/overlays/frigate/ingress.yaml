@@ -23,4 +23,5 @@ spec:
         backend:
           service:
             name: frigate
-            portName: http-auth
+            port:
+              number: 8971
