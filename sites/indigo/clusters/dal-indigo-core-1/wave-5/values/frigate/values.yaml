@@ -17,6 +17,8 @@ extraVolumeMounts:
   - name: h8l
     mountPath: /dev/hailo0
 
+config: "---"
+
 persistence:
   media:
     enabled: true
