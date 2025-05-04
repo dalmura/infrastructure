@@ -2,17 +2,14 @@
 image:
   tag: stable-h8l
 
-envFromSecrets:
-  - frigate-env
-
 extraVolumeMounts:
   - name: h8l
     mountPath: /dev/hailo0
-
-config: |
-  <vault>
 
 persistence:
   media:
     enabled: true
     size: 50Gi
+
+nodeSelector:
+  k8s.dalmura.cloud/nodegroup: eq14-worker-pool
