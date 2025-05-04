@@ -29,7 +29,7 @@ Enable the transit secret engine:
 ```
 vault secrets enable transit
 
-vault write -force keys/vso-client-cache
+vault write -force transit/keys/vso-client-cache
 ```
 
 Create a role that our VSO service account will use for transit encryption:
@@ -51,6 +51,8 @@ vault write auth/kubernetes/role/auth-role-operator \
    token_policies=vso-operator \
    audience=vault
 ```
+
+Only after applying the above configuration will the `vault-secrets-operator-default-transit-auth` resource in ArgoCD sync correctly.
 
 ### Configuration for Example App
 The below will need to be copied and customised for each workload app in the following waves.
