@@ -22,6 +22,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: plex
+            name: plex-plex-media-server
             port:
               number: 32400
