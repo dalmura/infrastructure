@@ -8,6 +8,9 @@ pms:
 serviceAccount:
   create: true
 
+extraEnv:
+  PLEX_CLAIM: "claim-5EmkuBTynpmccvqqUFxT"
+
 nodeSelector:
   k8s.dalmura.cloud/nodegroup: eq14-worker-pool
 
