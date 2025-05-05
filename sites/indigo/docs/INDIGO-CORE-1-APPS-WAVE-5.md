@@ -89,4 +89,8 @@ This will take a solid 3-5 mins as the Pod comes up and the certificate is issue
 
 ## Access Frigate
 
-Should be accessible via https://frigate.indigo.dalmura.cloud/
+Should be accessible privately via https://frigate.indigo.dalmura.cloud/
+
+## Access Plex
+
+Should be accessible publically via https://plex.indigo.dalmura.cloud/

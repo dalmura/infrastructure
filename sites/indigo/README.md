@@ -67,6 +67,7 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
    * [Plex](https://hub.docker.com/r/linuxserver/plex)
+      * Media Playback
 
 ## Configuration
 

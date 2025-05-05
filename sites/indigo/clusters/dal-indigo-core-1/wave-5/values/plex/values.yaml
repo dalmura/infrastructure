@@ -1,0 +1,25 @@
+---
+image:
+  tag: 
+
+ingress:
+  enabled: false
+
+pms:
+  configStorage: 100Gi
+
+serviceAccount:
+  create: true
+
+nodeSelector:
+  k8s.dalmura.cloud/nodegroup: eq14-worker-pool
+
+extraVolumeMounts:
+  - name: dev-dri
+    mountPath: /dev/dri
+
+extraVolumes:
+  - name: dev-dri
+    hostPath:
+      path: /dev/dri
+      type: Directory
