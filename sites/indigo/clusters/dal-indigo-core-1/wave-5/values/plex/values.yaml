@@ -1,7 +1,4 @@
 ---
-image:
-  tag: 
-
 ingress:
   enabled: false
 
