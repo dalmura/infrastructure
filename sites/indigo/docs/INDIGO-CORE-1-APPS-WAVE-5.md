@@ -12,6 +12,7 @@ We assume you've followed the steps at:
 
 ## Create Vault Secret(s)
 
+### Frigate Secrets
 Frigate requires a detailed config file that outlines all the security camera settings, along with credentials for each camera. As such it doesn't make sense to commit some of the config into git, and some in Vault.
 
 Instead we'll commit the entire config into vault and load that into Frigate!
@@ -50,6 +51,44 @@ We provision within [wave-5/overlays/frigate/](sites/indigo/clusters/dal-indigo-
 * `VaultStaticSecret` to reference the above created `site/wave-5/frigate/values` vault secret
 
 The end result after deploying this will be a `frigate-values` Secret managed by VSO that will automatically update when the config is modified within Vault.
+
+### Plex Secrets
+Plex requires a `PLEX_CLAIM` environment variable that we need to securely pass into the Pod as a once-off activity. After that it's not required anymore. To avoid committing this into git and having someone else steal it for the few seconds it's visible but not used yet, we do it via a Vault secret.
+
+Open up [Vault](https://vault.indigo.dalmura.cloud/), sign in as as user with the `site-admins` or `hub-power-users`, as we'll be saving the config under the `site/` path in Vault.
+
+Create a secret under the `site` secret with the path `wave-5/plex/env` with the following keys:
+* `PLEX_CLAIM`, with the value from https://account.plex.tv/en/claim
+
+Note, this token expires after 5 minutes, if so, repeat these steps creating a new version of the secret in Vault, and delete the Secret in the `plex` namespace to have it recreated from Vault.
+
+After these have been created we need to create the workload specific vault roles to let the secrets be extracted from Vault by a Service Account within the Plex namespace.
+
+See [`dal-indigo-core-1` Apps - Wave 3 - Vault Secrets Operator](INDIGO-CORE-1-APPS-WAVE-3-VAULT-SECRETS-OPERATOR.md) for more context on this.
+
+Paste the following into your logged in `vault` CLI:
+```
+vault policy write workload-reader-plex-secrets -<<EOF
+# Main secrets store
+path "site/data/wave-5/plex/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+# Allow the Kubernetes Namespace & SA usage of our above policy via this 'auth role'
+vault write auth/kubernetes/role/workload-reader-plex-secrets \
+   bound_service_account_names=plex-plex-media-server \
+   bound_service_account_namespaces=plex \
+   token_policies=workload-reader-plex-secrets \
+   audience=vault \
+   ttl=24h
+```
+
+We provision within [wave-5/overlays/plex/](sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/plex/):
+* `VaultAuth` to reference the above created 'auth role' (the Service Account is handled via the Helm chart)
+* `VaultStaticSecret` to reference the above created `site/wave-5/plex/env` vault secret
+
+The end result after deploying this will be a `plex-env` Secret managed by VSO that will automatically update when it's modified within Vault.
 
 ## Verifying apps
 

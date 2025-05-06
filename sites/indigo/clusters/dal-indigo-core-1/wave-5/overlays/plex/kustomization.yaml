@@ -5,3 +5,5 @@ namespace: plex
 
 resources:
   - ingress.yaml
+  - vault-auth.yaml
+  - vault-secret.yaml
