@@ -17,9 +17,16 @@ nodeSelector:
 extraVolumeMounts:
   - name: dev-dri
     mountPath: /dev/dri
+  - name: data
+    mountPath: /data
 
 extraVolumes:
   - name: dev-dri
     hostPath:
       path: /dev/dri
       type: Directory
+  - name: data
+    nfs:
+      server: atlas.wlanding.dalmura.com.au
+      path: /data
+      readOnly: true
