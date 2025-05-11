@@ -103,4 +103,47 @@ Apart from the above set also update the following files:
 
 After setting up all of the above in a branch on your fork, you're ready to setup the build environment and start building.
 
-### Build the new `pkgs` module
+### Setting up build environment
+
+You'll need to have docker installed, I don't think there's much leeway in choosing your container toolset.
+
+Setup buildx:
+```
+docker buildx create --driver docker-container  --driver-opt network=host --name local1 --buildkitd-flags '--allow-insecure-entitlement security.insecure' --use
+```
+
+You can test this has worked by building `talosctl`:
+```
+git clone git@github.com:siderolabs/talos.git
+cd talos
+make talosctl
+```
+
+Start a local registry for all the intermediate container images:
+```
+docker run -d -p 5005:5000 --restart always --name local registry:2
+```
+
+Should now be setup to start building the various bits and pieces!
+
+### Build the `pkgs` kernel and module
+
+Ensure your local repo/checkout of `pkgs` contains the new module.
+
+Build the kernel and your module:
+```
+make kernel hailort-pkg REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64
+```
+
+The above will build the Linux kernel as well as the HailoRT module, this will result in 2x container images pushed into the local registry.
+
+Make note of the container URIs:
+```
+KERNEL_URI='127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4'
+HAILORT_URI='127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999'
+```
+
+Now we've built the base kernel, and our Hailo package. Now we need to build the 'extension' that will use the built Hailo package.
+
+### Build the `extensions`... extension!
+
