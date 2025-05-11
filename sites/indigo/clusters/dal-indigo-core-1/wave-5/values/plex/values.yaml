@@ -4,6 +4,8 @@ ingress:
 
 pms:
   configStorage: 100Gi
+  securityContext:
+    privileged: true
 
 serviceAccount:
   create: true
