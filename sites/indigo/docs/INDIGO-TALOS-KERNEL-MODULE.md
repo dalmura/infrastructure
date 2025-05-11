@@ -186,6 +186,19 @@ Along with these files, we'll need to modify these existing files in the repo ro
 * `Pkgfile`
    * The version of the kernel module we'll build against from the pkgs repo
 
-See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/694/files) for an overview of the file contents,
+See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/694/files) for an overview of the file contents.
 
+To build the extension we need to temporarily override the `image` line in `drivers/hailort/pkg.yaml` with the following:
+```
+  - image: "127.0.0.1:5005/michael-robbins/hailort-pkg:{{ .VERSION }}"
+```
 
+And update the root directory file `Pkgfile` setting `HAILORT_VERSION` to the tag and hash from the `HAILORT_URI` above:
+```
+  HAILORT_VERSION: a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999
+```
+
+And to finally build the extension:
+```
+make hailort REGISTRY=127.0.0.1:5005 PUSH=true PLATFORM=linux/amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+```
