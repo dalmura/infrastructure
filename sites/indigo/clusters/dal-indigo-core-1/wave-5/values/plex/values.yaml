@@ -5,12 +5,14 @@ ingress:
 pms:
   configStorage: 100Gi
   securityContext:
+    # Required for hardware transcoding support
     privileged: true
 
 serviceAccount:
   create: true
 
 extraEnv:
+  # Video GID for transcoding device access
   PLEX_GID: "44"
 
 nodeSelector:
@@ -23,6 +25,7 @@ extraVolumeMounts:
     mountPath: /data
 
 extraVolumes:
+  # Required for hardware transcoding support
   - name: dev-dri
     hostPath:
       path: /dev/dri
