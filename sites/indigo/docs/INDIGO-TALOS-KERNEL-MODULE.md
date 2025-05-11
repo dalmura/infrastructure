@@ -103,6 +103,8 @@ Apart from the above set also update the following files:
 
 After setting up all of the above in a branch on your fork, you're ready to setup the build environment and start building.
 
+See the [HailoRT PR](https://github.com/siderolabs/pkgs/pull/1222) for more context around the files and their contents.
+
 ### Setting up build environment
 
 You'll need to have docker installed, I don't think there's much leeway in choosing your container toolset.
@@ -128,7 +130,7 @@ Should now be setup to start building the various bits and pieces!
 
 ### Build the `pkgs` kernel and module
 
-Ensure your local repo/checkout of `pkgs` contains the new module.
+Ensure your local fork/repo/checkout of `pkgs` contains the new module.
 
 Build the kernel and your module:
 ```
@@ -146,4 +148,44 @@ HAILORT_URI='127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fcc
 Now we've built the base kernel, and our Hailo package. Now we need to build the 'extension' that will use the built Hailo package.
 
 ### Build the `extensions`... extension!
+
+Fork and checkout the repo:
+```bash
+# Fork on github
+
+git clone https://github.com/your-user/your-extensions-fork-name.git talos-extensions
+cd talos-pkgs
+```
+
+The `hailort` extension will live in the `drivers/` folder of this repo.
+
+Create a new folder for your module in the right subfolder, eg. `drivers/hailort`
+```
+cd drivers/
+
+mkdir hailort
+cd hailort
+```
+
+We'll need to create 4x files in here:
+* `manifest.yaml`
+   * Contains the extension metadata for the build system
+* `pkg.yaml`
+   * Contains the build steps for the extension
+   * This is what will copy the built kernel module/etc out of our previous built image
+* `README.md`
+   * Explains the extension, including steps to verify it's working
+* `vars.yaml`
+   * Version of the kernel module image we built before
+
+Along with these files, we'll need to modify these existing files in the repo root:
+* `.kres.yaml`
+   * Adding our extension into the default list to build
+* `Makefile`
+   * Adding our extension into the default list to build
+* `Pkgfile`
+   * The version of the kernel module we'll build against from the pkgs repo
+
+See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/694/files) for an overview of the file contents,
+
 
