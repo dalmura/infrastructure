@@ -211,14 +211,81 @@ EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037
 
 After this we need to dump the created extension image out to local disk:
 ```
-docker pull 127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037fe091d49bca6e0c10f74c3ab99364de30b22e572b5686249500ea
+docker create --name "tmp_hailort" 127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037fe091d49bca6e0c10f74c3ab99364de30b22e572b5686249500ea ls
 
-# Find the image ID
-docker image ls '127.0.0.1:5005/michael-robbins/hailort'
+# Dump the image filesystem to a local tar
+docker export -o hailort.tar tmp_hailort
 
-# Dump the image ID
-docker image save -o hailort.tar --platform linux/amd64 e85b007309e1
+docker rm tmp_hailort
 ```
+
+Unfortunately the exported filesystem isn't directly usable, as it includes a few docker quirks like `.dockerenv` file that Docker magically mounts into the FS for us. This breaks the Siderolabs imager below, so we need to remove it:
+```
+# Make some temporary location
+mkdir ~/data
+cd ~/data
+
+# Copy in the hailort.tar file from above
+cp ~/dev/talos-extensions/hailort.tar .
+
+# Extract it to local disk
+tar xf hailort.tar
+rm hailort.tar
+
+# Clear up the quirk files
+rm .dockerenv
+rm -rf dev etc sys proc
+
+# Repackage
+tar cf ../hailort.tar .
+
+# Copy over the old .tar file
+cp ../hailort.tar ~/dev/talos-extensions/hailort.tar
+rm ../hailort.tar
+
+# Clean up temporary location
+cd ~/dev/talos
+rm -rf ~/data
+```
+
+If you want to inspect the extensions filesystem, including what you built above:
+```
+# Create a temporary dir and copy in hailort.tar
+
+$ tar xf hailort.tar
+$ rm hailort.tar
+
+$ find .
+./rootfs
+./rootfs/usr
+./rootfs/usr/lib
+./rootfs/usr/lib/modules
+./rootfs/usr/lib/modules/6.12.25-talos
+./rootfs/usr/lib/modules/6.12.25-talos/modules.dep
+./rootfs/usr/lib/modules/6.12.25-talos/modules.softdep
+./rootfs/usr/lib/modules/6.12.25-talos/modules.alias.bin
+./rootfs/usr/lib/modules/6.12.25-talos/kernel
+./rootfs/usr/lib/modules/6.12.25-talos/kernel/drivers
+./rootfs/usr/lib/modules/6.12.25-talos/kernel/drivers/misc
+./rootfs/usr/lib/modules/6.12.25-talos/kernel/drivers/misc/hailo_pci.ko
+./rootfs/usr/lib/modules/6.12.25-talos/modules.symbols.bin
+./rootfs/usr/lib/modules/6.12.25-talos/modules.order
+./rootfs/usr/lib/modules/6.12.25-talos/modules.weakdep
+./rootfs/usr/lib/modules/6.12.25-talos/modules.devname
+./rootfs/usr/lib/modules/6.12.25-talos/modules.builtin.modinfo
+./rootfs/usr/lib/modules/6.12.25-talos/modules.alias
+./rootfs/usr/lib/modules/6.12.25-talos/modules.builtin.bin
+./rootfs/usr/lib/modules/6.12.25-talos/modules.builtin
+./rootfs/usr/lib/modules/6.12.25-talos/modules.builtin.alias.bin
+./rootfs/usr/lib/modules/6.12.25-talos/modules.symbols
+./rootfs/usr/lib/modules/6.12.25-talos/modules.dep.bin
+./rootfs/etc
+./rootfs/etc/udev
+./rootfs/etc/udev/rules.d
+./rootfs/etc/udev/rules.d/51-hailo-udev.rules
+```
+
+We can see we successfully built the `hailo_pci.ko` kernel module, along with our udev rules file!
 
 ### Build imager and build our base artifacts
 
@@ -234,14 +301,64 @@ You might already have this checked out as part of setting up the build environm
 
 Build imager:
 ```
-make imager REGISTRY=127.0.0.1:5005 PUSH=true PLATFORM=linux/amd64 INSTALLER_ARCH=amd64  PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+make imager REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 INSTALLER_ARCH=amd64  PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
 ```
 
 You'll need to provide the `$KERNEL_URI` from above.
 
 This will output an IMAGER URI:
 ```
-IMAGER_URI='127.0.0.1:5005/siderolabs/imager:v1.10.1@sha256:5de7a93c01fa96780674477e1b450394011d001fa984851a9a9bd70200341405'
+IMAGER_URI='127.0.0.1:5005/michael-robbins/imager:v1.10.1@sha256:5583a569e85273e39b105511dee704db6cb805de6536bb584b6736358bb9e4b7'
 ```
 
-We then need to create an imager 'profile', this seems to be the metadata 
+We then need to create an imager 'profile' (aka config file) that decides which kernel/installer/system extensions to build and what to output, this is kind of like the Talos Image Factory, just manually via the CLI
+
+`profile.yaml` in the root of the `talos` repo:
+```
+# profile.yaml
+arch: amd64
+platform: metal
+secureboot: false
+version: v1.10.1
+input:
+  kernel:
+    path: /usr/install/amd64/vmlinuz
+  initramfs:
+    path: /usr/install/amd64/initramfs.xz
+  baseInstaller:
+    imageRef: ghcr.io/siderolabs/installer:v1.10.1
+  systemExtensions:
+    - tarballPath: /hailort.tar
+output:
+  kind: installer
+  outFormat: raw
+```
+
+We will also copy in the `hailort.tar` from the talos extensions repo:
+```
+cp ../talos-extensions/hailort.tar .
+```
+
+And finally use the imager to produce some output artifacts, using the `IMAGER_URI` from above:
+```
+cat profile.yaml | docker run --rm -i -v $PWD/_out:/out -v $PWD/hailort.tar:/hailort.tar 127.0.0.1:5005/michael-robbins/imager:v1.10.1@sha256:5583a569e85273e39b105511dee704db6cb805de6536bb584b6736358bb9e4b7 -
+```
+
+This will create the following artifacts in the `_out` directory of the `talos` repo:
+```
+installer-amd64.tar
+```
+
+This will create `_out/installer-amd64.tar` which we can load into docker as an image and push up to a registry to use to install Talos:
+```
+docker load -i ./_out/installer-amd64.tar
+docker tag ghcr.io/siderolabs/installer:v1.10.0 michael-robbins/hailort-installer:v1.10.0
+docker push michael-robbins/hailort-installer:v1.10.0
+```
+
+The above final `michael-robbins/hailort-installer:v1.10.0` needs to be accessible from the Talos node you boot (so ideally docker/github registry, not your local 127.0.0.1 one).
+
+### Creating the Talos config and installing
+```
+talosctl gen config --install-disk /dev/nvme0n1 --install-image michael-robbins/hailort-installer:v1.10.0 eq14 https://192.168.77.10:6443
+```
