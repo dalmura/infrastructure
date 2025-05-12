@@ -200,5 +200,48 @@ And update the root directory file `Pkgfile` setting `HAILORT_VERSION` to the ta
 
 And to finally build the extension:
 ```
-make hailort REGISTRY=127.0.0.1:5005 PUSH=true PLATFORM=linux/amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
 ```
+
+You'll need to provide the `$KERNEL_URI` from above. This will give us an EXTENSION URI
+:
+```
+EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037fe091d49bca6e0c10f74c3ab99364de30b22e572b5686249500ea'
+```
+
+After this we need to dump the created extension image out to local disk:
+```
+docker pull 127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037fe091d49bca6e0c10f74c3ab99364de30b22e572b5686249500ea
+
+# Find the image ID
+docker image ls '127.0.0.1:5005/michael-robbins/hailort'
+
+# Dump the image ID
+docker image save -o hailort.tar --platform linux/amd64 e85b007309e1
+```
+
+### Build imager and build our base artifacts
+
+Fork and checkout the talos repo:
+```bash
+# Fork on github
+
+git clone https://github.com/your-user/your-talos-fork-name.git talos
+cd talos
+```
+
+You might already have this checked out as part of setting up the build environment and building `talosctl`.
+
+Build imager:
+```
+make imager REGISTRY=127.0.0.1:5005 PUSH=true PLATFORM=linux/amd64 INSTALLER_ARCH=amd64  PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+```
+
+You'll need to provide the `$KERNEL_URI` from above.
+
+This will output an IMAGER URI:
+```
+IMAGER_URI='127.0.0.1:5005/siderolabs/imager:v1.10.1@sha256:5de7a93c01fa96780674477e1b450394011d001fa984851a9a9bd70200341405'
+```
+
+We then need to create an imager 'profile', this seems to be the metadata 
