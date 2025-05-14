@@ -10,7 +10,25 @@ And additionally:
 
 If not go back to previous steps and troubleshoot, the cluster needs to be in a healthy state before we deploy anything.
 
-Install the non-HA Argo CD into its own namespace
+The below 'ArgoCD via Helm' section is the preferred install method, but if for some reason you can't do Helm, the following section covers installing manually.
+
+## ArgoCD via Helm
+
+Add the repo and check the available versions:
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+
+helm search repo argo/argo-cd
+```
+
+Install the desired (ideally latest) version:
+```bash
+helm install argocd argo/argo-cd --version 8.0.1 --values patches/argocd-values.yaml
+```
+
+## ArgoCD via Manifests
+
+Install the non-HA ArgoCD into its own namespace:
 ```bash
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-namespace.yaml
 namespace/argocd created
