@@ -10,7 +10,13 @@ And additionally:
 
 If not go back to previous steps and troubleshoot, the cluster needs to be in a healthy state before we deploy anything.
 
-The below 'ArgoCD via Helm' section is the preferred install method, but if for some reason you can't do Helm, the following section covers installing manually.
+The below 'ArgoCD via Helm' section is the preferred install method, but if for some reason you can't do Helm, the other section covers installing manually.
+
+Either way we go we first need to create the namespace for ArgoCD:
+```bash
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-namespace.yaml
+namespace/argocd created
+```
 
 ## ArgoCD via Helm
 
@@ -19,20 +25,18 @@ Add the repo and check the available versions:
 helm repo add argo https://argoproj.github.io/argo-helm
 
 helm search repo argo/argo-cd
+# Note down the `CHART_VERSION` value
 ```
 
-Install the desired (ideally latest) version:
+Install the desired (ideally latest) `CHART_VERSION`:
 ```bash
-helm install argocd argo/argo-cd --version 8.0.1 --values patches/argocd-values.yaml
+helm install argocd argo/argo-cd --version 8.0.1 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
 ```
 
 ## ArgoCD via Manifests
 
 Install the non-HA ArgoCD into its own namespace:
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-namespace.yaml
-namespace/argocd created
-
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io created
 customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io created
@@ -60,7 +64,11 @@ argocd-server-76fdbd5f78-mkx2p                      0/1     ContainerCreating   
 # This works around https://github.com/cilium/cilium/issues/17349
 ```
 
-You can then verify the application is operational via port forwarding:
+## Verify Installation
+Given we don't have Ingress working yet, we'll need to verify locally via `kubectl` port forwarding.
+
+First we get the default password set by ArgoCD on first install, then port forward and validate.
+
 ```bash
 # Retrieve the default password
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d | sed 's/$/\n/g'
@@ -68,7 +76,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get secret argocd-i
 # Setup port forwarding
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/argocd-server -n argocd 8080:443
 
-# Install CLI tool
+# Install CLI tool via brew, or whatever other method you want
 brew install argocd
 
 # Log in via the CLI
@@ -90,8 +98,8 @@ Now our k8s cluster should be running with:
 * 3x `rpi4.4gb.arm64` Control Plane nodes
   * Cilium in Strict Mode as the CNI
 * Floating VIPs for easy k8s Control Plane access
-  * 192.168.77.2 on the SERVERS VLAN
-  * 192.168.77.130 on the SERVERS_STAGING VLAN
+  * 192.168.77.2 on the `SERVERS` VLAN
+  * 192.168.77.130 on the `SERVERS_STAGING` VLAN
 * 3x `rpi4.8gb.arm64` Worker nodes
 * 3x `eq14.16gb.amd64` Worker nodes
 * ArgoCD ready to deploy _everything else_

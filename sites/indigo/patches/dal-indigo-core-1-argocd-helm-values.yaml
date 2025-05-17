@@ -1,0 +1,4 @@
+global:
+  domain: argocd.indigo.dalmura.cloud
+  networkPolicy:
+    create: true
