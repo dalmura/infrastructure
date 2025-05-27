@@ -4,7 +4,7 @@ We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIG
 
 ## Prepare image and boot nodes
 Navigate to the [Talos Image Factory](https://factory.talos.dev/):
-1. Select 'Bare-metal Machie'
+1. Select 'Bare-metal Machine'
 2. Select the Talos Version from above
 3. Select 'amd64', ensuring SecureBoot is *not* selected
 4. Select the following System Extensions:
@@ -12,7 +12,7 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
    * siderolabs/util-linux-tools
    * siderolabs/intel-ucode
    * siderolabs/i915
-   * siderolabs/realtek-firmware (TODO: need to confirm this)
+   * siderolabs/realtek-firmware
 5. Skip the Kernel command line or overlay options
 5. Provide the following Kernel command line option: `-talos.halt_if_installed`
 6. Download the linked *ISO* `metal-amd64.iso`
