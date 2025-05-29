@@ -83,5 +83,20 @@ Follow this list in order:
 * [`dal-indigo-core-1` Apps - Wave 1](docs/INDIGO-CORE-1-APPS-WAVE-1.md)
 * [`dal-indigo-core-1` Apps - Wave 2](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
 * [`dal-indigo-core-1` Apps - Wave 3](docs/INDIGO-CORE-1-APPS-WAVE-3.md)
-* [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
+* TODO: [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
+
+## Ongoing Maintenance
+
+Once deployed, there are a few things to keep up to date.
+
+* [`dal-indigo-core-1` Talos OS Upgrading](docs/INDIGO-TALOS-OS-UPGRADING.md)
+* [`dal-indigo-core-1` Kubernetes Upgrading](docs/INDIGO-TALOS-K8S-UPGRADING.md)
+
+## Kernel Modules
+
+If you need to support a new piece of hardware via an out-of-tree kernel module. Talos Linux requires a bit of a song and dance to build and use a new kernel module.
+
+This process has been [documented here](docs/INDIGO-TALOS-KERNEL-MODULE.md).
+
+Word of warning, it's complicated, there's a lot of moving parts, and to get your module to land in Talos Linux will require PRs and time. If you don't want to wait, the documentation covers building custom images as well to test with, but there's nothing stopping you maintaining your own 'fork' of Talos Linux to use in the mean time.
