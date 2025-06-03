@@ -136,4 +136,16 @@ Validate the following is correct:
 * The above command is showing `STATUS` == `Ready` for all nodes
 * Longhorn is reporting all volumes are healthy
 
-If so, the OS upgrade has been completed successfully! Rinse and repeat as required to keep upgrading!
+The new `kubectl get nodes -o wide` now looks like:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes -o wide
+NAME                 STATUS   ROLES           AGE   VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE          KERNEL-VERSION   CONTAINER-RUNTIME
+talos-e45f019d4ca8   Ready    <none>          69d   v1.32.3   192.168.77.71   <none>        Talos (v1.10.3)   6.12.28-talos    containerd://2.0.5
+talos-e45f019d4d95   Ready    <none>          69d   v1.32.3   192.168.77.72   <none>        Talos (v1.10.3)   6.12.28-talos    containerd://2.0.5
+talos-e45f019d4e19   Ready    control-plane   69d   v1.32.3   192.168.77.70   <none>        Talos (v1.10.3)   6.12.28-talos    containerd://2.0.5
+talos-e8ff1ed8884c   Ready    <none>          68d   v1.33.0   192.168.77.73   <none>        Talos (v1.10.3)   6.12.28-talos    containerd://2.0.5
+```
+
+For some reason the EQ14 box upgraded its kubelet to `1.33.0`, not sure how that happened, but k8s upgrading anyway will resolve that quirk.
+
+The OS upgrade has been completed successfully! Rinse and repeat as required to keep upgrading!
