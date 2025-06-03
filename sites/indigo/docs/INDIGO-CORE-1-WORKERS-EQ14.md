@@ -13,7 +13,6 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
    * siderolabs/intel-ucode
    * siderolabs/i915
    * siderolabs/realtek-firmware
-5. Skip the Kernel command line or overlay options
 5. Provide the following Kernel command line option: `-talos.halt_if_installed`
 6. Download the linked *ISO* `metal-amd64.iso`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
