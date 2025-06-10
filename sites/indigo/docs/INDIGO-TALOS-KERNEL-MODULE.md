@@ -12,6 +12,8 @@ This repo contains (among other things) all the Linux kernel modules built again
 
 Due to this, we cannot easily build a new kernel module in isolation, we need to build the 'whole package' aka Talos Linux kernel in one go, and reference that when setting up a new node w/Talos Linux.
 
+PR to add in Hailo-8L kernel module: https://github.com/siderolabs/pkgs/pull/1262
+
 ### Talos `extension` repo
 
 This repo contains the extension images that can be baked into a [Talos Linux Image Factory](https://factory.talos.dev/) release.
