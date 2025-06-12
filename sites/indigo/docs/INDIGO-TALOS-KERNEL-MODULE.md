@@ -8,21 +8,31 @@ Hailo provide a [Github repo](https://github.com/hailo-ai/hailort-drivers) that 
 
 ### Talos `pkgs` repo
 
-This repo contains (among other things) all the Linux kernel modules built against a certain kernel, all signed by the same key at 'build time' as required to be loaded into a Talos Linux kernel at runtime.
+This repo contains (among other things) the Linux kernel, and all the Linux kernel modules. All modules loaded into the Talos Linux kernel are required to be signed by the same key, which is created at 'build time' and discarded after.
 
-Due to this, we cannot easily build a new kernel module in isolation, we need to build the 'whole package' aka Talos Linux kernel in one go, and reference that when setting up a new node w/Talos Linux.
+Due to this, we cannot easily build a new kernel module in isolation, we need to build the 'whole package' aka the Talos Linux kernel, and all required kernel modules. Referencing them all together when setting up a new node w/Talos Linux.
 
-PR to add in Hailo-8L kernel module: https://github.com/siderolabs/pkgs/pull/1262
+PR to add in Hailo-8L kernel module pkg: https://github.com/siderolabs/pkgs/pull/1262
+
+Once the above PR was merged, the [`hailort-pkg`](https://github.com/siderolabs/pkgs/pkgs/container/hailort-pkg) is now built and included in the underlying kernel modules for Talos Linux. You can see all available version (image tags), which will all be linked to a Linux kernel build!
+
+For example:
+* `kernel`'s version [v1.11.0-alpha.0-35-g0aaa07a](https://github.com/siderolabs/pkgs/pkgs/container/kernel/435163959?tag=v1.11.0-alpha.0-35-g0aaa07a)
+* `hailort-pkg`'s version [v1.11.0-alpha.0-35-g0aaa07a](https://github.com/siderolabs/pkgs/pkgs/container/hailort-pkg/435164997?tag=v1.11.0-alpha.0-35-g0aaa07a)
+
+Both the above are built together and signed with the same key, thus compatible when being loaded on a node.
 
 ### Talos `extension` repo
 
-This repo contains the extension images that can be baked into a [Talos Linux Image Factory](https://factory.talos.dev/) release.
+This repo contains the extension images that can be baked into a [Talos Linux Image Factory](https://factory.talos.dev/) 'Talos Linux' release.
 
-For a kernel module, the extension config in here will need to reference the `pkgs` repo's entry, as it needs to be able to configure and build the extension for the specific version of Talos Linux (basically everything needs to match).
+For a kernel module, the extension config in here will need to reference the `pkgs` repo's entry. Specifically referencing the image tags over in the `pkgs` repo for the kernel/modules/etc.
 
 This is the reason why we can't just build the kernel module in the `extension` repo by itself and skip the `pkgs` repo, because the kernel is built over there, not here.
 
-For example, in the above factory, when you select Talos Linux 1.10 and the `i915` extension, it needs to pull in the version of the `i915` extension that was built with/against the kernel that is used in Talos Linux 1.10, it cannot be any other instance of the `i915` extension.
+For example, in the above factory, when you select Talos Linux 1.10 and the `i915` extension, it needs to pull in the version of the `i915` extension that was built with the kernel that is used in Talos Linux 1.10, it cannot be any other instance of the `i915` extension.
+
+PR to add in the Hailo-8L kernel module extension: https://github.com/siderolabs/extensions/pull/731
 
 ### Setup the new module in `pkgs` repo
 
