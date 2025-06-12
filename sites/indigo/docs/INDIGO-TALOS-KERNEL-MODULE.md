@@ -115,7 +115,7 @@ Apart from the above set also update the following files:
 
 After setting up all of the above in a branch on your fork, you're ready to setup the build environment and start building.
 
-See the [HailoRT PR](https://github.com/siderolabs/pkgs/pull/1222) for more context around the files and their contents.
+See the [HailoRT PR](https://github.com/siderolabs/pkgs/pull/1262) for more context around the files and their contents.
 
 ### Setting up build environment
 
@@ -159,6 +159,14 @@ HAILORT_URI='127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fcc
 
 Now we've built the base kernel, and our Hailo package. Now we need to build the 'extension' that will use the built Hailo package.
 
+Note, once the pkgs PR merges, the above URIs can also be updated to reference the proper siderolabs pkg URIs:
+```
+# eg. for an alpha 1.11 build
+# note, you *must* use the same version tags between kernel and hailort due to crypto signing
+KERNEL_URI='ghcr.io/siderolabs/kernel:v1.11.0-alpha.0-35-g0aaa07a'
+HAILORT_URI='ghcr.io/siderolabs/hailort-pkg:v1.11.0-alpha.0-35-g0aaa07a'
+```
+
 ### Build the `extensions`... extension!
 
 Fork and checkout the repo:
@@ -198,27 +206,38 @@ Along with these files, we'll need to modify these existing files in the repo ro
 * `Pkgfile`
    * The version of the kernel module we'll build against from the pkgs repo
 
-See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/694/files) for an overview of the file contents.
+See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/731) for an overview of the file contents.
 
 To build the extension we need to temporarily override the `image` line in `drivers/hailort/pkg.yaml` with the following:
 ```
-  - image: "127.0.0.1:5005/michael-robbins/hailort-pkg:{{ .VERSION }}"
+# Template:
+  - image: "$HAILORT_URI"
+
+# For example:
+  - image: "127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999"
 ```
 
-And update the root directory file `Pkgfile` setting `HAILORT_VERSION` to the tag and hash from the `HAILORT_URI` above:
-```
-  HAILORT_VERSION: a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999
-```
+Note: `$HAILORT_URI` should be substituted with your above URI you noted down earlier
 
 And to finally build the extension:
 ```
 make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
 ```
 
-You'll need to provide the `$KERNEL_URI` from above. This will give us an EXTENSION URI
-:
+Note: The above `PKG_KERNEL` is equal to the `KERNEL_URI` you noted down earlier.
+
+Alternatively, if you've already merged the `pkgs` PR and you have an existing siderolabs/pkgs URIs for the kernel and new module.
+
+Then simply just run specifying that PKGS tag instead:
 ```
-EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:a358137@sha256:9ef44891037fe091d49bca6e0c10f74c3ab99364de30b22e572b5686249500ea'
+make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKGS=v1.11.0-alpha.0-35-g0aaa07a
+```
+
+Note: We used the tag above from the siderolabs/pkgs URIs above (assuming they exist)
+
+This will give us an EXTENSION URI:
+```
+EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:4.21.0@sha256:14865002ac6507a13bfb5e936d2bd7b929feb32920e3172fad1985c549982d04'
 ```
 
 After this we need to dump the created extension image out to local disk:
@@ -291,10 +310,8 @@ $ find .
 ./rootfs/usr/lib/modules/6.12.25-talos/modules.builtin.alias.bin
 ./rootfs/usr/lib/modules/6.12.25-talos/modules.symbols
 ./rootfs/usr/lib/modules/6.12.25-talos/modules.dep.bin
-./rootfs/etc
-./rootfs/etc/udev
-./rootfs/etc/udev/rules.d
-./rootfs/etc/udev/rules.d/51-hailo-udev.rules
+./rootfs/usr/lib/udev/rules.d
+./rootfs/usr/lib/udev/rules.d/51-hailo-udev.rules
 ```
 
 We can see we successfully built the `hailo_pci.ko` kernel module, along with our udev rules file!
@@ -313,7 +330,7 @@ You might already have this checked out as part of setting up the build environm
 
 Build imager:
 ```
-make imager REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 INSTALLER_ARCH=amd64  PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+make imager REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
 ```
 
 You'll need to provide the `$KERNEL_URI` from above.
