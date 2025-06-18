@@ -245,9 +245,10 @@ git clone .... talos
 cd talos
 ```
 
-
 Build the imager thingy:
-`make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 PKGS=v1.11.0-alpha.0-35-g0aaa07a PUSH=true`
+```
+make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 PKGS=v1.11.0-alpha.0-35-g0aaa07a PUSH=true
+```
 
 This will build the initial 'talos' installer image containing the kernel from the PKGS above.
 
@@ -265,18 +266,28 @@ You can include multiple system extension images above by repeating the `--syste
 
 This will produce `_out/installer-amd64.tar`, this file is an image that we need to import back into docker and push to a registry we can test with.
 
-Load, tag & push:
+If you're just quickly testing against a node immediately, you could use `ttl.sh` as your registry, otherwise ensure you have a registry you can write to.
+
+For example if you want an ephemeral image to reference for 1h:
 ```
 docker load -i _out/installer-amd64.tar
-docker tag michael-robbins/hailort-installer:v1.10.0
-docker push michael-robbins/hailort-installer:v1.10.0
-```
 
-The above final `michael-robbins/hailort-installer:v1.10.0` needs to be accessible from the Talos node you boot (so ideally docker/github registry, not your local 127.0.0.1 one).
+# Note down the sha256 hash of the imported image from the output, eg:
+$ docker load -i _out/installer-amd64.tar
+72710c8920dd: Loading layer [==================================================>]  100.3MB/100.3MB
+Loaded image ID: sha256:a2cc4d81d5c5d08034863c08449e4c49fa5a1aed59b755d50d81c12a01eca701
+
+# Generate the UUID for the ttl.sh image
+IMAGE_NAME=$(uuidgen)
+
+# Tag and push the above $IMAGE_NAME with 1h time-to-live
+docker tag a2cc4d81d5c5d08034863c08449e4c49fa5a1aed59b755d50d81c12a01eca701 ttl.sh/${IMAGE_NAME}:1h
+docker push ttl.sh/${IMAGE_NAME}:1h
+```
 
 ### Upgrade our node with the new image and check our module loaded
 ```
-talosctl upgrade --node 192.168.77.20 --image 'michael-robbins/hailort-installer:v1.10.0'
+talosctl upgrade --node 192.168.77.20 --image ttl.sh/${IMAGE_NAME}:1h
 
 # Look at the logs to verify your module loaded
 talosctl -n 192.168.77.20 dmesg -f
