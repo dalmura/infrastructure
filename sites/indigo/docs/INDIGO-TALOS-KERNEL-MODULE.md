@@ -239,6 +239,34 @@ This will give us an EXTENSION URI from the line 'pushing manifest for ...' to o
 EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:4.21.0@sha256:14865002ac6507a13bfb5e936d2bd7b929feb32920e3172fad1985c549982d04'
 ```
 
+You can then validate the above contains our kernel module and udev rules file by:
+```
+# The below uses podman, if you don't have that you'll need to google for a way to mount an image's FS locally...
+
+# Ensure the below is set so podman can work with a local http registry
+cat /etc/containers/registries.conf.d/localhost.conf
+
+[[registry]]
+location = "127.0.0.1:5005"
+insecure = true
+
+# Pull and mount the image
+sudo podman pull "${EXTENSION_URI}"
+sudo podman image mount "${EXTENSION_URI}"
+
+# Which will print out a directory, save this
+BASE_IMAGE_DIR='/var/lib/containers/storage/overlay/e5569ee718d8275217f3ef325ec1f90726ff5b0097104b20b8c30d1dc2d17d2b/merged'
+
+# Then you can easily explore it
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/
+
+# Verify the `51-hailo-udev.rules` file exists
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/udev/rules.d/
+
+# Verify the `hailo_pci.ko` file exists
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/modules/6.12.31-talos/kernel/drivers/misc/
+```
+
 Checkout talos repo
 ```
 git clone .... talos
@@ -247,20 +275,26 @@ cd talos
 
 Build the imager thingy:
 ```
-make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 PKGS=v1.11.0-alpha.0-35-g0aaa07a PUSH=true
+make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PKGS=v1.11.0-alpha.0-35-g0aaa07a PUSH=true TAG=v1.11.0-alpha.0-35-g0aaa07a
 ```
 
-This will build the initial 'talos' installer image containing the kernel from the PKGS above.
+This will build the initial 'talos' installer image containing the kernel from the PKGS above. Ensure `TAG` above is set, otherwise the Makefile will default to tagging the image with the hash or another tag that will cause the below `make image-installer` command to fail.
+
+The above will create 2x images, `installer-base` and `imager`:
+* We'll save the `installer-base` below, minus the sha extension as it didn't match for some reason
+* And `imager` will be derived as part of the next `make` command
 
 Outputs:
 ```
-BASE_TALOS_URI='127.0.0.1:5005/siderolabs/imager:v1.11.0-alpha.0-19-g97ceab001@sha256:99438bd349d4728378e7e4206c9e4cee176208065f6cc693e2779e72f3c20e36'
+BASE_TALOS_URI='127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a'
 ```
 
 Using the imager we'll build our system extension:
 ```
-make image-installer REGISTRY=127.0.0.1:5005 IMAGER_ARGS="--base-installer-image=${BASE_TALOS_URI} --system-extension-image=${EXTENSION_URI}"
+make image-installer REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins TAG=v1.11.0-alpha.0-35-g0aaa07a IMAGER_ARGS="--base-installer-image=${BASE_TALOS_URI} --system-extension-image=${EXTENSION_URI}"
 ```
+
+We need to specify the same username & tag as provided to `make installer-base imager` above as this `make image-installer` attempts to pull the produced `imager` image down and it all needs to match.
 
 You can include multiple system extension images above by repeating the `--system-extension-image=${OTHER_EXTENSION_URI}` CLI flag as many times as required, remember other kernel modules must have been built with the same kernle/PKGS string, if not they won't work.
 
@@ -272,29 +306,55 @@ For example if you want an ephemeral image to reference for 1h:
 ```
 docker load -i _out/installer-amd64.tar
 
-# Note down the sha256 hash of the imported image from the output, eg:
+# Note down the image URI of the imported image from the output, eg:
 $ docker load -i _out/installer-amd64.tar
-72710c8920dd: Loading layer [==================================================>]  100.3MB/100.3MB
-Loaded image ID: sha256:a2cc4d81d5c5d08034863c08449e4c49fa5a1aed59b755d50d81c12a01eca701
+810a8db95f85: Loading layer [==================================================>]  24.94MB/24.94MB
+eaea0b97c0bf: Loading layer [==================================================>]  100.5MB/100.5MB
+Loaded image: 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a
 
 # Generate the UUID for the ttl.sh image
 IMAGE_NAME=$(uuidgen)
 
 # Tag and push the above $IMAGE_NAME with 1h time-to-live
-docker tag a2cc4d81d5c5d08034863c08449e4c49fa5a1aed59b755d50d81c12a01eca701 ttl.sh/${IMAGE_NAME}:1h
+docker tag 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a ttl.sh/${IMAGE_NAME}:1h
 docker push ttl.sh/${IMAGE_NAME}:1h
 ```
 
-### Upgrade our node with the new image and check our module loaded
+Note down the final URI of your image:
 ```
-talosctl upgrade --node 192.168.77.20 --image ttl.sh/${IMAGE_NAME}:1h
+INSTALLER_URI='ttl.sh/fb357269-2a4c-478d-8ceb-0d297d70d5aa:1h'
+```
+
+### Upgrade our node with the new image and check our module loaded
+Hop over to the infrastructure repo site folder and perform the upgrade
+```
+cd sites/indigo/
+
+# Find the node we want
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes -o wide
+
+# Upgrade the node
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 upgrade --image "${INSTALLER_URI}"
 
 # Look at the logs to verify your module loaded
-talosctl -n 192.168.77.20 dmesg -f
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 dmesg -f
 
 # Check it's showing up here
-talosctl read /proc/modules
+$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 read /proc/modules | grep hailo
+hailo_pci 135168 0 - Live 0xffffffffc0674000 (O)
 
 # Ensure it's in /dev
-talosctl ls -l /dev/hailo0
+$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /dev/ | grep hailo`
+TBD due to broken setup
+
+# Verify that the udev rule is showing up
+$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/udev/rules.d/ | grep hailo
+192.168.77.73   -rwxr-xr-x   0     0     84        Jun 14 04:54:05   system_u:object_r:unlabeled_t:s0    51-hailo-udev.rules
+
+# Verify that the .ko file exists in the `misc` folder
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/modules/6.12.28-talos/kernel/drivers/
+
+$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/modules/6.12.31-talos/kernel/drivers/misc/ | grep hailo
+NODE            MODE         UID   GID   SIZE(B)   LASTMOD           LABEL                              NAME
+192.168.77.73   -rw-r--r--   0     0     341930    Jun 14 04:54:05   system_u:object_r:unlabeled_t:s0   hailo_pci.ko
 ```
