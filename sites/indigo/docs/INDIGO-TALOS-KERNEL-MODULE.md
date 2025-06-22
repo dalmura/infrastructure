@@ -115,6 +115,7 @@ Apart from the above set also update the following files:
 After setting up all of the above in a branch on your fork, you're ready to setup the build environment and start building.
 
 See the [HailoRT PR](https://github.com/siderolabs/pkgs/pull/1262) for more context around the files and their contents.
+And the [follow up PR](https://github.com/siderolabs/pkgs/pull/1267) fixing the missing firmware blob.
 
 ### Setting up build environment
 
@@ -149,11 +150,12 @@ make kernel hailort-pkg REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=tr
 ```
 
 The above will build the Linux kernel as well as the HailoRT module, this will result in 2x container images pushed into the local registry.
+Assuming you have checked out the main branch of your pkgs fork, it should have a git tag already attached.
 
 Make note of the container URIs:
 ```
-KERNEL_URI='127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4'
-HAILORT_URI='127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999'
+KERNEL_URI='127.0.0.1:5005/michael-robbins/kernel:v1.11.0-alpha.0-38-g4ac3fee@sha256:42be987c65f2b239069e10e791994c8afac29958b59784d8aadc1a870cdd7c1a'
+HAILORT_PKG_URI='127.0.0.1:5005/michael-robbins/hailort-pkg:v1.11.0-alpha.0-38-g4ac3fee@sha256:ae80f805b0b7cf537f6ba96a4ef47a399d994d60962c159a5e0ef4846351c8ce'
 ```
 
 Now we've built the base kernel, and our Hailo package. Now we need to build the 'extension' that will use the built Hailo package.
@@ -162,8 +164,8 @@ Note, once the pkgs PR merges, the above URIs can also be updated to reference t
 ```
 # eg. for an alpha 1.11 build
 # note, you *must* use the same version tags between kernel and hailort due to crypto signing
-KERNEL_URI='ghcr.io/siderolabs/kernel:v1.11.0-alpha.0-35-g0aaa07a'
-HAILORT_URI='ghcr.io/siderolabs/hailort-pkg:v1.11.0-alpha.0-35-g0aaa07a'
+KERNEL_URI='ghcr.io/siderolabs/kernel:v1.11.0-alpha.0-38-g4ac3fee'
+HAILORT_PKG_URI='ghcr.io/siderolabs/hailort-pkg:v1.11.0-alpha.0-38-g4ac3fee'
 ```
 
 ### Build the `extensions`... extension!
@@ -207,36 +209,25 @@ Along with these files, we'll need to modify these existing files in the repo ro
 
 See the [HailoRT PR](https://github.com/siderolabs/extensions/pull/731) for an overview of the file contents.
 
-To build the extension we need to temporarily override the `image` line in `drivers/hailort/pkg.yaml` with the following:
-```
-# Template:
-  - image: "$HAILORT_URI"
-
-# For example:
-  - image: "127.0.0.1:5005/michael-robbins/hailort-pkg:a358137@sha256:54c090fccbf9bbd29a68e219b57cdf40784249fd2d2bf588f797d3729e242999"
-```
-
-Note: `$HAILORT_URI` should be substituted with your above URI you noted down earlier
+Note: `$HAILORT_PKG_URI` should be substituted with your above URI you noted down earlier
 
 And to finally build the extension:
 ```
-make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKG_KERNEL=127.0.0.1:5005/michael-robbins/kernel:a358137@sha256:0dd225a56b52c84ebe823614d64bb754359ac5f98f7718cca34b388544a7cfe4
+make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKGS_PREFIX=127.0.0.1:5005/michael-robbins PKGS=v1.11.0-alpha.0-38-g4ac3fee
 ```
 
-Note: The above `PKG_KERNEL` is equal to the `KERNEL_URI` you noted down earlier.
+The above sets the following extra vars:
+* `PKGS_PREFIX` which is the 'source' of the PKGS images we use to build the extension
+* `PKGS` is the tag (aka version) of the PKGS we build with, in this case it's the tag of the earlier `PKGS` build we did
 
-Alternatively, if you've already merged the `pkgs` PR and you have an existing siderolabs/pkgs URIs for the kernel and new module.
-
-Then simply just run specifying that PKGS tag instead:
+Alternatively, if you've already merged the `pkgs` PR and you have an existing siderolabs/pkgs URIs for the kernel and new module, you can ignore the `PKGS_PREFIX` and use sideros main repo:
 ```
-make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKGS=v1.11.0-alpha.0-35-g0aaa07a
+make hailort REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PUSH=true PLATFORM=linux/amd64 PKGS=v1.11.0-alpha.0-38-g4ac3fee
 ```
-
-Note: We used the tag above from the siderolabs/pkgs URIs above (assuming they exist)
 
 This will give us an EXTENSION URI from the line 'pushing manifest for ...' to our local registry we set up earlier:
 ```
-EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:4.21.0@sha256:14865002ac6507a13bfb5e936d2bd7b929feb32920e3172fad1985c549982d04'
+EXTENSION_URI='127.0.0.1:5005/michael-robbins/hailort:4.21.0@sha256:657da4fcd5d4b3b015f51ea3ffa82338461dc69657485a376cd39109d73fe17b'
 ```
 
 You can then validate the above contains our kernel module and udev rules file by:
@@ -255,16 +246,20 @@ sudo podman pull "${EXTENSION_URI}"
 sudo podman image mount "${EXTENSION_URI}"
 
 # Which will print out a directory, save this
-BASE_IMAGE_DIR='/var/lib/containers/storage/overlay/e5569ee718d8275217f3ef325ec1f90726ff5b0097104b20b8c30d1dc2d17d2b/merged'
+BASE_IMAGE_DIR='/var/lib/containers/storage/overlay/96533d82dce3373331b5555167e5b5506838f267242f9507afa8fd73b1725ffb/merged'
 
 # Then you can easily explore it
 sudo ls -l ${BASE_IMAGE_DIR}/rootfs/
 
+# Verify the `hailo_pci.ko` file exists, first checking the right kernel version
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/modules/
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/modules/6.12.31-talos/kernel/drivers/misc/
+
+# Verify the `hailo8.fw` file exists
+sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/firmware/hailo/
+
 # Verify the `51-hailo-udev.rules` file exists
 sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/udev/rules.d/
-
-# Verify the `hailo_pci.ko` file exists
-sudo ls -l ${BASE_IMAGE_DIR}/rootfs/usr/lib/modules/6.12.31-talos/kernel/drivers/misc/
 ```
 
 Checkout talos repo
@@ -273,7 +268,14 @@ git clone .... talos
 cd talos
 ```
 
-Build the imager thingy:
+Build the `installer-base` and `imager` when building from scratch:
+```
+make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PKG_KERNEL=${KERNEL_URI} PKGS=v1.11.0-alpha.0-38-g4ac3fee PUSH=true TAG=v1.11.0-alpha.0-38-g4ac3fee
+```
+
+The above PKGS and TAG are just the randomly picked 'latest available' from eg. https://github.com/siderolabs/pkgs/pkgs/container/fhs
+
+Build the `installer-base` and `imager` when building from prebuilt:
 ```
 make installer-base imager PLATFORM=linux/amd64 INSTALLER_ARCH=amd64 REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins PKGS=v1.11.0-alpha.0-35-g0aaa07a PUSH=true TAG=v1.11.0-alpha.0-35-g0aaa07a
 ```
@@ -286,12 +288,12 @@ The above will create 2x images, `installer-base` and `imager`:
 
 Outputs:
 ```
-BASE_TALOS_URI='127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a'
+BASE_TALOS_URI='127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-37-gfadf1e2'
 ```
 
 Using the imager we'll build our system extension:
 ```
-make image-installer REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins TAG=v1.11.0-alpha.0-35-g0aaa07a IMAGER_ARGS="--base-installer-image=${BASE_TALOS_URI} --system-extension-image=${EXTENSION_URI}"
+make image-installer REGISTRY=127.0.0.1:5005 USERNAME=michael-robbins TAG=v1.11.0-alpha.0-37-gfadf1e2 IMAGER_ARGS="--base-installer-image=${BASE_TALOS_URI} --system-extension-image=${EXTENSION_URI}"
 ```
 
 We need to specify the same username & tag as provided to `make installer-base imager` above as this `make image-installer` attempts to pull the produced `imager` image down and it all needs to match.
@@ -310,19 +312,19 @@ docker load -i _out/installer-amd64.tar
 $ docker load -i _out/installer-amd64.tar
 810a8db95f85: Loading layer [==================================================>]  24.94MB/24.94MB
 eaea0b97c0bf: Loading layer [==================================================>]  100.5MB/100.5MB
-Loaded image: 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a
+Loaded image: 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-37-gfadf1e2
 
 # Generate the UUID for the ttl.sh image
 IMAGE_NAME=$(uuidgen)
 
 # Tag and push the above $IMAGE_NAME with 1h time-to-live
-docker tag 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-35-g0aaa07a ttl.sh/${IMAGE_NAME}:1h
+docker tag 127.0.0.1:5005/michael-robbins/installer-base:v1.11.0-alpha.0-37-gfadf1e2 ttl.sh/${IMAGE_NAME}:1h
 docker push ttl.sh/${IMAGE_NAME}:1h
 ```
 
 Note down the final URI of your image:
 ```
-INSTALLER_URI='ttl.sh/fb357269-2a4c-478d-8ceb-0d297d70d5aa:1h'
+INSTALLER_URI='ttl.sh/f6fb22ab-6e45-4339-82d6-18d6413f6f2e:1h'
 ```
 
 ### Upgrade our node with the new image and check our module loaded
@@ -344,17 +346,14 @@ $ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.7
 hailo_pci 135168 0 - Live 0xffffffffc0674000 (O)
 
 # Ensure it's in /dev
-$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /dev/ | grep hailo`
-TBD due to broken setup
+$ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /dev/ | grep hailo
+192.168.77.73   Dcrw-rw-rw-   0     0     0         Jun 22 20:49:59   system_u:object_r:device_t:s0        hailo0
 
 # Verify that the udev rule is showing up
 $ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/udev/rules.d/ | grep hailo
 192.168.77.73   -rwxr-xr-x   0     0     84        Jun 14 04:54:05   system_u:object_r:unlabeled_t:s0    51-hailo-udev.rules
 
 # Verify that the .ko file exists in the `misc` folder
-talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/modules/6.12.28-talos/kernel/drivers/
-
 $ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig -n 192.168.77.73 ls -l /usr/lib/modules/6.12.31-talos/kernel/drivers/misc/ | grep hailo
-NODE            MODE         UID   GID   SIZE(B)   LASTMOD           LABEL                              NAME
 192.168.77.73   -rw-r--r--   0     0     341930    Jun 14 04:54:05   system_u:object_r:unlabeled_t:s0   hailo_pci.ko
 ```
