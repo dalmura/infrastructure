@@ -1,0 +1,48 @@
+authentik:
+  secret_key: file:///secret-key/key
+
+  error_reporting:
+    enabled: false
+
+  postgresql:
+    host: authentic-db-rw
+    user: file:///postgres-creds/username
+    password: file:///postgres-creds/password
+
+server:
+  ingress:
+    # We manage this separately
+    enabled: false
+
+  volumes:
+    - name: authentik-db-creds
+      secret:
+        secretName: authentik-db-app
+    - name: authentik-secret-key
+      secret:
+        secretName: authentik-app-secret-key
+
+  volumeMounts:
+    - name: authentik-db-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: authentik-secret-key
+      mountPath: /secret-key
+      readOnly: true
+
+worker:
+  volumes:
+    - name: authentik-db-creds
+      secret:
+        secretName: authentik-db-app
+    - name: authentik-secret-key
+      secret:
+        secretName: authentik-app-secret-key
+
+  volumeMounts:
+    - name: authentik-db-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: authentik-secret-key
+      mountPath: /secret-key
+      readOnly: true

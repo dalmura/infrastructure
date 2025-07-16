@@ -1,0 +1,51 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-db
+spec:
+  description: "Authentik DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 10Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/indigo/postgres/authentik-db/
+      s3Credentials:
+        accessKeyId:
+          name: authentik-db-backup-secret
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: authentik-db-backup-secret
+          key: SECRET_ACCESS_KEY
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+      tags:
+        site: indigo
+        service: authentik
+        db: authentik-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: authentik-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: authentik-db

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2025.6.3
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-3/values/authentik/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-3/overlays/authentik
+      targetRevision: HEAD
+  destination:
+    namespace: authentik
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 2
