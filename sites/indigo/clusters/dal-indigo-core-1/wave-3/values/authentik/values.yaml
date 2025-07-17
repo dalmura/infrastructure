@@ -1,5 +1,5 @@
 authentik:
-  secret_key: file:///secret-key/key
+  secret_key: file:///secret-key/SECRET_KEY
 
   error_reporting:
     enabled: false
@@ -20,7 +20,7 @@ server:
         secretName: authentik-db-app
     - name: authentik-secret-key
       secret:
-        secretName: authentik-app-secret-key
+        secretName: authentik-secret-key
 
   volumeMounts:
     - name: authentik-db-creds
@@ -37,7 +37,7 @@ worker:
         secretName: authentik-db-app
     - name: authentik-secret-key
       secret:
-        secretName: authentik-app-secret-key
+        secretName: authentik-secret-key
 
   volumeMounts:
     - name: authentik-db-creds

@@ -2,18 +2,21 @@
 
 These are:
 * [Keycloak](https://github.com/keycloak/keycloak) for Authentication
+* [Authentik](https://goauthentik.io/) for Authentication (proposed)
+* [Vault](https://www.hashicorp.com/en/products/vault) for Secrets Storage
+* [Vault Secrets Operator](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/vso) for k8s Secrets integration with Vault
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 2](INDIGO-CORE-1-APPS-WAVE-2.md) and have all the precursors up and running
 * `argocd` is logged in
-* Longorn is running w/default StorageClass
+* Longorn is running
 * Traefik ingress controller
 
 ## Obtain AWS Credentials
 You can get the required AWS Credentials from the `dalmura/network` repo, the README.md contains the instructions how to get them.
 
 ## Create and seal the Secrets
-Keycloak has a PostgreSQL DB via cnpg, which needs credentials to backup to S3.
+Keycloak has a PostgreSQL DB via cnpg, which needs credentials to backup to S3:
 ```bash
 OVERLAY_DIR='clusters/dal-indigo-core-1/wave-3/overlays'
 
@@ -27,6 +30,48 @@ kubectl create secret generic \
   -o yaml \
   | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
   > ${OVERLAY_DIR}/keycloak/keycloak-db-backup-secret.sealed.yaml
+```
+
+Authentik has a PostgreSQL DB via cnpg, which needs credentials to backup to S3:
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/wave-3/overlays'
+
+# Secret 'authentik-db-backup-secret' for authentik
+kubectl create secret generic \
+  authentik-db-backup-secret \
+  --namespace authentik \
+  --dry-run=client \
+  --from-literal 'ACCESS_KEY_ID=<k8s_backups_key.id>' \
+  --from-literal 'SECRET_ACCESS_KEY=<k8s_backups_key.secret>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/authentik/authentik-db-backup-secret.sealed.yaml
+```
+
+Authentik also has a 'secret key' it uses for cookie encryption among other things. We don't do this via Vault as it's not provisioned yet.
+
+Generate the secret key first:
+```bash
+# Option 1
+openssl rand 60 | base64 -w 0
+
+# Option 2
+pwgen -s 50 1
+```
+
+Then fill it in below:
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/wave-3/overlays'
+
+# Secret 'authentik-secret-key' for authentik
+kubectl create secret generic \
+  authentik-secret-key \
+  --namespace authentik \
+  --dry-run=client \
+  --from-literal 'SECRET_KEY=<secret_key_from_above>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/authentik/authentik-secret-key.sealed.yaml
 ```
 
 Ensure you have committed and pushed the above credentials up into git as the below command (and final deployment) all rely on what's in git, not what's local.
