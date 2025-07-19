@@ -50,3 +50,7 @@ worker:
 
 redis:
   enabled: true
+
+  master:
+    persistence:
+      storageClass: cluster-nobackup
