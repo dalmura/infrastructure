@@ -47,3 +47,6 @@ worker:
     - name: authentik-secret-key
       mountPath: /secret-key
       readOnly: true
+
+redis:
+  enabled: true
