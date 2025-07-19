@@ -5,6 +5,6 @@ namespace: authentik
 
 resources:
   - authentik-db-backup-secret.sealed.yaml
-  - authentik-secret-key-secret.sealed.yaml
+  - authentik-secret-key.sealed.yaml
   - postgres.yaml
   - ingress.yaml
