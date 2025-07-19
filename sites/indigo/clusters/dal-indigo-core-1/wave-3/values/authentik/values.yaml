@@ -6,6 +6,7 @@ authentik:
 
   postgresql:
     host: authentik-db-rw
+    name: app
     user: file:///postgres-creds/username
     password: file:///postgres-creds/password
 
