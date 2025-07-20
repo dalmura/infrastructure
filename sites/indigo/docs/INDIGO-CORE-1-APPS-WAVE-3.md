@@ -74,6 +74,25 @@ kubectl create secret generic \
   > ${OVERLAY_DIR}/authentik/authentik-secret-key.sealed.yaml
 ```
 
+Lastly Authentik needs the email configuration defined at create time vs configuring later, so we need to create it as well:
+```bash
+OVERLAY_DIR='clusters/dal-indigo-core-1/wave-3/overlays'
+
+# Secret 'authentik-secret-key' for authentik
+kubectl create secret generic \
+  authentik-email-secrets \
+  --namespace authentik \
+  --dry-run=client \
+  --from-literal 'host=email-smtp.us-east-1.amazonaws.com' \
+  --from-literal 'port=465' \
+  --from-literal 'username=<k8s_email_sender_key.id>' \
+  --from-literal 'password=<k8s_email_sender_key.ses_smtp_password_v4>' \
+  --from-literal 'from=Dalmura Indigo Authentication <indigo+auth@dalmura.cloud>' \
+  -o yaml \
+  | kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 -o yaml \
+  > ${OVERLAY_DIR}/authentik/authentik-email-secrets.sealed.yaml
+```
+
 Ensure you have committed and pushed the above credentials up into git as the below command (and final deployment) all rely on what's in git, not what's local.
 
 ## Verifying apps
@@ -153,3 +172,21 @@ Immediately perform the following steps:
 You cannot delete the `indigo-initial-admin` Secret as the operator will just recreate it. Deleting the user from Keycloak UI is the only way to ensure admin credentials are not just sitting there.
 
 After this you can proceed to [Keycloak Configuration](INDIGO-CORE-1-APPS-WAVE-3-KEYCLOAK.md) for configuring Keycloak itself.
+
+## Access Authentik
+
+Authentik will be available over its configured ingress domain name `authentik.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://authentik.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the `akadmin` users password.
+
+Immediately perform the following steps:
+* Set a temporary password for the `akadmin` user
+* Log into the `akadmin` user
+* Click the 'Admin Interface' in the top right
+* Go to 'Directory' => 'Users'
+* Create a `site-admin` user with type as 'Internal'
+* Click on the `site-admin` user
+* Click 'Set password' and persist the new admin credentials into your password vault
+* Add the `site-admin` user into the 'authentik Admins' group
+* Log out and log in as the new `site-admin` user
+* Navigate back to 'Directory' => 'Users' and delete the `akadmin` default user
+
+After this you can proceed to [Authentik Configuration](INDIGO-CORE-1-APPS-WAVE-3-AUTHENTIK.md) for configuring Authentik itself.

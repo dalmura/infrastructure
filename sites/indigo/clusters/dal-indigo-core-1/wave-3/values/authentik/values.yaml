@@ -1,8 +1,16 @@
 authentik:
-  secret_key: file:///secret-key/SECRET_KEY
+  email:
+    host: file:///email-creds/host
+    port: file:///email-creds/port
+    username: file:///email-creds/username
+    password: file:///email-creds/password
+    use_ssl: true
+    from: file:///email-creds/from
 
   error_reporting:
     enabled: false
+
+  secret_key: file:///secret-key/SECRET_KEY
 
   postgresql:
     host: authentik-db-rw
@@ -22,6 +30,9 @@ server:
     - name: authentik-secret-key
       secret:
         secretName: authentik-secret-key
+    - name: authentik-email-secrets
+      secret:
+        secretName: authentik-email-secrets
 
   volumeMounts:
     - name: authentik-db-creds
@@ -29,6 +40,9 @@ server:
       readOnly: true
     - name: authentik-secret-key
       mountPath: /secret-key
+      readOnly: true
+    - name: authentik-email-secrets
+      mountPath: /email-config
       readOnly: true
 
 worker:
@@ -44,6 +58,9 @@ worker:
     - name: authentik-secret-key
       secret:
         secretName: authentik-secret-key
+    - name: authentik-email-secrets
+      secret:
+        secretName: authentik-email-secrets
 
   volumeMounts:
     - name: authentik-db-creds
@@ -51,6 +68,9 @@ worker:
       readOnly: true
     - name: authentik-secret-key
       mountPath: /secret-key
+      readOnly: true
+    - name: authentik-email-secrets
+      mountPath: /email-config
       readOnly: true
 
 redis:
