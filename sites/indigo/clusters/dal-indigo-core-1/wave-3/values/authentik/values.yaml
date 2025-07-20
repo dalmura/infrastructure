@@ -1,11 +1,11 @@
 authentik:
   email:
-    host: file:///email-creds/host
-    port: file:///email-creds/port
-    username: file:///email-creds/username
-    password: file:///email-creds/password
+    host: file:///email-config/host
+    port: file:///email-config/port
+    username: file:///email-config/username
+    password: file:///email-config/password
     use_ssl: true
-    from: file:///email-creds/from
+    from: file:///email-config/from
 
   error_reporting:
     enabled: false
