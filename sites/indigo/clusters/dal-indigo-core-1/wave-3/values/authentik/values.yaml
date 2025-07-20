@@ -32,6 +32,11 @@ server:
       readOnly: true
 
 worker:
+  livenessProbe:
+    # Raspberry Pi's take a little bit longer
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+
   volumes:
     - name: authentik-db-creds
       secret:
