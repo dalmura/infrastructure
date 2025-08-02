@@ -1,28 +1,28 @@
 ---
-image:
-  tag: stable-h8l
-
 extraVolumes:
-  - name: vault-config
-    secret:
-      secretName: frigate-values
   - name: h8l
     hostPath:
       path: /dev/hailo0
 
 extraVolumeMounts:
-  - name: vault-config
-    mountPath: /config
-    subPath: config.yaml
   - name: h8l
     mountPath: /dev/hailo0
 
 config: "---"
 
 persistence:
+  config:
+    enabled: true
+    storageClass: cluster-regular
+
   media:
     enabled: true
     size: 50Gi
+    storageClass: cluster-nobackup
+
+securityContext:
+  # For the hailo0 mount to work
+  privileged: true
 
 nodeSelector:
   k8s.dalmura.cloud/nodegroup: eq14-worker-pool
