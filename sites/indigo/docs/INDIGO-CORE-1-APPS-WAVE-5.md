@@ -192,6 +192,8 @@ cameras: {}
 version: 0.15-1
 ```
 
+For Frigate to work correctly, the kernel module version must match the library version bundled into the Friagte container. If not you will get `HAILO_INVALID_DRIVER_VERSION` errors in Frigate.
+
 ## Access Frigate
 
 Should be accessible privately via https://frigate.indigo.dalmura.cloud/
