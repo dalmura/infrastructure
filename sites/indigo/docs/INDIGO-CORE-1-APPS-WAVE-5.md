@@ -126,6 +126,72 @@ argocd app sync -l app.kubernetes.io/instance=wave-5
 
 This will take a solid 3-5 mins as the Pod comes up and the certificate is issued.
 
+## Setup Frigate Config
+
+The Frigate config deployed via the Helm chart will be empty, and cause the container to crash out. We need to then spin up a debug container, mounting in the config volume so we can copy in the correct config:
+```bash
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n frigate
+NAME                      READY   STATUS    RESTARTS   AGE
+frigate-85887669f-zkxcc   0/1     Running   0          80s
+
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n frigate frigate-85887669f-zkxcc -c frigate -- /bin/bash
+apt-get update
+apt-get install vim
+
+cd /config
+vim config.yml
+```
+
+You can paste in the following example config and tweak to your needs:
+```yaml
+mqtt:
+  # Initially, will be enabled later
+  enabled: False
+
+detectors:
+  hailo8l:
+    type: hailo8l
+    device: PCIe
+
+model:
+  width: 300
+  height: 300
+  input_tensor: nhwc
+  input_pixel_format: bgr
+  model_type: ssd
+  path: /config/model_cache/h8l_cache/ssd_mobilenet_v1.hef
+
+record:
+  enabled: true
+  retain:
+    days: 7
+    mode: motion
+  alerts:
+    retain:
+      days: 30
+  detections:
+    retain:
+      days: 30
+
+snapshots:
+  enabled: true
+  retain:
+    default: 30
+
+objects:
+  track:
+    - person
+    - dog
+    - cat
+
+go2rtc:
+  streams: []
+
+cameras: {}
+
+version: 0.15-1
+```
+
 ## Access Frigate
 
 Should be accessible privately via https://frigate.indigo.dalmura.cloud/
