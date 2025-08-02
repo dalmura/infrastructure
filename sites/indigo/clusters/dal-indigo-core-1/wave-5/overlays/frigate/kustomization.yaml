@@ -5,5 +5,3 @@ namespace: frigate
 
 resources:
   - ingress.yaml
-  - vault-auth.yaml
-  - vault-secret.yaml
