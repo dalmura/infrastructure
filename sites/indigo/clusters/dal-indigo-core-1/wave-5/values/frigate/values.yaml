@@ -1,4 +1,7 @@
 ---
+image:
+  tag: stable-h8l
+
 extraVolumes:
   - name: h8l
     hostPath:
