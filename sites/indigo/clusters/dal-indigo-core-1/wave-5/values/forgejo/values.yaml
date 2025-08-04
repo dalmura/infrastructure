@@ -1,2 +1,12 @@
+gitea:
+  config:
+    database:
+      DB_TYPE: postgres
+      HOST: 
+      NAME: 
+      USER: 
+      PASSWD: 
+      SCHEMA: 
+
 postgresql:
   enabled: false
