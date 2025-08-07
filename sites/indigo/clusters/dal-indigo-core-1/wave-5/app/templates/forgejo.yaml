@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: code.forgejo.org/forgejo-helm/forgejo
+    - repoURL: code.forgejo.org/forgejo-helm
       chart: forgejo
       targetRevision: 12.5.0
       helm:
