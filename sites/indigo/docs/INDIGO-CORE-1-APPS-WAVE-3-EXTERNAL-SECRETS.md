@@ -33,7 +33,14 @@ vault write auth/kubernetes/role/auth-role-operator \
    bound_service_account_namespaces=external-secrets \
    token_ttl=0 \
    token_period=120 \
-   audience=vault
+   audience="https://192.168.77.2:6443/"
+```
+
+To get the above audience we need to wait until the `external-secrets` SA is created then manually generate a token and decode that:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 create token external-secrets -n external-secrets | cut -d '.' -f2 | base64 -d
+# The output is broken up into 3 base64 strings separated by a '.'
+# The second one contains the JWT itself, including the `aud` audience
 ```
 
 ### Configuration for Example App
