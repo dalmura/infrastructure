@@ -1,2 +1,24 @@
+postgresql-ha:
+  enabled: false
+
 postgresql:
   enabled: false
+
+valkey-cluster:
+  enabled: false
+
+valkey:
+  enabled: true
+
+persistence:
+  enabled: true
+
+gitea:
+  config:
+    database:
+      DB_TYPE: postgres
+      HOST: asd
+      NAME: gitea
+      USER: root
+      PASSWD: gitea
+      SCHEMA: gitea
