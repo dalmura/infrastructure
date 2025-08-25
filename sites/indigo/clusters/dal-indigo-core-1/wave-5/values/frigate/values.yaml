@@ -1,4 +1,7 @@
 ---
+image:
+  tag: 0.16.0
+
 extraVolumes:
   - name: h8l
     hostPath:
