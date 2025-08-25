@@ -1,9 +1,6 @@
 postgresql-ha:
   enabled: false
 
-postgresql:
-  enabled: false
-
 valkey-cluster:
   enabled: false
 
@@ -12,13 +9,27 @@ valkey:
 
 persistence:
   enabled: true
+  size: 50Gi
 
 gitea:
+  additionalConfigFromEnvs:
+    - name: FORGEJO__DATABASE__USER
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-app
+          key: username
+    - name: FORGEJO__DATABASE__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-app
+          key: password
+
+  admin:
+    passwordMode: initialOnlyRequireReset
+
   config:
     database:
       DB_TYPE: postgres
-      HOST: asd
-      NAME: gitea
-      USER: root
-      PASSWD: gitea
+      HOST: forgejo-db-rw
+      NAME: app
       SCHEMA: gitea

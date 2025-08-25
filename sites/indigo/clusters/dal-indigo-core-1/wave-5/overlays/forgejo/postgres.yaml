@@ -1,0 +1,51 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: forgejo-db
+spec:
+  description: "Forgejo DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 50Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/indigo/postgres/forgejo-db/
+      s3Credentials:
+        accessKeyId:
+          name: forgejo-db-backup-secret
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: forgejo-db-backup-secret
+          key: SECRET_ACCESS_KEY
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+      tags:
+        site: indigo
+        service: forgejo
+        db: forgejo-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: forgejo-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: forgejo-db
