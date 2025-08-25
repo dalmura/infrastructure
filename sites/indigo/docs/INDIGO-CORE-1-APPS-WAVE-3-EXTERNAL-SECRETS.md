@@ -26,23 +26,6 @@ vault write auth/kubernetes/config \
    kubernetes_host="https://192.168.77.2:6443/"
 ```
 
-Create a role that our VSO service account will use for transit encryption:
-```
-vault write auth/kubernetes/role/auth-role-operator \
-   bound_service_account_names=external-secrets \
-   bound_service_account_namespaces=external-secrets \
-   token_ttl=0 \
-   token_period=120 \
-   audience="https://192.168.77.2:6443/"
-```
-
-To get the above audience we need to wait until the `external-secrets` SA is created then manually generate a token and decode that:
-```
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 create token external-secrets -n external-secrets | cut -d '.' -f2 | base64 -d
-# The output is broken up into 3 base64 strings separated by a '.'
-# The second one contains the JWT itself, including the `aud` audience
-```
-
 ### Configuration for Example App
 The below will need to be copied and customised for each workload app in the following waves.
 
@@ -65,6 +48,18 @@ vault write auth/kubernetes/role/workload-reader-example-app \
    bound_service_account_names=example-app-sa \
    bound_service_account_namespaces=example-app \
    token_policies=workload-reader-example-app \
-   audience=vault \
+   audience="https://192.168.77.2:6443/" \
    ttl=24h
+```
+
+To get the above audience we need to wait until the SA above is created then manually generate a token and decode that:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 create token example-app-sa -n example-app | cut -d '.' -f2 | base64 -d
+# The output is broken up into 3 base64 strings separated by a '.'
+# The second one contains the JWT itself, including the `aud` audience
+```
+
+Once the above is done you can ensure the following overlays are created in your app:
+```
+
 ```

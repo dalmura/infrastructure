@@ -4,4 +4,6 @@ kind: Kustomization
 namespace: external-secrets
 
 resources:
-  - vault-cluster-secret-store.yaml
+  - vault-cluster-secret-store-public.yaml
+  - vault-cluster-secret-store-site.yaml
+  - vault-cluster-secret-store-site-sensitive.yaml
