@@ -29,3 +29,7 @@ securityContext:
 
 nodeSelector:
   k8s.dalmura.cloud/nodegroup: eq14-worker-pool
+
+service:
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
