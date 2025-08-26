@@ -16,7 +16,6 @@ config: "---"
 persistence:
   config:
     enabled: true
-    ephemeralWritableConfigYaml: false
     storageClass: cluster-regular
 
   media:
