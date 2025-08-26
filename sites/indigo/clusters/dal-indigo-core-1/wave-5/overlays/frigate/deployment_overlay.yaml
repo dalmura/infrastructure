@@ -1,0 +1,12 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: frigate
+spec:
+  template:
+    spec:
+      containers:
+        - name: frigate
+          volumeMounts:
+            - name: configmap
+              $patch: delete 

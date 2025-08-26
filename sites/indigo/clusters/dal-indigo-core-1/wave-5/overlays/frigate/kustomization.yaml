@@ -5,3 +5,6 @@ namespace: frigate
 
 resources:
   - ingress.yaml
+
+patches:
+  - path: deployment_overlay.yaml
