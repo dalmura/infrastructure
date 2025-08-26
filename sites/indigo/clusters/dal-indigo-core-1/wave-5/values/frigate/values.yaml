@@ -33,3 +33,6 @@ nodeSelector:
 service:
   annotations:
     traefik.ingress.kubernetes.io/service.serversscheme: https
+
+auth:
+  reset_admin_password: true
