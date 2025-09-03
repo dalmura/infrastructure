@@ -49,14 +49,15 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * Cilium
       * Longhorn
 * ArgoCD - Wave 3
-   * [Keycloak](https://www.keycloak.org/)
+   * [Authentik](https://goauthentik.io/)
       * OIDC Identity Provider
       * w/CNPG PostgreSQL DB
    * [Hashicorp Vault](https://developer.hashicorp.com/vault#what-is-vault)
       * Cluster Secrets Management
-   * [Vault Secrets Operator](https://developer.hashicorp.com/vault/docs/platform/k8s/vso)
-      * Vault integration with Kubernetes Secrets
+   * [External Secrets Operator](https://external-secrets.io/latest/)
+      * Syncronise Vault secrets with k8s secrets
 * ArgoCD - Wave 4
+   * Not Implemented Yet
    * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
       * Cluster hardware, k8s and application monitoring
    * ?alertmanager?
@@ -68,6 +69,8 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * Home security camera NVR w/object detection
    * [Plex](https://hub.docker.com/r/linuxserver/plex)
       * Media Playback
+   * [Forgejo](https://forgejo.org/)
+      * Git server
 
 ## Configuration
 

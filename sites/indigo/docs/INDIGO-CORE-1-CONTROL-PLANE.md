@@ -2,8 +2,8 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.9.5
-export CILIUM_VERSION=1.17.2
+export TALOS_VERSION=v1.11.0
+export CILIUM_VERSION=1.18.1
 ```
 
 Have kubectl and talosctl installed with their latest compatible versions. Talos have a [Support Matrix](https://www.talos.dev/latest/introduction/support-matrix/) to help out here.
@@ -24,7 +24,10 @@ Note down the following attributes:
 ```
 SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 
-FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.9.5'
+FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.11.0'
+
+# From the `Initial Installation` section
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.11.0'
 ```
 
 You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:
@@ -230,6 +233,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     --set hubble.ui.enabled=true
 
 # To upgrade/change the above you can
+% helm repo update
 % helm upgrade cilium cilium/cilium \
     --version "${CILIUM_VERSION}" \
     --kubeconfig kubeconfigs/dal-indigo-core-1 \
@@ -240,6 +244,11 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     # For example, let's remove the ingressController
     --set ingressController.enabled=false
 
+# If you get errors about 'nil pointer evaluating interface {}.foo'
+# This is because new required default values are required
+# You'll need to not provide --reuse-values
+# and instead copy them all from the install section
+
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --namespace kube-system \
     rollout restart deployment/cilium-operator
@@ -248,7 +257,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     rollout restart ds/cilium
 
 # Check the progress of the CNI install
-% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -A
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kube-system get pods
 NAMESPACE     NAME                                         READY   STATUS     RESTARTS       AGE
 kube-system   cilium-d4wbv                                 0/1     Init:0/5   0              54s
 kube-system   cilium-operator-5c6c66956-q2wm8              1/1     Running    0              54s

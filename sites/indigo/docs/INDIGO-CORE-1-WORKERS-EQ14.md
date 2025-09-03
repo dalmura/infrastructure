@@ -22,10 +22,10 @@ Note down the following attributes:
 ```
 SCHEMATIC_ID='69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1'
 
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.11.0-rc.0'
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.11.0'
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1:v1.11.0-rc.0'
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1:v1.11.0'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
