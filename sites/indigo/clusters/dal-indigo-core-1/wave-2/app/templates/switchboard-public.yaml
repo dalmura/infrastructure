@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: ghcr.io/borchero/charts
       chart: switchboard
-      targetRevision: 0.6.0
+      targetRevision: 0.7.1
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/switchboard-public/values.yaml
