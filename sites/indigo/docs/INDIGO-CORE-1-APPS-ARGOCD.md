@@ -6,7 +6,7 @@ We assume you've got a few Workers running via:
 
 And additionally:
 * Have a Ready status according to `kubectl get nodes` across all nodes
-* Have cilium reporting everything is green and fully deployed via `cilium status`
+* Have Cilium reporting everything is green and fully deployed via `cilium status`
 
 If not go back to previous steps and troubleshoot, the cluster needs to be in a healthy state before we deploy anything.
 
@@ -30,7 +30,7 @@ helm search repo argo/argo-cd
 
 Install the desired (ideally latest) `CHART_VERSION`:
 ```bash
-helm install argocd argo/argo-cd --version 8.0.1 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
+helm install argocd argo/argo-cd --version 8.3.4 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
 ```
 
 ## ArgoCD via Manifests
@@ -92,6 +92,20 @@ argocd account update-password
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argocd-initial-admin-secret
 
 # Navigate to https://localhost:8080 and log in with your credentials
+```
+
+## Upgrading
+
+### Via Helm
+Run an upgrade command:
+```bash
+helm upgrade argocd argo/argo-cd --version 8.3.4 --kubeconfig kubeconfigs/dal-indigo-core-1 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
+```
+
+### Via Manifests
+Just rerun the install command again to apply the latest version:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
 Now our k8s cluster should be running with:
