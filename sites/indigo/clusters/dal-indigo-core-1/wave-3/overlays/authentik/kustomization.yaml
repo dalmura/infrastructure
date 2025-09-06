@@ -9,3 +9,4 @@ resources:
   - authentik-email-secrets.sealed.yaml
   - postgres.yaml
   - ingress.yaml
+  - traefik-middleware.yaml
