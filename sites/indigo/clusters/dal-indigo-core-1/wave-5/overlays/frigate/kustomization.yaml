@@ -4,4 +4,8 @@ kind: Kustomization
 namespace: frigate
 
 resources:
+  - pvc-config.yaml
+  - pvc-media.yaml
+  - deployment.yaml
+  - service.yaml
   - ingress.yaml

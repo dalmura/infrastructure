@@ -2,6 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  labels:
+    app.kubernetes.io/instance: frigate
+    app.kubernetes.io/name: frigate
   name: frigate
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
