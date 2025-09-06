@@ -18,6 +18,7 @@ spec:
             - --providers.kubernetesingress.ingressClass=ingress-private
             - --providers.kubernetesingress.ingressEndpoint.publishedService=traefik-private/traefik-ingress-controller
             - --providers.kubernetescrd.ingressclass=ingress-private
+            - --providers.kubernetescrd.allowCrossNamespace=true
             - --serversTransport.insecureSkipVerify=true
             #- --log.level=DEBUG
             #- --accesslog=true
