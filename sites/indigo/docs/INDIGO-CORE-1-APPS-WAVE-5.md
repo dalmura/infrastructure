@@ -86,76 +86,50 @@ This will take a solid 3-5 mins as the Pod comes up and the certificate is issue
 
 ## Setup Frigate Config
 
-The Frigate config deployed via the Helm chart will be empty, and cause the container to crash out. We need to then spin up a debug container, mounting in the config volume so we can copy in the correct config:
+Initially we need to populate the config PVC:
 ```bash
-$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n frigate
-NAME                      READY   STATUS    RESTARTS   AGE
-frigate-85887669f-zkxcc   0/1     Running   0          80s
+# Scale the deployment to 0
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate scale deploy frigate --replicas=0
 
-$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n frigate frigate-85887669f-zkxcc -c frigate -- /bin/bash
-apt-get update
-apt-get install -y vim
+# Start a small debug pod
+echo "
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-frigate-debug
+  namespace: frigate
+spec:
+  volumes:
+    - name: frigate
+      persistentVolumeClaim:
+        claimName: frigate-config
+  containers:
+    - name: debugger
+      image: busybox
+      command: ['sleep', '3600']
+      volumeMounts:
+        - mountPath: '/config'
+          name: frigate
+" | kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f -
+
+# Then access the pod
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate exec -it pvc-frigate-debug -- sh
 
 cd /config
 vim config.yml
-```
 
-You can paste in the following example config and tweak to your needs:
-```yaml
-mqtt:
-  # Initially, will be enabled later
-  enabled: False
+# After you're done delete it
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate delete pod pvc-frigate-debug
 
-detectors:
-  hailo8l:
-    type: hailo8l
-    device: PCIe
-
-model:
-  width: 300
-  height: 300
-  input_tensor: nhwc
-  input_pixel_format: bgr
-  model_type: ssd
-  path: /config/model_cache/h8l_cache/ssd_mobilenet_v1.hef
-
-record:
-  enabled: true
-  retain:
-    days: 7
-    mode: motion
-  alerts:
-    retain:
-      days: 30
-  detections:
-    retain:
-      days: 30
-
-detect:
-  enabled: true
-
-snapshots:
-  enabled: true
-  retain:
-    default: 30
-
-objects:
-  track:
-    - person
-    - dog
-    - cat
-
-go2rtc:
-  streams: []
-
-cameras: {}
-
-version: 0.16-0
+# After you're done scale the deployment
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate scale deploy frigate --replicas=1
 ```
 
 For Frigate to work correctly, the kernel module version must match the library version bundled into the Friagte container. If not you will get `HAILO_INVALID_DRIVER_VERSION` errors in Frigate.
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
+
+
 
 ## Access Frigate
 
