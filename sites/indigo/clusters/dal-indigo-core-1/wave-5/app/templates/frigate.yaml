@@ -8,15 +8,6 @@ metadata:
 spec:
   project: default
   sources:
-    #- repoURL: https://blakeblackshear.github.io/blakeshome-charts/
-    #  chart: frigate
-    #  targetRevision: 7.8.0
-    #  helm:
-    #    valueFiles:
-    #    - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/frigate/values.yaml
-    #- repoURL: https://github.com/dalmura/infrastructure.git
-    #  targetRevision: HEAD
-    #  ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
       path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/frigate
       targetRevision: HEAD
