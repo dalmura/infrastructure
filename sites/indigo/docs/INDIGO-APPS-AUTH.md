@@ -76,3 +76,24 @@ Finally within the newly created Application, assign users/groups:
 * Click Create!
 
 Now when you navigate to your app, eg `https://frigate.indigo.dalmura.cloud/` you will be redirected to Authentik to sign it (or if you're already signed in just use your existing session), validate you're assigned to the Application, then redirect you back and set an `authentik_proxy_XYZ` cookie for Traefik to validate via the Middleware.
+
+### Optional Entitlements
+
+Frigate has an optional config section to map HTTP header values to the `name` and `role` a user gets within Frigate:
+```
+proxy:
+  separator: "|"
+  header_map:
+    user: x-authentik-name
+    role: x-authentik-entitlements
+```
+
+And our Traefik Middleware is ensuring the above headers are being passed through to Frigate.
+
+We just need to ensure the `x-authentik-entitlements` are being set correctly:
+* In Authentik click on the Frigate Application
+* Click the 'Application Entitlements' tab
+* Click 'Create entitlement'
+* Create a new entitlement called `admin` with no additional properties
+* Expand the created `admin` entitlement and click the 'Bind existing Group / User'
+* Bind the Group `site-admins` leaving everything default
