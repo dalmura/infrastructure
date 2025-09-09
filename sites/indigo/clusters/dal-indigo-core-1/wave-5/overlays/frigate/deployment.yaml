@@ -79,6 +79,7 @@ spec:
               name: h8l
             - mountPath: /usr/local/nginx/conf/
               name: proxy-trusted-headers
+              subPath: proxy_trusted_headers.conf
       nodeSelector:
         k8s.dalmura.cloud/nodegroup: eq14-worker-pool
       volumes:
