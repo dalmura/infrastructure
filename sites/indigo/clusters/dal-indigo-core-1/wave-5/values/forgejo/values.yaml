@@ -33,3 +33,6 @@ gitea:
       HOST: forgejo-db-rw
       NAME: app
       SCHEMA: public
+
+    server:
+      DOMAIN: forgejo.indigo.dalmura.cloud
