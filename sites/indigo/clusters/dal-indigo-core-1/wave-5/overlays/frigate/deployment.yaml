@@ -77,7 +77,7 @@ spec:
               name: tmp
             - mountPath: /dev/hailo0
               name: h8l
-            - mountPath: /usr/local/nginx/conf/
+            - mountPath: /usr/local/nginx/conf/proxy_trusted_headers.conf
               name: proxy-config
       nodeSelector:
         k8s.dalmura.cloud/nodegroup: eq14-worker-pool
