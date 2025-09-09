@@ -104,7 +104,4 @@ spec:
           name: h8l
         - configMap:
             name: proxy-trusted-headers
-            items:
-              - key: proxy_trusted_headers.conf
-                path: proxy_trusted_headers.conf
           name: proxy-config
