@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: plex
+  name: forgejo
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: forgejo.indigo.dalmura.cloud
@@ -22,6 +22,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: forgejo
+            name: forgejo-http
             port:
-              number: 80
+              number: 3000
