@@ -32,4 +32,4 @@ gitea:
       DB_TYPE: postgres
       HOST: forgejo-db-rw
       NAME: app
-      SCHEMA: gitea
+      SCHEMA: public
