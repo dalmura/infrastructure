@@ -5,5 +5,4 @@ namespace: forgejo
 
 resources:
   - ingress.yaml
-  - vault-auth.yaml
-  - vault-secret.yaml
+  - postgres.yaml
