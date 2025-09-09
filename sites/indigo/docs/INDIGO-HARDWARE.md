@@ -30,7 +30,7 @@ See the site's [`config.yaml`](../config.yaml) for further info about identifyin
   * To ease any troubleshooting of node identification
 
 ## Beelink EQ14 Setup
-* TODO
+* Hailo-8L installed in the second M.2 slot
 
 This will form 1x k8s clusters:
 | Cluster           | Role          | Hardware        | Quantity |
