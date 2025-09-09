@@ -130,6 +130,24 @@ For Frigate to work correctly, the kernel module version must match the library 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
 
 
+## Initial Forgejo Setup
+
+Forgejo will be able to be accessed via https://forgejo.indigo.dalmura.cloud/ but the initial admin user has a random password.
+
+We could set this up as a secret and all that, but it's just easier as a once-off to reset the password manually:
+```
+# Find the forgejo pod
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n forgejo
+
+# Shell into the main forgejo container
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n forgejo forgejo-9cbdc888d-xnnh5 -c forgejo -- /bin/bash
+
+$ gitea admin user list --admin
+$ gitea admin user change-password --username 'user-from-above' --password 'my-example-password' --must-change-password=false
+```
+
+You can then go to the web interface and sign in.
+
 
 ## Access Frigate
 
