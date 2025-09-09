@@ -36,7 +36,7 @@ gitea:
 
     server:
       DOMAIN: forgejo.indigo.dalmura.cloud
-      ROOT_URL: https://forgejo.indigo.dalmura.com
+      ROOT_URL: https://forgejo.indigo.dalmura.cloud
 
 strategy:
   type: Recreate
