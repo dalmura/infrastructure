@@ -77,6 +77,8 @@ spec:
               name: tmp
             - mountPath: /dev/hailo0
               name: h8l
+            - mountPath: /usr/local/nginx/conf/
+              name: proxy-trusted-headers
       nodeSelector:
         k8s.dalmura.cloud/nodegroup: eq14-worker-pool
       volumes:
@@ -100,3 +102,6 @@ spec:
         - hostPath:
             path: /dev/hailo0
           name: h8l
+        - configMap:
+            name: proxy-trusted-headers
+          name: proxy-trusted-headers

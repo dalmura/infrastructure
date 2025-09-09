@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: frigate
 
 resources:
+  - cm-proxy_trusted_headers.yaml
   - pvc-config.yaml
   - pvc-media.yaml
   - deployment.yaml
