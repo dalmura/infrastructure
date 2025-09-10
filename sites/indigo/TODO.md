@@ -2,10 +2,6 @@
 
 Things to implement before MVP.
 
-* Forgejo
- * OIDC integration
- * Backups?
- * SSH access?
 * Renovate
 * Traefik proxy hardening
  * Rate limiting certain domain/prefixes?
@@ -41,3 +37,5 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
  * Any cool branding?
 * Frigate
  * How to ensure Longhorn storage doesn't blow out?
+* Forgejo
+ * See if SSH access is required or not, MetalLB can be used to expose TCP/22
