@@ -132,21 +132,43 @@ After saving the above the container should restart and pick up the changes, and
 
 ## Initial Forgejo Setup
 
+The below commands that run `gitea` assume you have a shell in the main pod:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n forgejo
+
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n forgejo forgejo-9cbdc888d-xnnh5 -c forgejo -- /bin/bash
+```
+
+### Reset Admin Password
 Forgejo will be able to be accessed via https://forgejo.indigo.dalmura.cloud/ but the initial admin user has a random password.
 
 We could set this up as a secret and all that, but it's just easier as a once-off to reset the password manually:
 ```
-# Find the forgejo pod
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n forgejo
-
-# Shell into the main forgejo container
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n forgejo forgejo-9cbdc888d-xnnh5 -c forgejo -- /bin/bash
-
 $ gitea admin user list --admin
 $ gitea admin user change-password --username 'user-from-above' --password 'my-example-password' --must-change-password=false
 ```
 
 You can then go to the web interface and sign in.
+
+### OIDC Configuration
+Initially follow the [Authentik OIDC Configuration](./INDIGO-APPS-AUTH.md) and create your Application/Provider combination.
+
+Configuring OIDC via the Forgejo UI:
+* Log into the UI with the reset admin password from above
+* Navigate to `Site administration` => `Identity & access` => `Authentication sources`
+* Add a new Authentication Source
+ * Authentication type: OAuth2
+ * Authentication name: indigo-auth
+ * OAuth2 provider: OpenID Connect (scroll down)
+ * Client ID: `<paste from authentik>`
+ * Client Secret: `<paste from authentik>`
+ * OpenID Connect Auto Discovery URL: `<paste from authentik>`
+ * Additional scopes: email profile entitlements
+ * Required claim name: entitlements
+ * Required claim value: user
+ * Claim name providing group names: entitlements
+ * Group claim value for admin users: admin
+* Save the Authentication Source
 
 
 ## Access Frigate

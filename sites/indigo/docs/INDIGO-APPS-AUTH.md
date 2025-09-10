@@ -16,7 +16,32 @@ Optionally some applications support HTTP headers (eg. `X-Forwarded-User` and `X
 
 ## Configuration of a new OIDC Application
 
-TBD
+Within [Authentik](https://authentik.indigo.dalmura.cloud) log in, under `Applications` => `Applications`:
+* Click `Create with Provider`
+* Name: Your Application
+* Slug: your-application
+* Optionally a Group if you want
+ * Current groups are: security, developer
+* Click `OAuth2/OpenID Provider`
+* Leave Name as default: `Provider for XYZ`
+* Authorization flow: Just pick `implicit-consent`
+* Client type: Confidential
+* Note down the Client ID and Client Secret
+* Set one or more Redirect URIs based on your applications doco
+ * Eg forgejo: `https://forgejo.indigo.dalmura.cloud/user/oauth2/<auth-name>/callback`
+* Under `Advanced protocol settings` => `Scopes` add `Application Entitlements`
+* Click Next
+* Bind existing policy/group/user, and select which groups get default access
+* Save Binding
+* Click Next
+* Submit to save everything
+
+Entitlements:
+* Click your newly created Application, `Application Entitlements` tab
+* Create a new entitlement, this is the name of a 'group' you want the user to be in the application (eg. 'admin' group, or 'viewers' group)
+* Expand the chevron for your new entitlement and click `Bind existing Group / User` selecting the group you want to have this entitlement
+
+You can navigate to `Applications` => `Providers`, click on your just created provider to review any details like the Client ID/Secret, or any URLs like the `.well-known` OIDC URL.
 
 ## Configuration of a new Reverse Proxy Application
 
