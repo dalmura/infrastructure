@@ -19,10 +19,8 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 * ArgoCD
  * Automatic syncing for certain resource? Eg. cnpg image catalogue?
  * Slack Notifications when something is out of sync?
-* Renovate Integration
- * Which wave if self hosted?
 * MetalLB
- * BGP intergation instead of L2
+ * BGP instead of L2
 * cert-manager
  * Review if wildcard domain certs are better
 * Longhorn

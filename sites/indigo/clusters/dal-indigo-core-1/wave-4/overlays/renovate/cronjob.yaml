@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+spec:
+  schedule: "@hourly"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: renovate
+              image: renovate/renovate:41
+              env:
+                - name: LOG_LEVEL
+                  value: debug
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /usr/src/app/config.js
+                  subPath: config.js
+          restartPolicy: Never
+          volumes:
+            - name: config-volume
+              secret:
+                secretName: renovate-config
+                items:
+                  - key: config.js
+                    path: config.js

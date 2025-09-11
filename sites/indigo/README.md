@@ -57,11 +57,12 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
    * [External Secrets Operator](https://external-secrets.io/latest/)
       * Syncronise Vault secrets with k8s secrets
 * ArgoCD - Wave 4
+   * [Renovate](https://docs.renovatebot.com/)
+      * Automated Dependency Management
    * Not Implemented Yet
    * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
       * Cluster hardware, k8s and application monitoring
    * ?alertmanager?
-   * ?k8s dashboard?
    * ?loki logs?
    * ?grafana?
 * ArgoCD - Wave 5
