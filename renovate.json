@@ -7,6 +7,9 @@
   "helm-values": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/values/*/values.yaml"
+    ],
+    "ignorePaths": [
+      "sites/indigo/clusters/*/*/app/**"
     ]
   },
   "kustomize": {
