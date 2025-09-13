@@ -9,7 +9,7 @@ metadata:
     #external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
-    traefik.ingress.kubernetes.io/router.middlewares: traefik-public-geoblock@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-public-geoblock@kubernetescrd,traefik-public-fail2ban@kubernetescrd
 spec:
   ingressClassName: ingress-public
   tls:
