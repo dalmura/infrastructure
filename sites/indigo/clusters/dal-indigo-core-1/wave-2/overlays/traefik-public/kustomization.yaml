@@ -11,6 +11,7 @@ resources:
   - ingressclass.yaml
   - ingress.yaml
   - middleware-geoblock.yaml
+  - middleware-fail2ban.yaml
 
 patches:
   - path: deployment_overlay.yaml
