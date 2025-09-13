@@ -1,0 +1,33 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: geoblock
+spec:
+  plugin:
+    geoblock:
+      # Skip printing the config on startup
+      silentStartUp: false
+
+      # We don't care about local network connections
+      allowLocalRequests: true
+      logLocalRequests: false
+
+      # The API we query
+      api: "https://get.geojs.io/v1/ip/country/{ip}"
+      apiTimeoutMs: 750
+
+      # Only allow these countries
+      countries:
+        - AU
+        - NZ
+
+      # Don't log happy path
+      logAllowedRequests: false
+      logApiRequests: false
+
+      # This is number of IP => Country mappings (set size)
+      cacheSize: 500
+      forceMonthlyUpdate: true
+
+      # Needs to be mappable
+      allowUnknownCountries: false

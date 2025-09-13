@@ -20,5 +20,7 @@ spec:
             - --providers.kubernetescrd.ingressclass=ingress-public
             - --providers.kubernetescrd.allowCrossNamespace=true
             - --serversTransport.insecureSkipVerify=true
+            - --experimental.plugins.geoblock.modulename=github.com/PascalMinder/geoblock
+            - --experimental.plugins.geoblock.version=v0.3.3
             #- --log.level=DEBUG
             #- --accesslog=true

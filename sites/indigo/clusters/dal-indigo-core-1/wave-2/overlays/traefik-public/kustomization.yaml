@@ -10,6 +10,7 @@ resources:
   - service.yaml
   - ingressclass.yaml
   - ingress.yaml
+  - middleware-geoblock.yaml
 
 patches:
   - path: deployment_overlay.yaml
