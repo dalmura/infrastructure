@@ -37,3 +37,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
  * How to ensure Longhorn storage doesn't blow out?
 * Forgejo
  * See if SSH access is required or not, MetalLB can be used to expose TCP/22
+* Renovate
+ * Figure out how each site will run its own
+ * Or figure out how to make it optional in wave-4 for other sites

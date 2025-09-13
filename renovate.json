@@ -2,5 +2,20 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
-  ]
+  ],
+  "helm-values": {
+    "managerFilePatterns": [
+      "sites/indigo/clusters/*/*/values/*/values.yaml"
+    ]
+  },
+  "kustomize": {
+    "managerFilePatterns": [
+      "sites/indigo/clusters/*/*/overlays/*/kustomization.yaml"
+    ]
+  },
+  "argocd": {
+    "managerFilePatterns": [
+      "sites/indigo/clusters/*/*/app/templates/*.yaml"
+    ]
+  }
 }
