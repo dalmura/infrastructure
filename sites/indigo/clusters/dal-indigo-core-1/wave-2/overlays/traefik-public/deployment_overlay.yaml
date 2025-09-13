@@ -3,6 +3,7 @@ apiVersion: apps/v1
 metadata:
   name: traefik-ingress-controller
 spec:
+  revisionHistoryLimit: 0
   template:
     spec:
       containers:
