@@ -64,3 +64,21 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kubernetes-dashboard creat
 ```
 
 Just paste in the giant string returned from that command to log in. These tokens are JWTs and aren't stored anywhere, so you can always just rerun the above command to generate new tokens as required.
+
+## Testing Traefik Middleware
+As part of this the following middlewares have been deployed:
+* traefik-public
+  * geoblock
+
+To verify these are working their logs can be found in the traefik container:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n traefik-public
+
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 logs -n traefik-public traefik-ingress-controller-864d4cd85b-cbt8z
+...
+INFO: GeoBlock: 2025/09/13 09:59:04 allow local IPs: true
+INFO: GeoBlock: 2025/09/13 09:59:04 log local requests: false
+...
+INFO: GeoBlock: 2025/09/13 09:59:04 countries: [AU NZ]
+INFO: GeoBlock: 2025/09/13 09:59:04 Denied request status code: 403
+```
