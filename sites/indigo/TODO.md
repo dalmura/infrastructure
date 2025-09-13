@@ -2,7 +2,6 @@
 
 Things to implement before MVP.
 
-* Renovate
 * Traefik proxy hardening
  * Rate limiting certain domain/prefixes?
  * Anything to stop brute forcing?
