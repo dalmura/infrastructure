@@ -15,6 +15,8 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc?
+* CrowdSec integration maybe?
+  * Probably a bit too much
 * ArgoCD
   * Automatic syncing for certain resource? Eg. cnpg image catalogue?
   * Slack Notifications when something is out of sync?
