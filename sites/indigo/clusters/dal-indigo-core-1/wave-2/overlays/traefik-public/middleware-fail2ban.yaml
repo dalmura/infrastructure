@@ -5,6 +5,11 @@ metadata:
 spec:
   plugin:
     fail2ban:
+      allowlist:
+        ip:
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
       rules:
         enabled: true
         # Window size to look for failures
@@ -14,7 +19,7 @@ spec:
         bantime: "3h"
 
         # Max failures before into the sinbin
-        maxretry: "4"
+        maxretry: 4
 
         # HTTP Response codes to count as failure
         statuscode: 400,401,403-499
