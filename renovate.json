@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "enabledManagers": ["helm-values", "kustomize", "argocd"],
   "helm-values": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/values/*/values.yaml"
