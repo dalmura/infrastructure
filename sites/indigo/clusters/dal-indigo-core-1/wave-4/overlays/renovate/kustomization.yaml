@@ -4,5 +4,7 @@ kind: Kustomization
 namespace: renovate
 
 resources:
+  - service-account.yaml
+  - secret-store-site.yaml
   - external-secret.yaml
   - cronjob.yaml

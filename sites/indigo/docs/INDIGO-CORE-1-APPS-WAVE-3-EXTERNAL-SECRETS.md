@@ -106,7 +106,7 @@ Example app referencing the `site` `secret-container`:
 apiVersion: external-secrets.io/v1
 kind: SecretStore
 metadata:
-  name: secret-container-site
+  name: site
 spec:
   provider:
     vault:
