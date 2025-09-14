@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: helm.cilium.io
+    - repoURL: helm.cilium.io/cilium
       chart: cilium
       targetRevision: 1.18.1
       helm:
