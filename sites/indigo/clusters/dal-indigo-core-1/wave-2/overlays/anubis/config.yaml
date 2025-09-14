@@ -3,6 +3,7 @@ apiVersion: v1
 metadata:
   name: anubis-config
 data:
+  BIND: ":8080"
   COOKIE_DOMAIN: "indigo.dalmura.cloud"
   REDIRECT_DOMAINS: "auth.indigo.dalmura.cloud"
   PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
