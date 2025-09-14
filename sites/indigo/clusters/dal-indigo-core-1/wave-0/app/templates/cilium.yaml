@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: helm.cilium.io
+      chart: cilium
+      targetRevision: 1.18.1
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/cilium/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    namespace: cilium
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+    - ServerSideApply=true
+  revisionHistoryLimit: 1

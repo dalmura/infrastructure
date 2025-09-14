@@ -205,50 +205,18 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 % helm repo add cilium https://helm.cilium.io/
 % helm repo update
 
-% export KUBERNETES_API_SERVER_ADDRESS=localhost
-% export KUBERNETES_API_SERVER_PORT=7445
-# localhost & 7445 is for KubePrism
-# 192.168.77.2 & 6443 is for the external VIP endpoint
-
 % helm install \
     cilium \
     cilium/cilium \
     --version "${CILIUM_VERSION}" \
     --kubeconfig kubeconfigs/dal-indigo-core-1 \
-    --namespace kube-system \
-    --set ipam.mode=kubernetes \
-    --set kubeProxyReplacement=true \
-    --set=securityContext.capabilities.ciliumAgent="{CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}" \
-    --set=securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
-    --set=cgroup.autoMount.enabled=false \
-    --set=cgroup.hostRoot=/sys/fs/cgroup \
-    --set k8sServiceHost="${KUBERNETES_API_SERVER_ADDRESS}" \
-    --set k8sServicePort="${KUBERNETES_API_SERVER_PORT}" \
-    --set ingressController.enabled=true \
-    --set ingressController.loadbalancerMode=dedicated \
-    --set gatewayAPI.enabled=true \
-    --set gatewayAPI.enableAlpn=true \
-    --set gatewayAPI.enableAppProtocol=true \
-    --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --namespace kube-system
+    -f clusters/dal-indigo-core-1/wave-0/values/cilium/values.yaml
 
-# To upgrade/change the above you can
-% helm repo update
-% helm upgrade cilium cilium/cilium \
-    --version "${CILIUM_VERSION}" \
-    --kubeconfig kubeconfigs/dal-indigo-core-1 \
-    --namespace kube-system \
-    --reuse-values \
-    # Provide new values below, remember to update the above too
-    # And remove this comment when running
-    # For example, let's remove the ingressController
-    --set ingressController.enabled=false
-
-# If you get errors about 'nil pointer evaluating interface {}.foo'
-# This is because new required default values are required
-# You'll need to not provide --reuse-values
-# and instead copy them all from the install section
-
+# To upgrade/change the above you can:
+# 1. Update the above values.yaml
+# 2. Rerun the above with `upgrade` instead of `install`
+# After rerunning you'll need to reroll the deployments:
 % kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 \
     --namespace kube-system \
     rollout restart deployment/cilium-operator
