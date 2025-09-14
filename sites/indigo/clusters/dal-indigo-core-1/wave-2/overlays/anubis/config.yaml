@@ -4,6 +4,7 @@ metadata:
   name: anubis-config
 data:
   BIND: ":8080"
+  TARGET: " "
   COOKIE_DOMAIN: "indigo.dalmura.cloud"
   REDIRECT_DOMAINS: "auth.indigo.dalmura.cloud"
   PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
