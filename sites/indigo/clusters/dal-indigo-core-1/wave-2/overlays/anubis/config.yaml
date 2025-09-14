@@ -5,3 +5,4 @@ metadata:
 data:
   COOKIE_DOMAIN: "indigo.dalmura.cloud"
   REDIRECT_DOMAINS: "auth.indigo.dalmura.cloud"
+  PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
