@@ -2,10 +2,6 @@
 
 Things to implement before MVP.
 
-* Traefik proxy hardening
-  * Rate limiting certain domain/prefixes?
-  * Anything to stop brute forcing?
-  * Middlewares most likely here
 * Cilium Network Policies
   * Ensuring Private and Public are separated
 
@@ -16,8 +12,8 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 * Traefik plugin version management via Renovate (custom)
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc?
-* CrowdSec integration maybe?
-  * Probably a bit too much
+* CrowdSec integration
+  * Replace the fail2ban middleware
 * ArgoCD
   * Automatic syncing for certain resource? Eg. cnpg image catalogue?
   * Slack Notifications when something is out of sync?
