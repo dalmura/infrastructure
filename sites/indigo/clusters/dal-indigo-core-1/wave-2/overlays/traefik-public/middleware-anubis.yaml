@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: anubis
+spec:
+  forwardAuth:
+    address: http://anubis-service.anubis.svc.cluster.local:8080/.within.website/x/cmd/anubis/api/check
+    authResponseHeaders:
+      - X-Anubis-Auth-Status

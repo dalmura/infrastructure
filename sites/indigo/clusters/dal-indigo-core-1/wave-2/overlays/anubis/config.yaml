@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: anubis-config
+data:
+  COOKIE_DOMAIN: "indigo.dalmura.cloud"
+  REDIRECT_DOMAINS: "auth.indigo.dalmura.cloud"
