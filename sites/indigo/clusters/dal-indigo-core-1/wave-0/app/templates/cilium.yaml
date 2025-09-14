@@ -18,7 +18,7 @@ spec:
       targetRevision: HEAD
       ref: values
   destination:
-    namespace: cilium
+    namespace: kube-system
     server: {{ .Values.spec.destination.server }}
   syncPolicy:
     syncOptions:
