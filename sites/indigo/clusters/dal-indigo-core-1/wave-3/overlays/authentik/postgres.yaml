@@ -39,6 +39,7 @@ spec:
         site: indigo
         service: authentik
         db: authentik-db
+    retentionPolicy: "10d"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
