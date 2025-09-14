@@ -44,6 +44,39 @@ Create the following Groups:
 
 Create whatever initial User(s) you'd like and assign them as required to the above Group(s).
 
+## Captcha on login
+Just to add some extra initial hurdles to anyone brute forcing their way in. This process will use Cloudflare Turnstile. But you can substitute in anything you want.
+
+Cloudflare Steps:
+* Log into your Cloudflare Account and go to the Turnstile product page
+* Click Add Widget
+* Widget name: indigo-captcha
+* Add hostname: authentik.indigo.dalmura.cloud
+* Add hostname: auth.indigo.dalmura.cloud
+* Widget Mode: Managed (seems fine, recommended)
+* Pre-clearance: No
+
+Note down the `Site Key` and `Secret Key` as we'll use them in the step below. You can always go back to the Cloudflare Dashboard to the Turnstile page to view these values again.
+
+Process:
+* Go to `Flows and Stages` => `Stages` and click `Create`
+* Select Captcha Stage
+* Name: indigo-captcha
+* Public Key: `Site Key` from before
+* Private Key: `Secret Key` from before
+* Interactive: Enabled
+* Expand `Advanced settings`
+* JS URL: https://challenges.cloudflare.com/turnstile/v0/api.js
+* API URL: https://challenges.cloudflare.com/turnstile/v0/siteverify
+* Click Finish
+
+Now we integrate the above stage into the Username stage:
+* Go to `Flows and Stages` => `Stages`
+* Select `default-authentication-identification` and click Edit
+* Captcha stage: Select `indigo-captcha`
+* Click Update
+
+Before logging out, open a new incognito tab and verify the login logic still works, otherwise you risk locking yourself out.
 
 ## Finally
 You can now proceed with setting up Vault: [`dal-indigo-core-1` Apps - Wave 3 - Vault Configuration](INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)
