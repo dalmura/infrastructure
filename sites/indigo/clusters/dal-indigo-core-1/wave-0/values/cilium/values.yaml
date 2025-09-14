@@ -31,12 +31,10 @@ k8sServiceHost: localhost
 k8sServicePort: 7445
 
 ingressController:
-  enabled: true
+  enabled: false
   loadbalancerMode: dedicated
   service:
     allocateLoadBalancerNodePorts: false
-    #insecureNodePort: false
-    #secureNodePort: false
 
 gatewayAPI:
   enabled: true
