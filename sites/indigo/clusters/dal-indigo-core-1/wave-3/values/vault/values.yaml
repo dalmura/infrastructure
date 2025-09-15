@@ -2,7 +2,8 @@ global:
   enabled: true
 
 injector:
-  enabled: true
+  # Maybe later, using ESO for now
+  enabled: false
 
 server:
   ingress:
