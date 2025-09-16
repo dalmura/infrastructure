@@ -1,0 +1,37 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: authentik-server
+  namespace: authentik
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: server
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik-ingress-controller
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"

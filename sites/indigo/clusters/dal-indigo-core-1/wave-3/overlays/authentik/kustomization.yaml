@@ -8,6 +8,7 @@ resources:
   - authentik-secret-key.sealed.yaml
   - authentik-email-secrets.sealed.yaml
   - postgres.yaml
-  - postgres-network-policy.yaml
+  - network-policy-postgres.yaml
+  - network-policy-authentik-server.yaml
   - ingress.yaml
   - traefik-middleware.yaml
