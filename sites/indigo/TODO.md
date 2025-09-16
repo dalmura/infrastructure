@@ -29,6 +29,7 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Validate backups & restore strategy
 * k8s Dashboard
   * Verify if this can use Authentik proxy for auth?
+  * Review https://headlamp.dev/ and see if it's worth changing
 * Authentik
   * Any cool branding?
 * Frigate
