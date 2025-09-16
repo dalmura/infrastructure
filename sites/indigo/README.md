@@ -38,6 +38,10 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * ArgoCD - Wave 2
    * [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
       * Ingress Controller
+      * Fail2ban Middleware
+      * Geoblock Middleware
+   * [Anubis](https://anubis.techaro.lol/)
+      * Slow down scrapers/crawlers
    * [Switchboard](https://github.com/borchero/switchboard/)
       * Integrates `cert-manager` and `ExternalDNS` with Traefik's `IngressRoute`
    * [CloudNativePG](https://cloudnative-pg.io/documentation/current/)
@@ -60,11 +64,11 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
    * Not Implemented Yet
-   * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
-      * Cluster hardware, k8s and application monitoring
-   * ?alertmanager?
-   * ?loki logs?
-   * ?grafana?
+      * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
+         * Cluster hardware, k8s and application monitoring
+      * ?alertmanager?
+      * ?loki logs?
+      * ?grafana?
 * ArgoCD - Wave 5
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
@@ -92,10 +96,7 @@ Follow this list in order:
 
 ## Ongoing Maintenance
 
-Once deployed, there are a few things to keep up to date.
-
-* [`dal-indigo-core-1` Talos OS Upgrading](docs/INDIGO-TALOS-OS-UPGRADING.md)
-* [`dal-indigo-core-1` Kubernetes Upgrading](docs/INDIGO-TALOS-K8S-UPGRADING.md)
+Review [MAINTENANCE.md](MAINTENANCE.md) for maintenance schedule.
 
 ## Kernel Modules
 

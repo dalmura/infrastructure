@@ -5,6 +5,9 @@ Details the overall maintenance plan of the site. What actions need to be taken 
 ## dal-indigo-core-1
 
 ### Every 3 Months
+* Review Talos & k8s updates
+  * [Talos OS Upgrading](docs/INDIGO-TALOS-OS-UPGRADING.md)
+  * [k8s Upgrading](docs/INDIGO-TALOS-K8S-UPGRADING.md)
 * Review workload updates
   * cert-manager
   * sealed-secrets
