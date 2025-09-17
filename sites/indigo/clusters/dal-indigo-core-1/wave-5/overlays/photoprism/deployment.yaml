@@ -35,7 +35,7 @@ spec:
               path: /
               port: http
               scheme: HTTP
-            initialDelaySeconds: 20
+            initialDelaySeconds: 60
             timeoutSeconds: 10
           name: photoprism
           ports:
