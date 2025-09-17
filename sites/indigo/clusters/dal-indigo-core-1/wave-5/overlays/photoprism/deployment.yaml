@@ -48,7 +48,7 @@ spec:
               path: /
               port: http
               scheme: HTTP
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             timeoutSeconds: 10
           resources:
             requests:
