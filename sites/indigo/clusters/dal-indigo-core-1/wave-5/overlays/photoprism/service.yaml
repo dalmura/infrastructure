@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: photoprism
+    app.kubernetes.io/name: photoprism
+  name: photoprism
+spec:
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+  selector:
+    app.kubernetes.io/instance: photoprism
+    app.kubernetes.io/name: photoprism
+  type: ClusterIP

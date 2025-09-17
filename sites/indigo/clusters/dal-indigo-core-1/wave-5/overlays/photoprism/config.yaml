@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: photoprism-config
+data:
+  # GPU Transcoding
+  PHOTOPRISM_FFMPEG_ENCODER: "intel"
+  PHOTOPRISM_INIT: "intel"
+
+  # General
+  PHOTOPRISM_HTTP_HOST: "0.0.0.0"
+  PHOTOPRISM_HTTP_PORT: "2342"
+  PHOTOPRISM_SITE_URL: "https://photos.indigo.dalmura.cloud/"
