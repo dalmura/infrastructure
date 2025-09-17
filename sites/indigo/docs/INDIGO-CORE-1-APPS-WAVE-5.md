@@ -178,3 +178,16 @@ Should be accessible privately via https://frigate.indigo.dalmura.cloud/
 ## Access Plex
 
 Should be accessible publically via https://plex.indigo.dalmura.cloud/
+
+## Photoprism Setup
+
+Configured for OIDC login, follow the usual steps in Authentik to create an Application with an OIDC provider. See the `external-secret.yaml` in the overlays for what parameters it expects.
+
+If you ever get locked out of the instance and need to reset the `admin` password:
+```bash
+# Shell into the photoprism container
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photoprism-5c59758d8b-r5j7v -- /bin/bash
+
+# Reset the admin users password
+photoprism passwd admin
+```
