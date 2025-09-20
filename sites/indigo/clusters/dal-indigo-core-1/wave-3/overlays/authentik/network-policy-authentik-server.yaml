@@ -48,3 +48,5 @@ spec:
     - toFQDNs:
         # Required for Captcha verification
         - matchName: "challenges.cloudflare.com"
+        # Required for user avatars
+        - matchName: "www.gravatar.com"
