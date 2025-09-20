@@ -45,3 +45,6 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    - toFQDNs:
+        # Required for Captcha verification
+        - matchName: "challenges.cloudflare.com"
