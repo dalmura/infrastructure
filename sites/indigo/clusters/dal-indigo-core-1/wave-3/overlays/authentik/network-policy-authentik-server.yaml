@@ -24,6 +24,12 @@ spec:
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: authentik
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: authentik-db
+      toPorts:
+        - ports:
+            - port: "5432"
     #- toServices:
     #    - k8sService:
     #        namespace: frigate
