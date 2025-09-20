@@ -14,7 +14,12 @@ spec:
             app.kubernetes.io/instance: authentik
     - fromEndpoints:
         - matchLabels:
+            # Access to Authentik itself
             io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik-ingress-controller
+        - matchLabels:
+            # ForwardAuth middlewre
+            io.kubernetes.pod.namespace: traefik-private
             app.kubernetes.io/name: traefik-ingress-controller
       toPorts:
         - ports:
