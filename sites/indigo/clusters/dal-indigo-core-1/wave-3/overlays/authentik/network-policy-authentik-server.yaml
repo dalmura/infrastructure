@@ -24,6 +24,10 @@ spec:
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: authentik
+    - toServices:
+        - k8sService:
+            namespace: frigate
+            serviceName: frigate
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
