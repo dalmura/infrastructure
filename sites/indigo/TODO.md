@@ -4,6 +4,8 @@ Things to implement before MVP.
 
 * Cilium Network Policies
   * Ensuring Private and Public are separated
+* EQ14 nodes are bonded correctly
+  * Figure out kernel args & switch configs
 
 # Random Feature Bucket List
 
