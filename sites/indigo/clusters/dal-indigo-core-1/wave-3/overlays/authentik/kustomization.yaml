@@ -10,5 +10,6 @@ resources:
   - postgres.yaml
   - network-policy-postgres.yaml
   - network-policy-authentik-server.yaml
+  - network-policy-authentik-worker.yaml
   - ingress.yaml
   - traefik-middleware.yaml

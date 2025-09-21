@@ -6,6 +6,9 @@ Things to implement before MVP.
   * Ensuring Private and Public are separated
 * EQ14 nodes are bonded correctly
   * Figure out kernel args & switch configs
+* Protect initial UIs with Authentik/etc
+  * Longhorn
+  * Cilium Hubble
 
 # Random Feature Bucket List
 
