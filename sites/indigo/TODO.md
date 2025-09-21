@@ -2,8 +2,8 @@
 
 Things to implement before MVP.
 
-* Cilium Network Policies
-  * Ensuring Private and Public are separated
+* Traefik Public Ingress Network Policies
+  * Including Anubis
 * EQ14 nodes are bonded correctly
   * Figure out kernel args & switch configs
 * Protect initial UIs with Authentik/etc
