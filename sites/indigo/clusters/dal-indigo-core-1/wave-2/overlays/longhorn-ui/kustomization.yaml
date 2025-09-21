@@ -5,4 +5,3 @@ namespace: longhorn-system
 
 resources:
   - ingress.yaml
-  #- ingressroute.yaml
