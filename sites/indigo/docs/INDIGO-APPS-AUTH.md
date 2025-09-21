@@ -122,3 +122,53 @@ We just need to ensure the `x-authentik-entitlements` are being set correctly:
 * Create a new entitlement called `admin` with no additional properties
 * Expand the created `admin` entitlement and click the 'Bind existing Group / User'
 * Bind the Group `site-admins` leaving everything default
+
+### Protecting early site services
+A few of the core site services run their own UI Ingress services, which are either unauthenticated or have their own authentication, because they were deployed _before_ Authentik was created (wave-1 and wave-2 were deployed before wave-3).
+
+These are:
+* [ArgoCD](https://argocd.indigo.dalmura.cloud) - Own authentication
+* [Longhorn](https://longhorn.indigo.dalmura.cloud) - Unauthenticated
+  * via Authentik Proxy Provider
+* [Cilium Hubble](https://cilium-hubble) - Unauthenticated
+  * via Authentik Proxy Provider
+* [Traefik - Public](https://traefik-public.indigo.dalmura.cloud) - Unauthenticated
+  * via Authentik Proxy Provider
+* [Traefik - Private](https://traefik-private.indigo.dalmura.cloud) - Unauthenticated
+  * via Authentik Proxy Provider
+* [k8s Dashboard](https://kubernetes-dashboard.indigo.dalmura.cloud) - Own authentication
+  * We'll leave this alone for now, pending TODO
+
+For the unauthenticated endpoints we can inject the Authentik Traefik Middleware into the Ingress resource.
+
+This adds the annotations for the above Authentik Proxy Providers:
+```bash
+# Patch the Longhorn Ingress with the new annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system annotate ingress longhorn-ui 'traefik.ingress.kubernetes.io/router.middlewares=authentik-authentik@kubernetescrd'
+
+# Remove the Longhorn Ingress annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n longhorn-system annotate ingress longhorn-ui 'traefik.ingress.kubernetes.io/router.middlewares-'
+
+
+# Patch the Cilium Hubble Ingress with the new annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kube-system annotate ingress cilium-hubble-ui 'traefik.ingress.kubernetes.io/router.middlewares=authentik-authentik@kubernetescrd'
+
+# Remove the Cilium Hubble Ingress annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kube-system annotate ingress cilium-hubble-ui 'traefik.ingress.kubernetes.io/router.middlewares-'
+
+
+# Patch the Traefik Public Ingress with the new annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-public annotate ingress traefik-public-ui 'traefik.ingress.kubernetes.io/router.middlewares=authentik-authentik@kubernetescrd'
+
+# Remove the Traefik Public Ingress annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-public annotate ingress traefik-public-ui 'traefik.ingress.kubernetes.io/router.middlewares-'
+
+
+# Patch the Traefik Private Ingress with the new annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-private annotate ingress traefik-private-ui 'traefik.ingress.kubernetes.io/router.middlewares=authentik-authentik@kubernetescrd'
+
+# Remove the Traefik Private Ingress annotation
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-private annotate ingress traefik-private-ui 'traefik.ingress.kubernetes.io/router.middlewares-'
+```
+
+Doing this still requires you to follow the above `Configuration of a new Reverse Proxy Application` section and setup an application in Authentik.
