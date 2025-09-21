@@ -11,4 +11,8 @@ spec:
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: authentik
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
   egress: []
