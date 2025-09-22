@@ -172,3 +172,74 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-private annotate i
 ```
 
 Doing this still requires you to follow the above `Configuration of a new Reverse Proxy Application` section and setup an application in Authentik.
+
+For ArgoCD just follow [their documentation](https://integrations.goauthentik.io/infrastructure/argocd/) which just mimics the above `Native OIDC Authentication` section of this page.
+
+The only deviation from their doco was around using Entitlements instead of Groups for the RBAC roles `Admin` and `Viewer`.
+
+Get base64 encoded values:
+```
+echo -n "${AUTHENTIK_CLIENT_ID}" | base64
+<encoded client id>
+
+echo -n "${AUTHENTIK_CLIENT_SECRET}" | base64
+<encoded client secret>
+```
+
+Patching the `argocd-secret` Secret:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd patch secret argocd-secret --patch '{"data": {"dex.authentik.clientId": "<encoded client id>"}}'
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd patch secret argocd-secret --patch '{"data": {"dex.authentik.clientSecret": "<encoded client secret>"}}'
+```
+
+Edit the `argocd-cm` ConfigMap:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd edit configmap argocd-cm
+```
+
+Adding the following:
+```
+data:
+  ...
+  url: https://argocd.indigo.dalmura.cloud
+  dex.config: |
+      connectors:
+      - config:
+          issuer: https://authentik.indigo.dalmura.cloud/application/o/argo-cd/
+          clientID: $dex.authentik.clientId
+          clientSecret: $dex.authentik.clientSecret
+          insecureEnableGroups: true
+          scopes:
+            - openid
+            - profile
+            - email
+            - entitlements
+          claimMapping:
+            groups: "entitlements"
+          overrideClaimMapping: true
+        name: authentik
+        type: oidc
+        id: authentik
+  ...
+```
+
+Edit the `argocd-rbac-cm` ConfigMap:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd edit configmap argocd-rbac-cm
+```
+
+Adding the following (adding the data key if it's not there):
+```
+metadata:
+  ...
+data:
+  ...
+  policy.csv: |
+    g, Admin, role:admin
+    g, Viewer, role:readonly
+  ...
+```
+
+Then kill the ArgoCD `server` and `dex` pods first before login would work correctly (otherwise you'll get weird errors about token failing to validate.
+
+You should now be able to log into ArgoCD correctly!
