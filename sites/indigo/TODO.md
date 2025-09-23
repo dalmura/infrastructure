@@ -11,7 +11,9 @@ Things to implement before MVP.
 
 As the site approaches an MVP status just recording a list of stuff to eventually get done.
 
-* Traefik plugin version management via Renovate (custom)
+* Traefik
+  * Cut over to Gateway API instead of Ingress
+  * Plugin version management via Renovate (custom)
   * Currently defined manually in Deployment args
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc?
