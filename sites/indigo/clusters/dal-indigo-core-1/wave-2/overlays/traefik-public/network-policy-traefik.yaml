@@ -24,16 +24,10 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    - toServices:
-        - k8sService:
-            serviceName: anubis-service
-            namespace: anubis
-    - toServices:
-        - k8sService:
-            serviceName: authentik-server
-            namespace: authentik
-    - toServices:
-        - k8sService:
-            serviceName: plex-plex-media-server
-            namespace: plex
-
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: plex
+        - matchLabels:
+            io.kubernetes.pod.namespace: anubis
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
