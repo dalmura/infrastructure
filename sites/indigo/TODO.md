@@ -2,7 +2,6 @@
 
 Things to implement before MVP.
 
-* Traefik Public Ingress Network Policies
 * EQ14 nodes are bonded correctly
   * Figure out kernel args & switch configs
 
