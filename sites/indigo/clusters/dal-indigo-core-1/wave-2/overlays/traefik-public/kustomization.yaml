@@ -13,6 +13,7 @@ resources:
   - middleware-geoblock.yaml
   - middleware-fail2ban.yaml
   - middleware-anubis.yaml
+  - network-policy-traefik.yaml
 
 patches:
   - path: deployment_overlay.yaml
