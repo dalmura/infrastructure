@@ -25,6 +25,8 @@ spec:
             dns:
               - matchPattern: "*"
     - toEndpoints:
+        # Namespaces that host services
+        # Access within the namespace is managed by the namespace itself
         - matchLabels:
             io.kubernetes.pod.namespace: plex
         - matchLabels:
