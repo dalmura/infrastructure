@@ -95,6 +95,48 @@ argocd app sync -l app.kubernetes.io/instance=wave-3
 
 This will take a solid 3-5 mins as the Pod comes up and the certificate is issued.
 
+## Fix Authentik's /media PV permission
+The default PV for authentik-media will be owned by root (UID 0/GID 0) where as Authentik runs as UID 1000/GID 1000. So we need to fix that first, otherwise the container will keep crashing out.
+
+Ideally this is set as an init container or something, but for now this is fine.
+
+Scale down the Authentik Deployment to 0, or just deploy the PV manually via ArgoCD first before the Deployment.
+
+Run the following:
+```
+$ cat pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+  namespace: authentik
+spec:
+  volumes:
+    - name: authentik-media
+      persistentVolumeClaim:
+        claimName: authentik-media
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/media"
+          name: authentik-media
+
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f pod.yaml
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n authentik task-pv-pod -- /bin/bash
+
+# Inside the container:
+$ chown -R 1000:1000 /media
+$ exit
+
+# Outside the container:
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n authentik delete pod task-pv-pod
+$ rm pod.yaml
+```
+
 ## Access Authentik
 
 Authentik will be available over its configured ingress domain name `authentik.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://authentik.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the `akadmin` users password.
