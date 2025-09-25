@@ -33,6 +33,9 @@ server:
     - name: authentik-email-secrets
       secret:
         secretName: authentik-email-secrets
+    - name: authentik-media
+      persistentVolumeClaim:
+        claimName: authentik-media
 
   volumeMounts:
     - name: authentik-db-creds
@@ -44,6 +47,8 @@ server:
     - name: authentik-email-secrets
       mountPath: /email-config
       readOnly: true
+    - name: authentik-media
+      mountPath: /media
 
 worker:
   livenessProbe:

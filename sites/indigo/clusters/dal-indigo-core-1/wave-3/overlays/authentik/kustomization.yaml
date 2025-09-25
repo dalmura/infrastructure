@@ -14,3 +14,4 @@ resources:
   - network-policy-authentik-redis.yaml
   - ingress.yaml
   - traefik-middleware.yaml
+  - pvc-media.yaml
