@@ -4,5 +4,6 @@ kind: Kustomization
 namespace: forgejo
 
 resources:
-  - ingress.yaml
   - postgres.yaml
+  - ingress.yaml
+  - ingress-ssh.yaml
