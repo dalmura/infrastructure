@@ -82,3 +82,9 @@ INFO: GeoBlock: 2025/09/13 09:59:04 log local requests: false
 INFO: GeoBlock: 2025/09/13 09:59:04 countries: [AU NZ]
 INFO: GeoBlock: 2025/09/13 09:59:04 Denied request status code: 403
 ```
+
+## Access Traefik Dashboards if their Middleware is broken
+In case in the future the Traefik dashboards are behind authentication, and the authentication dies, you can access the services directly:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/traefik-ingress-controller -n traefik-public 8080:8080
+```

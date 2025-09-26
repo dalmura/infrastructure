@@ -13,6 +13,8 @@ spec:
         - ports:
             - port: "443"
   egress:
+    - toEntities:
+        - kube-apiserver
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
@@ -23,9 +25,8 @@ spec:
               protocol: UDP
           rules:
             dns:
+              - matchPattern: "*svc.cluster.local"
               - matchPattern: "plugins.traefik.io"
-    - toEntities:
-        - kube-apiserver
     - toEndpoints:
         # Namespaces that host services
         # Access within the namespace is managed by the namespace itself
@@ -37,3 +38,4 @@ spec:
             io.kubernetes.pod.namespace: authentik
     - toFQDNs:
         - matchName: "plugins.traefik.io"
+        - matchName: "get.geojs.io"
