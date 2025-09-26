@@ -12,6 +12,8 @@ spec:
         - matchLabels:
             app.kubernetes.io/instance: authentik
   egress:
+    - toEntities:
+        - kube-apiserver
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: authentik
