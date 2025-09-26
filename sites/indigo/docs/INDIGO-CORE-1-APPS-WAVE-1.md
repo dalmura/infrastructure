@@ -150,3 +150,10 @@ Longhorn will deploy itself as the default StorageClass on the cluster, later on
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get storageclass
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 describe storageclass longhorn
 ```
+
+If you start seeing weird volume/PVC issues with Longhorn and you're unable to access it via the Ingress/etc, you can navigate to the service directly:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/longhorn-frontend -n longhorn-system 8080:80
+
+# Open http://localhost:8080/
+```
