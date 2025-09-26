@@ -30,7 +30,7 @@ spec:
             app.kubernetes.io/name: forgejo
       toPorts:
         - ports:
-            - port: "80"
+            - port: "9000"
               protocol: TCP
           rules:
             http:
