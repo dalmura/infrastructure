@@ -23,7 +23,7 @@ spec:
               protocol: UDP
           rules:
             dns:
-              - matchPattern: "*"
+              - matchPattern: "plugins.traefik.io"
     - toEndpoints:
         # Namespaces that host services
         # Access within the namespace is managed by the namespace itself
@@ -33,3 +33,5 @@ spec:
             io.kubernetes.pod.namespace: anubis
         - matchLabels:
             io.kubernetes.pod.namespace: authentik
+    - toFQDNs:
+        - matchName: "plugins.traefik.io"
