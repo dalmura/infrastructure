@@ -8,7 +8,7 @@ preUpgradeChecker:
 
 defaultSettings:
   allowCollectingLonghornUsageMetrics: false
-  backupExecutionTimeout: 5
+  backupExecutionTimeout: "5"
   concurrentAutomaticEngineUpgradePerNodeLimit: 1
 
 defaultBackupStore:
