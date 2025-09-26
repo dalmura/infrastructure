@@ -22,5 +22,5 @@ spec:
             - --providers.kubernetescrd.ingressclass=ingress-private
             - --providers.kubernetescrd.allowCrossNamespace=true
             - --serversTransport.insecureSkipVerify=true
-            - --log.level=DEBUG
+            #- --log.level=DEBUG
             #- --accesslog=true
