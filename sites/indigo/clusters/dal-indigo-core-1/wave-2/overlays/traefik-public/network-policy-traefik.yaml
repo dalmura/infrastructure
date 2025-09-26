@@ -26,8 +26,14 @@ spec:
           rules:
             dns:
               - matchPattern: "*.plex.svc.cluster.local"
+              - matchPattern: "plex-plex-media-server"
+              - matchPattern: "plex-plex-media-server.plex"
               - matchPattern: "*.anubis.svc.cluster.local"
+              - matchPattern: "anubis-service"
+              - matchPattern: "anubis-service.anubis"
               - matchPattern: "*.authentik.svc.cluster.local"
+              - matchPattern: "authentik-server"
+              - matchPattern: "authentik-server.authentik"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
