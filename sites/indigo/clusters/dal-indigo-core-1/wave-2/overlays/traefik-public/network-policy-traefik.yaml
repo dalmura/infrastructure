@@ -25,6 +25,7 @@ spec:
               protocol: UDP
           rules:
             dns:
+              - matchPattern: "*"
               - matchPattern: "*svc.cluster.local"
               - matchPattern: "plugins.traefik.io"
     - toEndpoints:
