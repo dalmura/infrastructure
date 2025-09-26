@@ -82,7 +82,7 @@ Next up create an Application, eg Frigate, under `Applications` => `Applications
 * No Backchannel Providers
 * Policy engine mode: ANY (default)
 * Launch URL: Default (empty), but override if required
-* Icon: You can go to [Font Awesome](https://fontawesome.com/search) and put in `fa://<icon-name>`
+* Icon: You can optionally upload an icon you want here
 * Publisher: Blank
 * Description: Something useful
 
