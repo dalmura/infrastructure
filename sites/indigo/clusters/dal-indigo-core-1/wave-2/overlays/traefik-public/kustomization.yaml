@@ -11,7 +11,6 @@ resources:
   - ingressclass.yaml
   - ingress.yaml
   - middleware-geoblock.yaml
-  - middleware-fail2ban.yaml
   - middleware-anubis.yaml
   - network-policy-traefik.yaml
 
