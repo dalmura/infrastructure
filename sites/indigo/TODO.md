@@ -36,8 +36,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Review https://headlamp.dev/ and see if it's worth changing
 * Frigate
   * How to ensure Longhorn storage doesn't blow out?
-* Forgejo
-  * See if SSH access is required or not, MetalLB can be used to expose TCP/22
 * Renovate
   * Integrate workload repo, or deprecate and remove workload repo
   * Figure out how each site will run its own
