@@ -25,7 +25,6 @@ spec:
               protocol: UDP
           rules:
             dns:
-              #- matchPattern: "*"
               - matchPattern: "*.plex.svc.cluster.local"
               - matchPattern: "*.anubis.svc.cluster.local"
               - matchPattern: "*.authentik.svc.cluster.local"
