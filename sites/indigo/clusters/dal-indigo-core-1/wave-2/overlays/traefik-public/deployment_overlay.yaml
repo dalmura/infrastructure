@@ -23,7 +23,5 @@ spec:
             - --serversTransport.insecureSkipVerify=true
             - --experimental.plugins.geoblock.modulename=github.com/PascalMinder/geoblock
             - --experimental.plugins.geoblock.version=v0.3.3
-            - --experimental.plugins.fail2ban.modulename=github.com/tomMoulard/fail2ban
-            - --experimental.plugins.fail2ban.version=v0.8.7
             #- --log.level=DEBUG
             #- --accesslog=true
