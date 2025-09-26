@@ -25,9 +25,12 @@ spec:
               protocol: UDP
           rules:
             dns:
-              - matchPattern: "*"
-              - matchPattern: "*svc.cluster.local"
+              #- matchPattern: "*"
+              - matchPattern: "*.plex.svc.cluster.local"
+              - matchPattern: "*.anubis.svc.cluster.local"
+              - matchPattern: "*.authentik.svc.cluster.local"
               - matchPattern: "plugins.traefik.io"
+              - matchPattern: "get.geojs.io"
     - toEndpoints:
         # Namespaces that host services
         # Access within the namespace is managed by the namespace itself
