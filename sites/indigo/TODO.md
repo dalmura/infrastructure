@@ -16,7 +16,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc?
 * CrowdSec integration
-  * Replace the fail2ban middleware
 * ArgoCD
   * Automatic syncing for certain resource? Eg. cnpg image catalogue?
   * Slack Notifications when something is out of sync?
@@ -44,5 +43,4 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Figure out how each site will run its own
   * Or figure out how to make it optional in wave-4 for other sites
 * Authentik
-  * Setup /media PV and do application icons
   * Setup branding/etc
