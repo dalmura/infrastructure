@@ -7,10 +7,10 @@ spec:
   entryPoints:
     - ssh
   routes:
-  - match: HostSNI(`*`)
-    services:
-    - name: forgejo-ssh
-      port: 22
+    - match: HostSNI(`*`)
+      services:
+        - name: forgejo-ssh
+          namespace: forgejo
 
   tls:
     passthrough: true
