@@ -13,6 +13,7 @@ spec:
             - --global.sendAnonymousUsage=false
             - --api.insecure=true
             - --api.dashboard=true
+            - --entryPoints.ssh.address=:22
             - --entryPoints.web.address=:80
             - --entryPoints.websecure.address=:443
             - --providers.kubernetesingress
