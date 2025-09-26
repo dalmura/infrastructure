@@ -24,6 +24,18 @@ spec:
         - ports:
             - port: "9000" # This is the port of the pod, not the service
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo
+            app.kubernetes.io/name: forgejo
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+          rules:
+            http:
+              - method: "GET"
+                path: "/application/o/forgejo/.well-known/openid-configuration"
   egress:
     - toEndpoints:
         - matchLabels:
