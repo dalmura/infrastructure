@@ -173,6 +173,8 @@ Configuring OIDC via the Forgejo UI:
  * Group claim value for admin users: admin
 * Save the Authentication Source
 
+Within Authentik you can override the Application URL to be `https://forgejo.indigo.dalmura.cloud/user/oauth2/indigo-auth` which should also auto-login the user instead of just sending them to the default home page.
+
 
 ## Access Frigate
 
