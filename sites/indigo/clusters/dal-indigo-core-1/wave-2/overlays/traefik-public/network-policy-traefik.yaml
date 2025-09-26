@@ -24,6 +24,8 @@ spec:
           rules:
             dns:
               - matchPattern: "plugins.traefik.io"
+    - toEntities:
+        - kube-apiserver
     - toEndpoints:
         # Namespaces that host services
         # Access within the namespace is managed by the namespace itself
