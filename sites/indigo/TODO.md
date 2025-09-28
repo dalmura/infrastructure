@@ -10,6 +10,7 @@ Things to implement before MVP.
 As the site approaches an MVP status just recording a list of stuff to eventually get done.
 
 * Traefik
+  * Refactor out the workloads repo and see if there's a helm chart instead?
   * Cut over to Gateway API instead of Ingress
   * Plugin version management via Renovate (custom)
   * Currently defined manually in Deployment args
@@ -18,7 +19,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 * CrowdSec integration
 * ArgoCD
   * Automatic syncing for certain resource? Eg. cnpg image catalogue?
-  * Slack Notifications when something is out of sync?
 * MetalLB
   * BGP instead of L2
 * cert-manager
