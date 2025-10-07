@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://raw.githubusercontent.com/plexinc/pms-docker/gh-pages
       chart: plex-media-server
-      targetRevision: 1.1.2
+      targetRevision: 1.1.3
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/plex/values.yaml
