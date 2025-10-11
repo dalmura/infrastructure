@@ -46,7 +46,7 @@ Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from th
 
 TODO: Optionally wipe the existing NVME drive as Talos doesn't like an existing Talos install existing
 
-Once booted, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
+Once booted, record the IP Addresses that DHCP assigns from the `SERVERS_STAGING` VLAN, for example:
 ```bash
 EQ14_1_IP=192.168.77.199
 EQ14_2_IP=
@@ -56,7 +56,7 @@ EQ14_3_IP=
 ## Create the `eq14.16gb.amd64` Worker templates
 
 We assume you have a working directory that contains the `secrets.yaml` that was used to create the cluster initially as part of the control plane setup, and also have the following environment variables set:
-* TALOS_VERSION
+* `TALOS_VERSION`
 
 First we need to create the worker config for the eq14 worker class:
 ```bash
@@ -85,26 +85,37 @@ Apply the config for each node:
 ```bash
 # Enter this then record HW ADDR for eth0, eg. e4:5f:01:1d:3c:a8
 # These will print out 2x MAC Addresses for each of the ports
-# Find the correct one by looking at the DHCP leases to see which one is active
+# We need both for the bond configuration below
 talosctl -n "${EQ14_1_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
 talosctl -n "${EQ14_2_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
 talosctl -n "${EQ14_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id | startswith("enp")) | .spec.hardwareAddr' -r | tr -d ':'
 
+# Note: Even though the ethernet interfaces here are enp***
+# Talos will rename them to be 'predictable'
+# See: https://www.talos.dev/latest/talos-guides/network/predictable-interface-names/
+
 # Repeat noting down the HW ADDR for each node
 # Remove all ':' from the HW ADDR and you're left with:
-EQ14_1_HW_ADDR='e8ff1ed8884c'
-EQ14_2_HW_ADDR=''
-EQ14_3_HW_ADDR=''
+EQ14_1_HW_ADDR_P1='e8ff1ed8884c'
+EQ14_1_HW_ADDR_P2='e8ff1ed8884d'
+EQ14_2_HW_ADDR_P1=''
+EQ14_2_HW_ADDR_P2=''
+EQ14_3_HW_ADDR_P1=''
+EQ14_3_HW_ADDR_P2=''
 
 # Copy the configs
 
 # Create the per-device Worker configs with these overrides
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS_P1>/${EQ14_1_HW_ADDR_P1}/g" | sed "s/<HW_ADDRESS_P2>/${EQ14_1_HW_ADDR_P2}/g" > 'nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-bond0.yaml'
+
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS_P1>/${EQ14_2_HW_ADDR_P1}/g" | sed "s/<HW_ADDRESS_P2>/${EQ14_2_HW_ADDR_P2}/g" > 'nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-bond0.yaml'
+
+cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS_P1>/${EQ14_3_HW_ADDR_P1}/g" | sed "s/<HW_ADDRESS_P2>/${EQ14_3_HW_ADDR_P2}/g" > 'nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-bond0.yaml'
 
 sed -i 's/<NODE_INSTANCE_TYPE>/eq14.16gb.amd64/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+
 sed -i 's/<K8S_NODE_GROUP>/eq14-worker-pool/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
+
 sed -i "s|<INSTALLER_IMAGE_URI>|${INSTALLER_IMAGE_URI}|g" nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
 
 talosctl apply-config --insecure -n "${EQ14_1_IP}" -f nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml
