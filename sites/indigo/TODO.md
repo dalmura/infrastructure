@@ -42,3 +42,5 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Or figure out how to make it optional in wave-4 for other sites
 * Authentik
   * Setup branding/etc
+* Vault
+  * Review OpenBao and migrate to it
