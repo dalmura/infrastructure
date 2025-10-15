@@ -46,6 +46,8 @@ Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from th
 
 TODO: Optionally wipe the existing NVME drive as Talos doesn't like an existing Talos install existing
 
+Within the EQ14's BIOS, under Advanced, there's a Compatibility Support Module (CSM) that you need to update the Boot mode from `UEFI Only` => `UEFI and Legacy` otherwise the Talos USB will refuse to boot.
+
 Once booted, record the IP Addresses that DHCP assigns from the `SERVERS_STAGING` VLAN, for example:
 ```bash
 EQ14_1_IP=192.168.77.199
