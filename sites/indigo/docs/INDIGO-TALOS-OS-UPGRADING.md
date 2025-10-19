@@ -43,7 +43,7 @@ The release notes for 1.10 outline a few things, but none of them apply to this 
 
 The upgrade command itself is part of `talosctl` and looks something like:
 ```
-talosctl upgrade --nodes 192.168.77.73 --image ghcr.io/siderolabs/installer:v1.10.3
+talosctl upgrade --nodes 192.168.77.73 --image ghcr.io/siderolabs/installer:v1.11.3
 ```
 
 With us specifying the node's IP as well as the Container Image URI. But we cannot use the default image above, we need customised ones that bake in all the extra kernel modules that we need.
@@ -59,15 +59,16 @@ Follow the docs for each worker class:
 Once you have configured the relevant factory images, there will be a `Upgrading Talos Linux` section on the factory page, containing an image URI:
 ```
 # Example URI for the EQ14 worker class
-factory.talos.dev/metal-installer/78050f2d4149310e8e1a26f6433ff4b9932025c6420ddff8f71d3fec22fc809c:v1.10.3
+factory.talos.dev/metal-installer/69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1:v1.11.3
 
 # Generated via
-https://factory.talos.dev/?arch=amd64&board=undefined&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&secureboot=undefined&target=metal&version=1.10.3
+https://factory.talos.dev/?arch=amd64&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.11.2
 
 # Example URI for the RPI4 worker class
-factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.10.3 
+factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.11.3
 
-https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.10.3
+# Generated via
+https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.11.3
 
 # Our Control Plane node is also an RPI4 worker class node for the purposes of the upgrade
 # So we just use the above URI
@@ -75,11 +76,11 @@ https://factory.talos.dev/?arch=arm64&board=rpi_generic&cmdline-set=true&extensi
 
 From here can initiate the upgrade on each worker, *one by one*, ensuring *each upgrade finishes successfully before starting the next one*.
 
-This is important as, when each node reboots, Longhorn will see node unavailability and possibly start failover processes for disks including increasing any under-replicated volumes. So rebooting multiple nodes at once may cause Longhorn to fail.
+This is important as, when each node reboots, Longhorn will see node unavailability and possibly start failover processes for disks including increasing any under-replicated volumes. So rebooting multiple nodes at once may cause Longhorn to fail. Ensure all volumes are `Healthy` and none are `Degraded` before starting or continuing to upgrade more nodes.
 
 Upgrading `talos-e8ff1ed8884c` aka `192.168.77.73` which is an EQ14 worker:
 ```
-talosctl --talosconfig templates/dal-indigo-core-1/talosconfig upgrade --nodes 192.168.77.73 --image factory.talos.dev/metal-installer/78050f2d4149310e8e1a26f6433ff4b9932025c6420ddff8f71d3fec22fc809c:v1.10.3
+talosctl --talosconfig templates/dal-indigo-core-1/talosconfig upgrade --nodes 192.168.77.73 --image factory.talos.dev/metal-installer/69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1:v1.11.3
 ```
 
 *Before* running the above, it can help to start up a `dmesg` console as well to the node to observe the upgrade process and any error logs:
@@ -108,7 +109,7 @@ talosctl --talosconfig templates/dal-indigo-core-1/talosconfig upgrade --nodes 1
 
 Perform usual post upgrade checks:
 * `kubectl get nodes -o wide` showing upgrades as expected
-* Longhorn reporting all volumes as Healthy
+* [Longhorn](https://longhorn.indigo.dalmura.cloud/#/volume?field=status&stateValue=degraded) reporting all volumes as Healthy
 
 Upgrading `talos-e45f019d4ca8` aka `192.168.77.71` which is an RPI4 worker:
 ```
