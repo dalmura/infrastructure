@@ -26,10 +26,10 @@ spec:
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
-    ignoreDifferences:
-      - group: ""
-        kind: Secret
-        name: forgejo-admin
-        jsonPointers:
-          - "/data/password"
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: forgejo-admin
+      jsonPointers:
+        - "/data/password"
   revisionHistoryLimit: 1
