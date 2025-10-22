@@ -1,16 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik-private
+  name: traefik-ng-private
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/dalmura/infrastructure.git
-    path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/traefik-private
-    targetRevision: HEAD
+  sources:
+    - repoURL: ghcr.io/traefik/helm
+      chart: traefik
+      targetRevision: 37.2.1
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/traefik-private/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/traefik-private
+      targetRevision: HEAD
   destination:
     namespace: traefik-private
     server: {{ .Values.spec.destination.server }}

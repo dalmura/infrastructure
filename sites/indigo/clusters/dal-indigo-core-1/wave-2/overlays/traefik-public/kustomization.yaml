@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: traefik-public
 
 resources:
-  - namespace.yaml
   - github.com/dalmura/workloads/traefik-ingress-controller?ref=HEAD
   - cluster_role_binding.yaml
   - service.yaml
@@ -13,6 +12,3 @@ resources:
   - middleware-geoblock.yaml
   - middleware-anubis.yaml
   - network-policy-traefik.yaml
-
-patches:
-  - path: deployment_overlay.yaml

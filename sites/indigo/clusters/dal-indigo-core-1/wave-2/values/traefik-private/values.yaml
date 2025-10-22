@@ -1,0 +1,12 @@
+ingressClass:
+  name: ingress-private
+
+providers:
+  kubernetesCRD:
+    ingressClass: ingress-private
+    allowCrossNamespace: true
+  kubernetesIngress:
+    ingressClass: ingress-private
+    publishedService:
+      enabled: true
+      pathOverride: traefik-private/traefik-ingress-controller
