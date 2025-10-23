@@ -6,8 +6,6 @@ namespace: traefik-public
 resources:
   - github.com/dalmura/workloads/traefik-ingress-controller?ref=HEAD
   - cluster_role_binding.yaml
-  - service.yaml
-  - ingressclass.yaml
   - ingress.yaml
   - middleware-geoblock.yaml
   - middleware-anubis.yaml
