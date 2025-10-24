@@ -18,12 +18,6 @@ providers:
       enabled: true
       pathOverride: traefik-public/traefik-ingress-controller
 
-experimental:
-  plugins:
-    geoblock:
-      moduleName: github.com/PascalMinder/geoblock
-      version: v0.3.3
-
 ports:
   web:
     port: 80
@@ -41,3 +35,9 @@ service:
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
+
+experimental:
+  plugins:
+    geoblock:
+      moduleName: github.com/PascalMinder/geoblock
+      version: v0.3.3
