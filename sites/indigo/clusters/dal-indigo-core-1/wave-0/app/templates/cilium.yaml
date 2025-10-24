@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://helm.cilium.io/
       chart: cilium
-      targetRevision: 1.18.2
+      targetRevision: 1.18.3
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/cilium/values.yaml
