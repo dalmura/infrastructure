@@ -27,6 +27,8 @@ ports:
   websecure:
     asDefault: true
     port: 443
+  traefik:
+    port: 8080
 
 service:
   annotations:
