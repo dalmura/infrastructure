@@ -34,7 +34,7 @@ ports:
 
 service:
   annotations:
-    metallb.universe.tf/address-pool: servers-vlan
+    metallb.io/address-pool: servers-vlan
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"

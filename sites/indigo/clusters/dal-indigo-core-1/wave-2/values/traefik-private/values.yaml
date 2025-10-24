@@ -16,7 +16,6 @@ providers:
     ingressClass: ingress-private
     publishedService:
       enabled: true
-      pathOverride: traefik-private/traefik-ingress-controller
 
 ports:
   web:
@@ -28,12 +27,16 @@ ports:
   websecure:
     asDefault: true
     port: 443
+  traefik:
+    port: 8080
+    expose:
+      default: true
   ssh:
     port: 22
 
 service:
   annotations:
-    metallb.universe.tf/address-pool: servers-vlan
+    metallb.io/address-pool: servers-vlan
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
