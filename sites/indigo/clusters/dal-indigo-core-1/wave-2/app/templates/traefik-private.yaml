@@ -23,4 +23,7 @@ spec:
   destination:
     namespace: traefik-private
     server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
   revisionHistoryLimit: 2
