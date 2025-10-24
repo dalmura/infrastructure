@@ -16,7 +16,7 @@ providers:
     ingressClass: ingress-public
     publishedService:
       enabled: true
-      pathOverride: traefik-public/traefik-ingress-controller
+      #pathOverride: traefik-public/traefik-public
 
 ports:
   web:
