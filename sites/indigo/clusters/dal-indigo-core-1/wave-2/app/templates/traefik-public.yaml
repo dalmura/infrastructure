@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik-ng-public
+  name: traefik-public
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
