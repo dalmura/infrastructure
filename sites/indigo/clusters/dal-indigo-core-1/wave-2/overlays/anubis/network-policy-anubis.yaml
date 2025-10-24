@@ -10,7 +10,7 @@ spec:
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: traefik-public
-            app.kubernetes.io/name: traefik-ingress-controller
+            app.kubernetes.io/name: traefik
       toPorts:
         - ports:
             - port: "8080" # This is the port of the pod, not the service

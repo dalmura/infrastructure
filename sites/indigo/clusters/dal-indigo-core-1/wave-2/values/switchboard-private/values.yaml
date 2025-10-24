@@ -20,7 +20,7 @@ integrations:
 
     targetService:
       namespace: traefik-private
-      name: traefik-ingress-controller
+      name: traefik-private
 
 selector:
   ingressClass: ingress-private
