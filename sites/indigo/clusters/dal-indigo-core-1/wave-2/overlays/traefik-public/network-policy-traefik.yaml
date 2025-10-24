@@ -5,7 +5,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: traefik-ingress-controller
+      app.kubernetes.io/name: traefik
   ingress:
     # Allow broad external and internal access
     - fromEntities:
