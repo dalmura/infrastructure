@@ -40,3 +40,4 @@ service:
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
+  - "--api.insecure=true"
