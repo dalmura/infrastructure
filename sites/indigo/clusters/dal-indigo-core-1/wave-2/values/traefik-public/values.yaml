@@ -29,6 +29,8 @@ ports:
     port: 443
   traefik:
     port: 8080
+    expose:
+      default: true
 
 service:
   annotations:
