@@ -21,5 +21,17 @@
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/app/templates/*.yaml"
     ]
-  }
+  },
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "sites/indigo/clusters/dal-indigo-core-1/wave-2/values/traefik-public/values.yaml"
+      ],
+      "matchStrings": [
+        "moduleName:\\s*github\\.com/(?<depName>[^\\s]+)\\s+version:\\s*(?<currentValue>v[0-9.]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    }
+  ]
 }
