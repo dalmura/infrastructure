@@ -10,7 +10,7 @@
       "enabled": false
     }
   ],
-  "enabledManagers": ["helm-values", "kustomize", "argocd"],
+  "enabledManagers": ["helm-values", "kustomize", "argocd", "custom.regex"],
   "helm-values": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/values/*/values.yaml"
@@ -29,15 +29,15 @@
       "sites/indigo/clusters/*/*/app/templates/*.yaml"
     ]
   },
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": [
+      "customType": "regex",
+      "managerFilePatterns": [
         "sites/indigo/clusters/dal-indigo-core-1/wave-2/values/traefik-public/values.yaml"
       ],
       "matchStrings": [
-        "moduleName:\\s*github\\.com/(?<depName>[^\\s]+)\\s+version:\\s*(?<currentValue>v[0-9.]+)"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+?:(?<currentValue>\\S+)"
       ],
-      "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
     }
   ]
