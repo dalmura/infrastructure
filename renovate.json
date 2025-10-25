@@ -17,13 +17,6 @@
       "sites/indigo/clusters/*/*/overlays/*/kustomization.yaml"
     ]
   },
-  "packageRules": [
-    {
-      "matchDatasources": ["docker"],
-      "matchManagers": ["argocd"],
-      "enabled": false
-    }
-  ],
   "argocd": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/app/templates/*.yaml"
