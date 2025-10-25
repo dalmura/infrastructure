@@ -45,4 +45,4 @@ experimental:
     geoblock:
       moduleName: github.com/PascalMinder/geoblock
       # renovate: datasource=github-tags depName=PascalMinder/geoblock
-      version: v0.3.2
+      version: v0.3.3
