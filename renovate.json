@@ -36,7 +36,7 @@
         "sites/indigo/clusters/dal-indigo-core-1/wave-2/values/traefik-public/values.yaml"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s\\S+?:(?<currentValue>\\S+)"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+version:\\s*(?<currentValue>.*)"
       ],
       "versioningTemplate": "semver"
     }
