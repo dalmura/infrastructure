@@ -3,6 +3,13 @@
   "extends": [
     "config:recommended"
   ],
+  "packageRules": [
+    {
+      "matchManagers": ["helm"],
+      "matchDatasources": ["docker"],
+      "enabled": false
+    }
+  ],
   "enabledManagers": ["helm-values", "kustomize", "argocd"],
   "helm-values": {
     "managerFilePatterns": [
