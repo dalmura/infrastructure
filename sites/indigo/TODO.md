@@ -31,7 +31,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Validate backups & restore strategy
   * Create example app in wave-5 to verify
 * Renovate
-  * Integrate workload repo, or deprecate and remove workload repo
   * Figure out how each site will run its own
   * Or figure out how to make it optional in wave-4 for other sites
 * k8s Dashboard
