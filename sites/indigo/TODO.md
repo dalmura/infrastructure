@@ -11,10 +11,8 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 
 * Traefik
   * Cut over to Gateway API instead of Ingress
-  * Plugin version management via Renovate (custom)
-  * Currently defined manually in Deployment args
 * Switchboard
-  * Review if this can be eventually removed or not
+  * Deprecate when Gateway API is being used
 * Frigate
   * How to ensure Longhorn storage doesn't blow out?
 * Cilium Network Policies
