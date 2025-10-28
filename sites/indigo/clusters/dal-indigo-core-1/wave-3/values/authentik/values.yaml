@@ -19,6 +19,9 @@ authentik:
     password: file:///postgres-creds/password
 
 server:
+  deploymentStrategy:
+    type: Recreate
+
   ingress:
     # We manage this separately
     enabled: false
