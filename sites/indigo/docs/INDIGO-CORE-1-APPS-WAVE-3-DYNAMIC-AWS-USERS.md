@@ -1,0 +1,60 @@
+# Provision IAM Credential Vending for dal-indigo-core-1
+
+This guide covers the setup of AWS IAM Credential vending for CNPG DB Backup IAM Credentials.
+
+Each application that runs a DB and needs to upload its DB backups into S3 requires an IAM User and a scoped IAM Role for the specific S3 path they need to upload to.
+
+We assume you've followed the steps at:
+* [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have Vault running
+
+## Obtain AWS Credentials
+You can get the required AWS Credentials & IAM Policy from the `dalmura/network` repo, the README.md contains the instructions how to get them.
+
+## Vault Configuration
+Ensure the `vault` CLI tool is installed locally.
+
+Authenticate to vault:
+```bash
+export VAULT_ADDR=https://vault.indigo.dalmura.cloud
+vault login -method=token
+
+# Enter your root token from above
+```
+
+Create the AWS Secrets Engine:
+```bash
+vault secrets enable aws
+
+vault write aws/config/root \
+    access_key=<iam_vendor_key.id> \
+    secret_key='<iam_vendor_key.secret>' \
+    region=us-east-1 \
+    username_template='{{ printf "dal-indigo-vault-%s-%s-%s" (printf "%s" (.PolicyName) | truncate 42) (unix_time) (random 20) | truncate 64 }}'
+```
+
+## Example Usage
+
+This setup asumes we have a new application that needs a vended DB Backup IAM User.
+
+The IAM Policy has resource/condition key templates that asserts that the S3 path used must be: `${site}/${app-name}/${role}/`
+
+For example this could be `indigo/authentik/postgres/` from the below example. So ensure any configuration in the app itself for S3 path matches this configuration.
+
+
+Create the Vault Role (aka IAM User Template):
+```bash
+vault write aws/roles/example-app-db-backup \
+    credential_type=iam_user \
+    policy_arns=<iam_vended_permissions.id> \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=example-app" \
+    iam_tags="role=postgres"
+```
+
+Run this to generate a temporary user with above attached IAM Policy:
+```bash
+vault get aws/creds/example-app-db-backup
+```
+
+[External Secrets Operator](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) will then use its permissions in vault to vend new IAM Users and store the returned credentials in a secret.
