@@ -7,8 +7,52 @@ These are:
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
 * `argocd` is logged in
+* `vault` is logged in (see [dynamic user docs](INDIGO-CORE-1-APPS-WAVE-3-DYNAMIC-AWS-USERS.md) if not)
 * Traefik ingress controller is running
 * Vault is operational
+
+## Obtain AWS IAM Policy ARN
+You can get the required IAM Policy from the `dalmura/network` repo, the README.md contains the instructions how to get them.
+
+## Forgejo Vault Configuration
+Forgejo's CNPG instance requires an AWS credentials in order to backup to S3 correctly.
+
+We need to integrate with Vault and ESO in order to vend this IAM User correctly.
+
+This requires two configurations be deployed into Vault:
+
+Create the Vault AWS Role (aka IAM User Template) for Forgejo:
+```bash
+vault write aws/roles/forgejo-db-backup \
+    credential_type=iam_user \
+    policy_arns='<iam_vended_permissions.id>' \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=forgejo" \
+    iam_tags="role=postgres"
+```
+
+Next we need to create the workload specific vault role to let the AWS Credentials be extracted from Vault by a Service Account within the Forgejo namespace.
+
+See [`dal-indigo-core-1` Apps - Wave 3 - Vault Secrets Operator](INDIGO-CORE-1-APPS-WAVE-3-VAULT-SECRETS-OPERATOR.md) for more context on this.
+
+Create the Vault permission policy and k8s role:
+```
+vault policy write workload-reader-forgejo-secrets -<<EOF
+# App specific credentials path
+path "aws/creds/forgejo-db-backup" {
+    capabilities = ["read"]
+}
+EOF
+
+# Allow the Kubernetes Namespace & SA usage of our above policy via this 'auth role'
+vault write auth/kubernetes/role/workload-reader-forgejo-secrets \
+   bound_service_account_names=forgejo-sa \
+   bound_service_account_namespaces=forgejo \
+   token_policies=workload-reader-forgejo-secrets \
+   audience=vault \
+   ttl=24h
+```
 
 ## Plex Secrets
 Plex requires a `PLEX_CLAIM` environment variable that we need to securely pass into the Pod as a once-off activity. After that it's not required anymore. To avoid committing this into git and having someone else steal it for the few seconds it's visible but not used yet, we do it via a Vault secret.

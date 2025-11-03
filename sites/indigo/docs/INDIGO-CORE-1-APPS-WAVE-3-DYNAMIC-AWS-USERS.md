@@ -38,7 +38,7 @@ This setup asumes we have a new application that needs a vended DB Backup IAM Us
 
 The IAM Policy has resource/condition key templates that asserts that the S3 path used must be: `${site}/${app-name}/${role}/`
 
-For example this could be `indigo/authentik/postgres/` from the below example. So ensure any configuration in the app itself for S3 path matches this configuration.
+For example this could be `indigo/example-app/postgres/` from the below example. So ensure any configuration in the app itself for S3 path matches this configuration.
 
 
 Create the Vault Role (aka IAM User Template):

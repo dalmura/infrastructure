@@ -4,6 +4,9 @@ kind: Kustomization
 namespace: forgejo
 
 resources:
+  - service-account.yaml
+  - vault-dynamic-secret.yaml
+  - external-secret.yaml
   - postgres.yaml
   - ingress.yaml
   - ingress-ssh.yaml
