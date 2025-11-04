@@ -50,7 +50,7 @@ vault write auth/kubernetes/role/workload-reader-forgejo-secrets \
    bound_service_account_names=forgejo-sa \
    bound_service_account_namespaces=forgejo \
    token_policies=workload-reader-forgejo-secrets \
-   audience=vault \
+   audience='https://192.168.77.2:6443/' \
    ttl=24h
 ```
 
@@ -82,7 +82,7 @@ vault write auth/kubernetes/role/workload-reader-plex-secrets \
    bound_service_account_names=plex-plex-media-server \
    bound_service_account_namespaces=plex \
    token_policies=workload-reader-plex-secrets \
-   audience=vault \
+   audience='https://192.168.77.2:6443/' \
    ttl=24h
 ```
 

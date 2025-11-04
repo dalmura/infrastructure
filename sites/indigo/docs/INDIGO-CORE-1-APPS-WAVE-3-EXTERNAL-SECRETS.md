@@ -86,7 +86,7 @@ vault write auth/kubernetes/role/workload-reader-example-app \
    bound_service_account_names=example-app-sa \
    bound_service_account_namespaces=example-app \
    token_policies=workload-reader-example-app \
-   audience="https://192.168.77.2:6443/" \
+   audience='https://192.168.77.2:6443/' \
    ttl=24h
 ```
 
