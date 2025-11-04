@@ -1,27 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudnativepg
+  name: cloudnativepg-image-catalog
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:
-    - repoURL: https://cloudnative-pg.github.io/charts
-      chart: cloudnative-pg
-      targetRevision: 0.26.1
-      helm:
-        valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/cloudnativepg/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/cloudnativepg-image-catalog
       targetRevision: HEAD
-      ref: values
   destination:
     server: {{ .Values.spec.destination.server }}
     namespace: cnpg-system
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
       - ServerSideApply=true
   revisionHistoryLimit: 2
