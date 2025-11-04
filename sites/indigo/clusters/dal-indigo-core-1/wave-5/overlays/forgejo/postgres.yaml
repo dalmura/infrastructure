@@ -26,11 +26,11 @@ spec:
       destinationPath: s3://dal-site-backups/indigo/forgejo/postgres/
       s3Credentials:
         accessKeyId:
-          name: forgejo-db-backup-secret
-          key: ACCESS_KEY_ID
+          name: forgejo-db-backup
+          key: access_key
         secretAccessKey:
-          name: forgejo-db-backup-secret
-          key: SECRET_ACCESS_KEY
+          name: forgejo-db-backup
+          key: secret_key
       data:
         compression: gzip
       wal:
