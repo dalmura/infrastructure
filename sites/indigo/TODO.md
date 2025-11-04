@@ -30,7 +30,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
   * Figure out how each site will run its own
   * Or figure out how to make it optional in wave-4 for other sites
 * k8s Dashboard
-  * Verify if this can use Authentik proxy for auth?
   * Review https://headlamp.dev/ and see if it's worth changing
 * Authentik
   * Setup branding/etc
