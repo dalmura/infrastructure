@@ -18,9 +18,6 @@ As the site approaches an MVP status just recording a list of stuff to eventuall
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc?
 * CrowdSec integration
-* ArgoCD
-  * Automatic syncing for the parent waves?
-  * Otherwise merging a PR then requires 2x Syncs to upgrade something (parent wave then app)
 * cert-manager
   * Review if wildcard domain certs are better
 * Longhorn
