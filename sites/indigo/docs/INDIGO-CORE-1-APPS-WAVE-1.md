@@ -89,7 +89,9 @@ argocd app create wave-1 \
     --dest-namespace argocd \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
-    --path sites/indigo/clusters/dal-indigo-core-1/wave-1/app
+    --path sites/indigo/clusters/dal-indigo-core-1/wave-1/app \
+    --auto-prune \
+    --self-heal
 
 # Create the child applications
 argocd app sync wave-1

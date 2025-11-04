@@ -34,7 +34,9 @@ argocd app create wave-0 \
     --dest-namespace argocd \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
-    --path sites/indigo/clusters/dal-indigo-core-1/wave-0/app
+    --path sites/indigo/clusters/dal-indigo-core-1/wave-0/app \
+    --auto-prune \
+    --self-heal
 
 # Path above is for the git repo, not your local path
 
