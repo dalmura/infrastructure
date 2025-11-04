@@ -24,6 +24,10 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
 * ArgoCD - Wave 0
    * [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets/)
       * Ability to store secrets for all workloads in-repo
+   * [Cilium](https://cilium.io/get-started/)
+      * Management of above Cilium deployment within ArgoCD
+   * [Reloader](https://github.com/stakater/Reloader)
+      * Reload Deployments when a Secret/ConfigMap changes
 * ArgoCD - Wave 1
    * [MetalLB](https://metallb.universe.tf/)
       * Load Balancing into the Cluster itself
@@ -40,6 +44,7 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
       * Ingress Controller
       * Fail2ban Middleware
       * Geoblock Middleware
+      * Anubis Middleware
    * [Anubis](https://anubis.techaro.lol/)
       * Slow down scrapers/crawlers
    * [Switchboard](https://github.com/borchero/switchboard/)
