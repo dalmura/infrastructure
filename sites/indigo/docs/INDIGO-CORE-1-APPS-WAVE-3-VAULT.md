@@ -225,3 +225,5 @@ A group-alias associates a role `name` from the ID token's group claim (found vi
 Once a user signs in a Vault Entity (aka user) is created, along with an Entity Alias, linking that Vault Entity <=> OIDC Entity.
 
 Users should now be able to autheticate with Vault via the OIDC authentication method (using the `default_authentik` profile).
+
+Now proceed to setting up [dynamic AWS IAM User management](INDIGO-CORE-1-APPS-WAVE-3-VAULT-AWS-USERS.md).
