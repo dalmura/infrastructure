@@ -40,6 +40,10 @@ spec:
         service: authentik
         db: authentik-db
     retentionPolicy: "10d"
+
+  postgresql:
+    parameters:
+      max_connections: "300"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
