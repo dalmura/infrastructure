@@ -9,5 +9,5 @@ data:
   REDIRECT_DOMAINS: "authentik.indigo.dalmura.cloud"
   PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
   POLICY_FNAME: "/data/cfg/botPolicy.yaml"
-  SLOG_LEVEL: "DEBUG"
+  SLOG_LEVEL: "INFO"
   XFF_STRIP_PRIVATE: "false"
