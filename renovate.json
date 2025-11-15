@@ -4,6 +4,11 @@
     "config:recommended"
   ],
   "enabledManagers": ["helm-values", "kustomize", "argocd", "custom.regex"],
+  "argocd": {
+    "managerFilePatterns": [
+      "sites/indigo/clusters/*/*/app/templates/*.yaml"
+    ]
+  },
   "helm-values": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/values/*/values.yaml"
@@ -12,14 +17,14 @@
       "sites/indigo/clusters/*/*/app/**"
     ]
   },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "sites/indigo/clusters/*/*/overlays/*/deployment.yaml"
+    ]
+  },
   "kustomize": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/overlays/*/kustomization.yaml"
-    ]
-  },
-  "argocd": {
-    "managerFilePatterns": [
-      "sites/indigo/clusters/*/*/app/templates/*.yaml"
     ]
   },
   "customManagers": [
