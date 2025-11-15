@@ -10,3 +10,4 @@ data:
   PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
   POLICY_FNAME: "/data/cfg/botPolicy.yaml"
   SLOG_LEVEL: "DEBUG"
+  XFF_STRIP_PRIVATE: "false"
