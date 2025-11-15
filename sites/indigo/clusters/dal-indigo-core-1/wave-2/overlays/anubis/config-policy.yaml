@@ -13,6 +13,11 @@ data:
         path_regex: ^.*/\.well-known/.*$
         action: ALLOW
 
+      - name: authentik-user-assets
+        host: authentik.indigo.dalmura.cloud
+        path_regex: ^/if/user/assets/.*$
+        action: ALLOW
+
     dnsbl: false
 
     status_codes:
