@@ -4,7 +4,8 @@ kind: Kustomization
 namespace: anubis
 
 resources:
-  - config.yaml
+  - config-env.yaml
+  - config-policy.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

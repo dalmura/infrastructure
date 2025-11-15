@@ -40,4 +40,12 @@ spec:
               memory: 256Mi
           envFrom:
             - configMapRef:
-                name: anubis-config
+                name: anubis-env
+          volumeMounts:
+            - name: anubis-policy
+              mountPath: /data/cfg/botPolicy.yaml
+              subPath: botPolicy.yaml
+      volumes:
+        - name: anubis-policy
+          configMap:
+            name: anubis-policy
