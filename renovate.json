@@ -3,7 +3,13 @@
   "extends": [
     "config:recommended"
   ],
-  "enabledManagers": ["helm-values", "kustomize", "argocd", "custom.regex"],
+  "enabledManagers": [
+    "argocd",
+    "helm-values",
+    "kubernetes",
+    "kustomize",
+    "custom.regex"
+  ],
   "argocd": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/app/templates/*.yaml"
