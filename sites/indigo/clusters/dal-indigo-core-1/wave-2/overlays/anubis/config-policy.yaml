@@ -16,7 +16,7 @@ data:
 
     status_codes:
       CHALLENGE: 200
-      DENY: 200
+      DENY: 403
 
     store:
       backend: memory
