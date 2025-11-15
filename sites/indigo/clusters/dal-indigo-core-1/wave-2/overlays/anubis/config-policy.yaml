@@ -9,13 +9,14 @@ data:
 
       # Authentik hosts its .well-known for apps further down the path
       - name: authentik-well-known-paths
+        host: authentik.indigo.dalmura.cloud
         path_regex: ^.*/\.well-known/.*$
         action: ALLOW
 
     dnsbl: false
 
     status_codes:
-      CHALLENGE: 200
+      CHALLENGE: 403
       DENY: 403
 
     store:
