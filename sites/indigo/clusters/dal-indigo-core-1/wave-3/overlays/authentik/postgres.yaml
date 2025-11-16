@@ -44,7 +44,7 @@ spec:
 
   postgresql:
     parameters:
-      archive_timeout: "30"
+      archive_timeout: "30min"
       max_connections: "300"
 ---
 apiVersion: postgresql.cnpg.io/v1
