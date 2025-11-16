@@ -35,6 +35,7 @@ spec:
         compression: gzip
       wal:
         compression: gzip
+        maxParallel: 4
       tags:
         site: indigo
         service: authentik
@@ -43,6 +44,7 @@ spec:
 
   postgresql:
     parameters:
+      archive_timeout: "30"
       max_connections: "300"
 ---
 apiVersion: postgresql.cnpg.io/v1
