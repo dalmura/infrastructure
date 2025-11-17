@@ -41,7 +41,7 @@ The IAM Policy has resource/condition key templates that asserts that the S3 pat
 For example this could be `indigo/example-app/postgres/` from the below example. So ensure any configuration in the app itself for S3 path matches this configuration.
 
 
-Create the Vault Role (aka IAM User Template):
+Create the Vault AWS Role (aka IAM User Template):
 ```bash
 vault write aws/roles/example-app-db-backup \
     credential_type=iam_user \
@@ -52,9 +52,33 @@ vault write aws/roles/example-app-db-backup \
     iam_tags="role=postgres"
 ```
 
-Run this to generate a temporary user with above attached IAM Policy:
+Test this to generate a temporary user with above attached IAM Policy:
 ```bash
 vault get aws/creds/example-app-db-backup
 ```
 
-[External Secrets Operator](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) will then use its permissions in vault to vend new IAM Users and store the returned credentials in a secret.
+The above assumes you're running as the root token user as we've not setup any permissions to use this role yet. Let's do that now.
+
+Create a Vault Permissions Role:
+```bash
+vault policy write workload-reader-example-app-db-backup -<<EOF
+# App specific credentials path
+path "aws/creds/example-app-db-backup" {
+    capabilities = ["read"]
+}
+EOF
+
+# Allow the Kubernetes Namespace & SA usage of our above policy via this 'auth role'
+vault write auth/kubernetes/role/workload-reader-example-app-db-backup \
+   bound_service_account_names=example-app-sa \
+   bound_service_account_namespaces=example-app \
+   token_policies=workload-reader-example-app-db-backup \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+```
+
+The above assumes you already know the Namespace of your app along with the name of the Service Account created.
+
+Once created, [External Secrets Operator](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) will then use its permissions in Vault to vend new IAM Users and store the returned credentials in a secret.
+
+Review the doco for this in [INDIGO-APPS-DB-MGMT.md](INDIGO-APPS-DB-MGMT.md) or review some examples in [Wave 5 Overlays](../clusters/dal-indigo-core-1/wave-5/overlays/).
