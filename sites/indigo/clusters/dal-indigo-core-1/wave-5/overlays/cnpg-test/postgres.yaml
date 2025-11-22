@@ -1,0 +1,52 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-test-1-db
+spec:
+  description: "CNPG Test DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 5Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/indigo/cnpg-test/postgres/
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-test-db-backup
+          key: access_key
+        secretAccessKey:
+          name: cnpg-test-db-backup
+          key: secret_key
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+      tags:
+        site: indigo
+        service: cnpg-test
+        db: cnpg-test-1-db
+    retentionPolicy: "2d"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: cnpg-test-1-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: cnpg-test-1-db
