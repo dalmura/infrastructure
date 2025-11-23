@@ -48,3 +48,36 @@ argocd app sync wave-9
 ```
 
 You can now go and experiment by deploying individual apps in [ArgoCD - Wave 9](https://argocd.indigo.dalmura.cloud/applications/argocd/wave-9).
+
+## Connecting to cnpg-test clusters
+
+First we need to port forward the postgres service to our laptop:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/cnpg-test-1-db-rw -n cnpg-test 5432:5432
+```
+
+Then we need to get the DB credentials:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n cnpg-test get secret cnpg-test-1-db-app -o jsonpath='{.data.username}' | base64 -d | sed 's/$/\n/g'
+
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n cnpg-test get secret cnpg-test-1-db-app -o jsonpath='{.data.password}' | base64 -d | sed 's/$/\n/g'
+```
+
+Finally we connect:
+```bash
+docker run -it --rm --network host postgres:latest psql -h localhost -U app -p 5432
+```
+
+Can then generate some fake data to test out the backup/restore process:
+```sql
+CREATE TABLE users (name text, age int);
+
+-- Set 1
+INSERT INTO users VALUES ('Person A', 30), ('Person B', 25), ('Person C', 20);
+
+-- Set 2
+INSERT INTO users VALUES ('Person D', 30), ('Person E', 25), ('Person F', 20);
+
+-- Set 3
+INSERT INTO users VALUES ('Person G', 30), ('Person H', 25), ('Person I', 20);
+```
