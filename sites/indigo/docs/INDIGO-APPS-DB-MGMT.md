@@ -52,3 +52,14 @@ High level steps:
 5. Watch the Cluster resource events and wait for the restore to complete
 6. Update the application with the new DB configuration
 7. Delete the application pods to restart the application
+
+## Upgrading
+
+Upgrading minor versions is handled automatically by CNPG, whenever it detects a new minor version it will immediately start upgrading all Clusters.
+
+To upgrade to a newer version of Postgres with CNPG, the easiest way is simply to update the `spec.imageCatalogRef.major` version, this will perform an *offline* major upgrade which means:
+* Cluster is shut down
+* Upgrade is performed
+* Cluster is turned back on
+
+Ensure your application supports the new version of Postgres before upgrading, as rolling back isn't ideal, you will need to follow the Restoring steps above and create a new cluster using the previous backups.
