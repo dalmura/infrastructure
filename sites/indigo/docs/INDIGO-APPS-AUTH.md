@@ -243,3 +243,8 @@ data:
 Then kill the ArgoCD `server` and `dex` pods first before login would work correctly (otherwise you'll get weird errors about token failing to validate.
 
 You should now be able to log into ArgoCD correctly!
+
+Using SSO to log into the ArgoCD CLI is supported as well, this will open a browser to perform the authentication:
+```
+argocd --grpc-web login argocd.indigo.dalmura.cloud --sso
+```

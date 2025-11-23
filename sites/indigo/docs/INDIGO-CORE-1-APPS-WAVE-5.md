@@ -118,6 +118,7 @@ argocd app create wave-5 \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/wave-5/app \
+    --sync-policy automated \
     --auto-prune \
     --self-heal
 

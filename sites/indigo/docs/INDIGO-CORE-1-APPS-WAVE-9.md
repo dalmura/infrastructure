@@ -4,6 +4,8 @@ These are:
 * `cnpg-test` for experimenting with CNPG
 * `whoami` for experimenting with Reverse Proxies
 
+This wave is just for experimentation and is entirely optional.
+
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
 * `argocd` is logged in
@@ -37,6 +39,7 @@ argocd app create wave-9 \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/wave-9/app \
+    --sync-policy automated \
     --auto-prune \
     --self-heal
 

@@ -54,6 +54,7 @@ argocd app create wave-4 \
     --dest-server https://kubernetes.default.svc \
     --repo https://github.com/dalmura/infrastructure.git \
     --path sites/indigo/clusters/dal-indigo-core-1/wave-4/app \
+    --sync-policy automated \
     --auto-prune \
     --self-heal
 
