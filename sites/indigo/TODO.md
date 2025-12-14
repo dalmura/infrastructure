@@ -9,8 +9,6 @@ Things to implement before MVP.
 
 As the site approaches an MVP status just recording a list of stuff to eventually get done.
 
-* Frigate
-  * How to ensure Longhorn storage doesn't blow out?
 * Longhorn
   * Validate backups & restore strategy
   * Create example app in wave-5 to verify
