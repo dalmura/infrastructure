@@ -27,7 +27,7 @@ machine:
 
   install:
     diskSelector:
-      model: 00SSD1
+      size: ">= 200GB"
 
 cluster:
   network:

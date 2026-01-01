@@ -3,5 +3,9 @@ machine:
     topology.kubernetes.io/region: "melbourne"
     topology.kubernetes.io/zone: "indigo"
 
-  network:
-    hostname: "talos-<HW_ADDRESS>"
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: "talos-<HW_ADDRESS>"
+auto:
+  $patch: delete

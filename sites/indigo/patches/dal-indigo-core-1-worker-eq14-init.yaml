@@ -37,7 +37,7 @@ machine:
     image: <INSTALLER_IMAGE_URI>
 
     diskSelector:
-      size: '>= 500GB'
+      size: ">= 500GB"
 
   sysctls:
     # Required for Longhorn V2 Data Engine

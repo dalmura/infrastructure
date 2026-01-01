@@ -51,7 +51,7 @@ xz -dc metal-arm64.raw.xz | sudo dd of=/dev/disk3 conv=fsync bs=4M status=progre
 
 Boot the 3x `rpi4.4gb.arm64` nodes for the control plane, record the IP Addresses that DHCP assigns from the SERVERS_STAGING VLAN, for example:
 ```bash
-RPI4_1_IP=192.168.77.196
+RPI4_1_IP=192.168.77.200
 RPI4_2_IP=
 RPI4_3_IP=
 ```
@@ -137,7 +137,7 @@ talosctl -n "${RPI4_2_IP}" get links --insecure -o json | jq '. | select(.metada
 talosctl -n "${RPI4_3_IP}" get links --insecure -o json | jq '. | select(.metadata.id == "end0") | .spec.hardwareAddr' -r | tr -d ':'
 
 # Note down the HW ADDR for each node from above, for example:
-RPI4_1_HW_ADDR='e45f019d4e19'
+RPI4_1_HW_ADDR='e45f019d4d95'
 RPI4_2_HW_ADDR=''
 RPI4_3_HW_ADDR=''
 
@@ -210,7 +210,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
     cilium/cilium \
     --version "${CILIUM_VERSION}" \
     --kubeconfig kubeconfigs/dal-indigo-core-1 \
-    --namespace kube-system
+    --namespace kube-system \
     -f clusters/dal-indigo-core-1/wave-0/values/cilium/values.yaml
 
 # To upgrade/change the above you can:
