@@ -9,11 +9,14 @@ machine:
 
         bond:
           interfaces:
-            - "enx<HW_ADDRESS_P1>"
-            - "enx<HW_ADDRESS_P2>"
+            - "enp1s0"
+            - "enp2s0"
+            #- "enx<HW_ADDRESS_P1>"
+            #- "enx<HW_ADDRESS_P2>"
           mode: 802.3ad
           lacpRate: fast
           xmitHashPolicy: "layer3+4"
+          miimon: 100
 
         dhcp: true
         dhcpOptions:
@@ -34,7 +37,7 @@ machine:
     image: <INSTALLER_IMAGE_URI>
 
     diskSelector:
-      model: 512GB SSD
+      size: '>= 500GB'
 
   sysctls:
     # Required for Longhorn V2 Data Engine
@@ -46,10 +49,11 @@ machine:
       - name: nvme_tcp
       - name: vfio_pci
 
-      # Required for Plex transcoding (I think...)
-      - name: i915
-        parameters:
-          - "enable_guc=3"
+      # Required for Plex transcoding
+      # 2026-01-01: Commented out for testing, might not be needed
+      #- name: i915
+      #  parameters:
+      #    - "enable_guc=3"
 
   udev:
     rules:

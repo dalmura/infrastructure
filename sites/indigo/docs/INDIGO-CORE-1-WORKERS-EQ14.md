@@ -12,22 +12,23 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
    * siderolabs/util-linux-tools
    * siderolabs/intel-ucode
    * siderolabs/i915
-   * siderolabs/realtek-firmware
+   #* siderolabs/realtek-firmware
    * siderolabs/hailort
-5. Provide the following Kernel command line options:
+5. Provide the following Kernel command line options (space delimited):
    * `-talos.halt_if_installed`
-   * `bond=bond0:eth0,eth1:mode=802.3ad,lacp_rate=fast,xmit_hash_policy=layer3+4`
+   * `bond=bond0:enp1s0,enp2s0:mode=802.3ad,lacp_rate=fast,xmit_hash_policy=layer3+4,miimon=100`
+   * `ip=bond0:dhcp`
 6. Download the linked *ISO* `metal-amd64.iso`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
 
 Note down the following attributes:
 ```
-SCHEMATIC_ID='69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1'
+SCHEMATIC_ID='7f8b0df8463ddc0167c268acf32973b533e1ced81ce779f2867e84a1dfa9db18'
 
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&cmdline=-talos.halt_if_installed&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Frealtek-firmware&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=metal&version=1.11.5'
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&board=undefined&bootloader=auto&cmdline=-talos.halt_if_installed+bond%3Dbond0%3Aenp1s0%2Cenp2s0%3Amode%3D802.3ad%2Clacp_rate%3Dfast%2Cxmit_hash_policy%3Dlayer3%2B4%2Cmiimon%3D100+ip%3Dbond0%3Adhcp&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&secureboot=undefined&target=metal&version=1.12.0'
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/69478eaae753eb198b027db189f1b9aac3a2ee37ae7d8955a474478e4b9cd4a1:v1.11.5'
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/7f8b0df8463ddc0167c268acf32973b533e1ced81ce779f2867e84a1dfa9db18:v1.12.0'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.
@@ -44,12 +45,16 @@ sync
 # Just use Raspberry Pi Imager tool
 ```
 
-Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from the USB. F7 from a locally attached keyboard will bring up the boot menu.
+Boot the 3x `eq14.16gb.amd64` nodes with the above USB, ensuring to boot from the USB.
 
-TODO: Optionally wipe the existing NVME drive as Talos doesn't like an existing Talos install existing
+From a locally attached keyboard:
+* `F7` will bring up the boot menu
+* `Del` will bring up the BIOS config
+
+Optionally, if you have an existing Talos install, after selecting the USB drive to boot from, in the Talos bootloader menu, you can choose to wipe the existing install.
 
 Additional requires BIOS steps:
-* Under Advanced, there's a Compatibility Support Module (CSM) that you need to update the Boot mode from `UEFI Only` => `UEFI and Legacy` otherwise the Talos USB will refuse to boot
+* Advanced => CSM Configuration => Boot option filter => Set to `UEFI and Legacy`
 * TODO: Ensure in the Power settings that the nodes turn on automatically when power is applied
 
 
