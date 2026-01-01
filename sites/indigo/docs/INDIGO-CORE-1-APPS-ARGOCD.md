@@ -14,7 +14,7 @@ The below 'ArgoCD via Helm' section is the preferred install method, but if for 
 
 Either way we go we first need to create the namespace for ArgoCD:
 ```bash
-% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-worker-argocd-namespace.yaml
+% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f patches/dal-indigo-core-1-argocd-namespace.yaml
 namespace/argocd created
 ```
 
@@ -23,6 +23,7 @@ namespace/argocd created
 Add the repo and check the available versions:
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
 
 helm search repo argo/argo-cd
 # Note down the `CHART_VERSION` value
@@ -30,23 +31,14 @@ helm search repo argo/argo-cd
 
 Install the desired (ideally latest) `CHART_VERSION`:
 ```bash
-helm install argocd argo/argo-cd --version 8.3.4 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
+helm install \
+  argocd \
+  argo/argo-cd \
+  --version "${CHART_VERSION}" \
+  --kubeconfig kubeconfigs/dal-indigo-core-1 \
+  --namespace argocd \
+  -f clusters/dal-indigo-core-1/wave-0/values/argocd/values.yaml
 ```
-
-## ArgoCD via Manifests
-
-Install the non-HA ArgoCD into its own namespace:
-```bash
-% kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io created
-customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io created
-customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io created
-serviceaccount/argocd-application-controller created
-serviceaccount/argocd-applicationset-controller created
-...
-networkpolicy.networking.k8s.io/argocd-redis-network-policy created
-networkpolicy.networking.k8s.io/argocd-repo-server-network-policy created
-networkpolicy.networking.k8s.io/argocd-server-network-policy created
 
 # Wait for the containers to come up
 
@@ -59,9 +51,6 @@ argocd-notifications-controller-5fd999cb79-9p7wn    0/1     ContainerCreating   
 argocd-redis-6b7c6f67db-kmn74                       1/1     Running             0          82s
 argocd-repo-server-74f6bfdf54-k276v                 0/1     Init:0/1            0          82s
 argocd-server-76fdbd5f78-mkx2p                      0/1     ContainerCreating   0          82s
-
-# You'll see a Warning about 'prefer a domain-qualified finalizer name', just ignore it, some context: https://github.com/Infisical/infisical/issues/2503
-# This works around https://github.com/cilium/cilium/issues/17349
 ```
 
 ## Verify Installation
@@ -96,16 +85,24 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete secret argoc
 
 ## Upgrading
 
-### Via Helm
-Run an upgrade command:
+Find the latest version:
 ```bash
-helm upgrade argocd argo/argo-cd --version 8.3.4 --kubeconfig kubeconfigs/dal-indigo-core-1 --values patches/dal-indigo-core-1-argocd-helm-values.yaml
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+
+helm search repo argo/argo-cd
+# Note down the `CHART_VERSION` value
 ```
 
-### Via Manifests
-Just rerun the install command again to apply the latest version:
+Run an upgrade command:
 ```bash
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+helm upgrade \
+  argocd \
+  argo/argo-cd \
+  --version "${CHART_VERSION}" \
+  --kubeconfig kubeconfigs/dal-indigo-core-1 \
+  --namespace argocd \
+  -f clusters/dal-indigo-core-1/wave-0/values/argocd/values.yaml
 ```
 
 Now our k8s cluster should be running with:
