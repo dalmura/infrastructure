@@ -2,6 +2,11 @@
 
 These are:
 * [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets/) for Secrets in-repo
+* [Reloader](https://github.com/stakater/Reloader) for Reloading Pods on Secret/ConfigMap change
+
+Also we manage these previously installed applications within ArgoCD too:
+* [Cilium](https://github.com/cilium/cilium)
+* [ArgoCD](https://github.com/argoproj/argo-cd/)
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster
@@ -12,17 +17,18 @@ You can verify the k8s resources emitted by each app by running `kustomize` your
 ```bash
 pushd clusters/dal-indigo-core-1/wave-0/app/templates/
 
-% cat sealed-secrets.yaml
+$ cat sealed-secrets.yaml
 ...
+spec:
   source:
-    repoURL: https://github.com/dalmura/workloads.git
-    path: sealed-secrets
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/indigo/clusters/dal-indigo-core-1/wave-0/overlays/sealed-secrets
     targetRevision: HEAD
 ...
 
 # This would equate to the following kustomize command
 # All k8s resources that would be created are printed out by this
-kubectl kustomize 'https://github.com/dalmura/workloads.git/sealed-secrets?ref=HEAD'
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-0/overlays/sealed-secrets?ref=HEAD'
 
 # Go back to the site directory
 popd
@@ -61,3 +67,5 @@ You can then test it out:
 # Print out the public key of this server
 kubeseal --kubeconfig kubeconfigs/dal-indigo-core-1 --fetch-cert
 ```
+
+On to [INDIGO-CORE-1-APPS-WAVE-1.md](INDIGO-CORE-1-APPS-WAVE-1.md)!

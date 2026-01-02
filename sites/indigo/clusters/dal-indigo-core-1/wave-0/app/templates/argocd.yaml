@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 9.2.4
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/argocd/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: argocd
+  revisionHistoryLimit: 1

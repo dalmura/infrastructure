@@ -114,3 +114,5 @@ Now our k8s cluster should be running with:
 * 3x `rpi4.8gb.arm64` Worker nodes
 * 3x `eq14.16gb.amd64` Worker nodes
 * ArgoCD ready to deploy _everything else_
+
+Proceed to [INDIGO-CORE-1-APPS-WAVE-0.md](INDIGO-CORE-1-APPS-WAVE-0.md)
