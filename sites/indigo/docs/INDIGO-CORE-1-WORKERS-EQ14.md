@@ -3,6 +3,15 @@
 We assume you've followed the steps at [`dal-indigo-core-1` Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) and are ready to onboard the `eq14.16gb.amd64` Worker nodes.
 
 ## Prepare image and boot nodes
+
+
+First we need to encode the EQ14's bond config kernel parameter:
+```
+cat patches/dal-indigo-core-1-worker-eq14-bond.yaml | zstd --compress --ultra -22 | base64 -w 0
+```
+
+This will print out base64 encoded config we'll use in the factory config below.
+
 Navigate to the [Talos Image Factory](https://factory.talos.dev/):
 1. Select 'Bare-metal Machine'
 2. Select the Talos Version from above
@@ -15,19 +24,19 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
    * siderolabs/hailort
 5. Provide the following Kernel command line options (space delimited):
    * `-talos.halt_if_installed`
-   * `bond=bond0:enp1s0,enp2s0:mode=802.3ad,lacp_rate=fast,xmit_hash_policy=layer3+4,miimon=100`
-   * `ip=bond0:dhcp`
+   * `talos.config.early=<BASE64_ENCODED_YAML_FROM_ABOVE>`
 6. Download the linked *ISO* `metal-amd64.iso`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
 
 Note down the following attributes:
 ```
-SCHEMATIC_ID='7f8b0df8463ddc0167c268acf32973b533e1ced81ce779f2867e84a1dfa9db18'
+SCHEMATIC_ID='daef3a91594ed2ed156f1a057537bf22a7dfb80bee570b2939634a942c039bbe'
 
-FACTORY_URL='https://factory.talos.dev/?arch=amd64&board=undefined&bootloader=auto&cmdline=-talos.halt_if_installed+bond%3Dbond0%3Aenp1s0%2Cenp2s0%3Amode%3D802.3ad%2Clacp_rate%3Dfast%2Cxmit_hash_policy%3Dlayer3%2B4%2Cmiimon%3D100+ip%3Dbond0%3Adhcp&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&secureboot=undefined&target=metal&version=1.12.0'
+# This contains the above base64 encoded config in it!
+FACTORY_URL='https://factory.talos.dev/?arch=amd64&board=undefined&bootloader=auto&cmdline=-talos.halt_if_installed+talos.config.early%3DKLUv%2FQSIvQQAMoogGXB5A6RuRHLIEbERUngiVlq10BOrAPQAAQIrNWWISZ88MtpLn5KxOcmirJb1xFBq%2FVxSzzWAApNdT4ad5LM6VdaL5pTb9waGX6k73diFQLyDoYy1IV42XC85YF6YWe9zX%2FwaMZS0fymfvibxK8Iwvls7dHXNHjaGXz3DJORXbxAEAQYAKIB7LCmBY9qMCgwAdpgoUVqZDQs%3D&cmdline-set=true&extensions=-&extensions=siderolabs%2Fhailort&extensions=siderolabs%2Fi915&extensions=siderolabs%2Fintel-ucode&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&secureboot=undefined&target=metal&version=1.12.0'
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/7f8b0df8463ddc0167c268acf32973b533e1ced81ce779f2867e84a1dfa9db18:v1.12.0'
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/daef3a91594ed2ed156f1a057537bf22a7dfb80bee570b2939634a942c039bbe:v1.12.0'
 ```
 
 Write the `metal-amd64.iso` out to a USB as we'll boot off it to start up maintenance mode, Talos will install itself onto the SSD on the EQ14, the USB is temporary.

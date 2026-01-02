@@ -1,0 +1,16 @@
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: bond0
+links:
+  - enp1s0
+  - enp2s0
+bondMode: 802.3ad
+miimon: 100
+xmitHashPolicy: layer3+4
+lacpRate: fast
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: bond0
+clientIdentifier: mac
