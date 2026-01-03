@@ -163,4 +163,13 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/longhorn-fro
 # Open http://localhost:8080/
 ```
 
+## Post Install Configuration
+### Longhorn
+Open up the Longhorn UI (either with above port-forward, or wait until the Ingress rule is deployed in Wave 2).
+
+Click the `Nodes` button in the top menu bar, *and for each node*:
+* Click the `Operation` dropdown and click `Edit nodes and disks`
+* Scroll down the modal and lower the `Storage Reserved` to `20 Gi`
+* Click Save and repeat for other nodes
+
 On to [INDIGO-CORE-1-APPS-WAVE-2.md](INDIGO-CORE-1-APPS-WAVE-2.md)!

@@ -2,7 +2,10 @@
 
 These are:
 * [Traefik Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/) for incoming connections to the cluster
+* [Switchboard](https://github.com/borchero/switchboard/) for helping manage DNS/TLS for Traefik Ingress CRDs
 * [CloudNative PG](https://cloudnative-pg.io/documentation/current/) for managed PostgreSQL clusters
+* [Anubis](https://github.com/TecharoHQ/anubis) for helping limit the impacts of web scraping
+* [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) simple k8s native cluster overview dashboard
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 1](INDIGO-CORE-1-APPS-WAVE-1.md) and have all the precursors up and running, `argocd` is logged in and Longhorn is running
