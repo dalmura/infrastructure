@@ -77,11 +77,13 @@ kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/cl
 
 kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/cert-manager?ref=HEAD'
 
+kubectl kustomize 'https://github.com/dalmura/infrastructure.git/sites/indigo/clusters/dal-indigo-core-1/wave-1/overlays/longhorn?ref=HEAD'
+
 # Go back to original dir
 popd
 ```
 
-Longhorn uses Helm to deploy, which we integrate into ArgoCD's Application CRD, so there's no easy way to render this locally apart from building the `helm template` command locally.
+ExternalDNS & Longhorn uses Helm to deploy, which we integrate into ArgoCD's Application CRD, so there's no easy way to render this locally apart from building the `helm template` command locally.
 
 ## Create the wave-1 parent app & deploy children
 ```bash
@@ -160,3 +162,5 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/longhorn-fro
 
 # Open http://localhost:8080/
 ```
+
+On to [INDIGO-CORE-1-APPS-WAVE-2.md](INDIGO-CORE-1-APPS-WAVE-2.md)!
