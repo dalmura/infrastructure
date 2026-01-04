@@ -1,0 +1,8 @@
+apiVersion: v2
+name: wave-2
+description: Wave 2 Applications
+
+type: application
+
+version: 1.0.0
+appVersion: "1.0.0"

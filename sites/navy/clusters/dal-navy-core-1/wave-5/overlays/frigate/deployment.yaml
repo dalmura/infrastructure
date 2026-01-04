@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: frigate
+    app.kubernetes.io/name: frigate
+  name: frigate
+  namespace: frigate
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: frigate
+      app.kubernetes.io/name: frigate
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: frigate
+        app.kubernetes.io/name: frigate
+    spec:
+      containers:
+        - image: ghcr.io/blakeblackshear/frigate:0.16.3
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+          name: frigate
+          ports:
+            - containerPort: 5000
+              name: http
+              protocol: TCP
+            - containerPort: 8971
+              name: http-auth
+              protocol: TCP
+            - containerPort: 1935
+              name: rtmp
+              protocol: TCP
+            - containerPort: 8554
+              name: rtsp
+              protocol: TCP
+            - containerPort: 8555
+              name: webrtc-udp
+              protocol: UDP
+            - containerPort: 8555
+              name: webrtc-tcp
+              protocol: TCP
+            - containerPort: 1984
+              name: go2rtc-admin
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          securityContext:
+            # Required for hailo0 access
+            privileged: true
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /media
+              name: media
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /dev/hailo0
+              name: h8l
+            - mountPath: /usr/local/nginx/conf/proxy_trusted_headers.conf
+              name: proxy-config
+              subPath: proxy_trusted_headers.conf
+      nodeSelector:
+        k8s.dalmura.cloud/nodegroup: eq14-worker-pool
+      volumes:
+        - configMap:
+            name: frigate
+          name: configmap
+        - name: config
+          persistentVolumeClaim:
+            claimName: frigate-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: frigate-media
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+          name: dshm
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+          name: tmp
+        - hostPath:
+            path: /dev/hailo0
+          name: h8l
+        - configMap:
+            name: proxy-trusted-headers
+          name: proxy-config

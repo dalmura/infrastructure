@@ -1,0 +1,45 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+deployment:
+  revisionHistoryLimit: 0
+
+ingressClass:
+  name: ingress-private
+
+providers:
+  kubernetesCRD:
+    ingressClass: ingress-private
+    allowCrossNamespace: true
+  kubernetesIngress:
+    ingressClass: ingress-private
+    publishedService:
+      enabled: true
+
+ports:
+  web:
+    port: 80
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+  websecure:
+    asDefault: true
+    port: 443
+  traefik:
+    port: 8080
+    expose:
+      default: true
+  ssh:
+    port: 22
+
+service:
+  annotations:
+    metallb.io/address-pool: servers-vlan
+  spec:
+    externalTrafficPolicy: Local
+
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+  - "--api.insecure=true"

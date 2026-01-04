@@ -1,0 +1,54 @@
+postgresql-ha:
+  enabled: false
+
+valkey-cluster:
+  enabled: false
+
+valkey:
+  enabled: true
+
+persistence:
+  enabled: true
+  size: 50Gi
+
+gitea:
+  additionalConfigFromEnvs:
+    - name: FORGEJO__DATABASE__USER
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-app
+          key: username
+    - name: FORGEJO__DATABASE__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: forgejo-db-app
+          key: password
+
+  admin:
+    passwordMode: initialOnlyRequireReset
+
+  config:
+    APP_NAME: 'Indigo Git'
+    database:
+      DB_TYPE: postgres
+      HOST: forgejo-db-rw
+      NAME: app
+      SCHEMA: public
+
+    server:
+      DOMAIN: forgejo.indigo.dalmura.cloud
+      ROOT_URL: https://forgejo.indigo.dalmura.cloud
+
+    service:
+      REQUIRE_SIGNIN_VIEW: true
+      ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+
+    openid:
+      ENABLE_OPENID_SIGNUP: true
+      WHITELISTED_URIS: authentik.indigo.dalmura.com.au
+
+    security:
+      INSTALL_LOCK: true
+
+strategy:
+  type: Recreate

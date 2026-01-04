@@ -1,0 +1,28 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: postgres-network-policy
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: authentik-db
+  ingress:
+    # Allow access from the CNPG Operator
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+
+    # Allow access from the local DB nodes and Authentik
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: authentik
+        - matchLabels:
+            cnpg.io/cluster: authentik-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP

@@ -1,0 +1,17 @@
+global:
+  enabled: true
+
+injector:
+  # Maybe later, using ESO for now
+  enabled: false
+
+server:
+  ingress:
+    enabled: false
+
+ha:
+  apiAddr: https://vault.indigo.dalmura.cloud
+  clusterAddr: https://cluster.vault.indigo.dalmura.cloud
+
+ui:
+  enabled: true

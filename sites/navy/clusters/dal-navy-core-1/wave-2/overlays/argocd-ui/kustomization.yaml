@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: argocd
+
+resources:
+  # Not used anymore as Ingress cannot handle the gRPC proxy as well for argocd CLI
+  #- ingress.yaml
+
+  # Use of switchboard allows for automatic discovery for cert-manager and external-dns
+  - ingressroute.yaml
+
+  # Eventually need to move to Gateway API instead

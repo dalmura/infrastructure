@@ -1,0 +1,94 @@
+authentik:
+  email:
+    host: file:///email-config/host
+    port: file:///email-config/port
+    username: file:///email-config/username
+    password: file:///email-config/password
+    use_ssl: true
+    from: file:///email-config/from
+
+  error_reporting:
+    enabled: false
+
+  secret_key: file:///secret-key/SECRET_KEY
+
+  postgresql:
+    host: authentik-db-rw
+    name: app
+    user: file:///postgres-creds/username
+    password: file:///postgres-creds/password
+
+server:
+  deploymentStrategy:
+    type: Recreate
+
+  ingress:
+    # We manage this separately
+    enabled: false
+
+  volumes:
+    - name: authentik-db-creds
+      secret:
+        secretName: authentik-db-app
+    - name: authentik-secret-key
+      secret:
+        secretName: authentik-secret-key
+    - name: authentik-email-secrets
+      secret:
+        secretName: authentik-email-secrets
+    - name: authentik-media
+      persistentVolumeClaim:
+        claimName: authentik-media
+
+  volumeMounts:
+    - name: authentik-db-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: authentik-secret-key
+      mountPath: /secret-key
+      readOnly: true
+    - name: authentik-email-secrets
+      mountPath: /email-config
+      readOnly: true
+    - name: authentik-media
+      mountPath: /media
+
+worker:
+  livenessProbe:
+    # Raspberry Pi's take a little bit longer
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+
+  readinessProbe:
+    # Raspberry Pi's take a little bit longer
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+
+  volumes:
+    - name: authentik-db-creds
+      secret:
+        secretName: authentik-db-app
+    - name: authentik-secret-key
+      secret:
+        secretName: authentik-secret-key
+    - name: authentik-email-secrets
+      secret:
+        secretName: authentik-email-secrets
+
+  volumeMounts:
+    - name: authentik-db-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: authentik-secret-key
+      mountPath: /secret-key
+      readOnly: true
+    - name: authentik-email-secrets
+      mountPath: /email-config
+      readOnly: true
+
+redis:
+  enabled: true
+
+  master:
+    persistence:
+      storageClass: cluster-nobackup

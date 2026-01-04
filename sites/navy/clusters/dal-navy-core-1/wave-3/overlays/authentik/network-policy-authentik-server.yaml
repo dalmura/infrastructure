@@ -1,0 +1,56 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: authentik-server
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: server
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+    - fromEndpoints:
+        - matchLabels:
+            # Access to Authentik itself
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+        - matchLabels:
+            # ForwardAuth middlewre
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "9000" # This is the port of the pod, not the service
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: authentik-db
+      toPorts:
+        - ports:
+            - port: "5432"
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        # Required for Captcha verification
+        - matchName: "challenges.cloudflare.com"
+        # Required for user avatars
+        - matchName: "www.gravatar.com"
+      toPorts:
+        - ports:
+          - port: "443"
+            protocol: TCP
