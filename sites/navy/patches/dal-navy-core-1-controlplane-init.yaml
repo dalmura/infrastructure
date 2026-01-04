@@ -1,0 +1,37 @@
+machine:
+  nodeLabels:
+    node.kubernetes.io/instance-type: "eq14.16gb.amd64"
+
+  network:
+    interfaces:
+      - interface: "enx<HW_ADDRESS>"
+        mtu: 1500
+        dhcp: true
+        dhcpOptions:
+          routeMetric: 2048
+      - interface: "enx<HW_ADDRESS>"
+        vip:
+          ip: 192.168.81.192
+        vlans:
+          - # SERVERS
+            vlanId: 103
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+            vip:
+              ip: 192.168.81.2
+
+    nameservers:
+      - 192.168.81.1
+      - 192.168.81.129
+
+  install:
+    diskSelector:
+      model: AirDisk 512GB SSD
+
+cluster:
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
