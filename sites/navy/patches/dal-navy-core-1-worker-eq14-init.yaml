@@ -1,0 +1,50 @@
+machine:
+  nodeLabels:
+    k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
+    node.kubernetes.io/instance-type: "eq14.16gb.amd64"
+
+  network:
+    interfaces:
+      - interface: "enx<HW_ADDRESS>"
+        mtu: 1500    
+        dhcp: true
+        dhcpOptions:
+          routeMetric: 2048
+
+      - interface: "enx<HW_ADDRESS>"
+        vlans:
+          - # SERVERS
+            vlanId: 103
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 1024
+
+    nameservers:
+      - 192.168.81.1
+      - 192.168.81.129
+
+  install:
+    image: <INSTALLER_IMAGE_URI>
+
+    diskSelector:
+      model: AirDisk 512GB SSD
+
+  sysctls:
+    # Required for Longhorn V2 Data Engine
+    vm.nr_hugepages: "1024"
+
+  kernel:
+    modules:
+      # Required for Longhorn V2 Data Engine
+      - name: nvme_tcp
+      - name: vfio_pci
+
+      # Required for Plex transcoding (I think...)
+      - name: i915
+        parameters:
+          - "enable_guc=3"
+
+  udev:
+    rules:
+      # Required for Plex transcoding
+      - SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="44", MODE="0660"
