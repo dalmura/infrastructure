@@ -1,0 +1,58 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-public
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  ingress:
+    # Allow broad external and internal access
+    - fromEntities:
+        - world
+        - cluster
+      toPorts:
+        - ports:
+            - port: "443"
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+      toPorts:
+        - ports:
+            - port: "8080"
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*.plex.svc.cluster.local"
+              - matchPattern: "plex-plex-media-server"
+              - matchPattern: "plex-plex-media-server.plex"
+              - matchPattern: "*.anubis.svc.cluster.local"
+              - matchPattern: "anubis-service"
+              - matchPattern: "anubis-service.anubis"
+              - matchPattern: "*.authentik.svc.cluster.local"
+              - matchPattern: "authentik-server"
+              - matchPattern: "authentik-server.authentik"
+              - matchPattern: "plugins.traefik.io"
+              - matchPattern: "get.geojs.io"
+    - toEndpoints:
+        # Namespaces that host services
+        # Access within the namespace is managed by the namespace itself
+        - matchLabels:
+            io.kubernetes.pod.namespace: plex
+        - matchLabels:
+            io.kubernetes.pod.namespace: anubis
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
+    - toFQDNs:
+        - matchName: "plugins.traefik.io"
+        - matchName: "get.geojs.io"

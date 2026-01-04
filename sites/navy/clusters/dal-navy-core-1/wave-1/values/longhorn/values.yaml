@@ -1,0 +1,16 @@
+---
+persistence:
+  defaultClass: false
+
+preUpgradeChecker:
+  jobEnabled: false
+  upgradeVersionCheck: false
+
+defaultSettings:
+  allowCollectingLonghornUsageMetrics: false
+  backupExecutionTimeout: "5"
+  concurrentAutomaticEngineUpgradePerNodeLimit: "1"
+
+defaultBackupStore:
+  backupTarget: "s3://dal-site-backups@us-east-1/navy/longhorn/"
+  backupTargetCredentialSecret: aws-s3-credentials-secret

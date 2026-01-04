@@ -1,0 +1,50 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+deployment:
+  revisionHistoryLimit: 0
+
+ingressClass:
+  name: ingress-public
+
+providers:
+  kubernetesCRD:
+    ingressClass: ingress-public
+    allowCrossNamespace: true
+  kubernetesIngress:
+    ingressClass: ingress-public
+    publishedService:
+      enabled: true
+
+ports:
+  web:
+    port: 80
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+  websecure:
+    asDefault: true
+    port: 443
+  traefik:
+    port: 8080
+    expose:
+      default: true
+
+service:
+  annotations:
+    metallb.io/address-pool: servers-vlan
+  spec:
+    externalTrafficPolicy: Local
+
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+  - "--api.insecure=true"
+
+experimental:
+  plugins:
+    geoblock:
+      moduleName: github.com/PascalMinder/geoblock
+      # renovate: datasource=github-tags depName=PascalMinder/geoblock
+      version: v0.3.4

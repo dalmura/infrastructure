@@ -1,0 +1,79 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: anubis-policy
+data:
+  botPolicy.yaml: |
+    bots:
+      - import: (data)/meta/default-config.yaml
+
+      # We forward through the real client IP, so we can trust this
+      - import: (data)/common/allow-private-addresses.yaml
+
+      # Authentik hosts its .well-known for apps further down the path
+      - name: authentik-well-known-paths
+        host: authentik.navy.dalmura.cloud
+        path_regex: ^.*/\.well-known/.*$
+        action: ALLOW
+
+      # Authentik hosts assets under a subpath
+      - name: authentik-user-assets
+        host: authentik.navy.dalmura.cloud
+        path_regex: ^/if/user/assets/.*$
+        action: ALLOW
+
+    dnsbl: false
+
+    status_codes:
+      CHALLENGE: 403
+      DENY: 403
+
+    store:
+      backend: memory
+      parameters: {}
+
+    thresholds:
+      - name: minimal-suspicion
+        expression: weight <= 0
+        action: ALLOW
+
+      - name: mild-suspicion
+        expression:
+          all:
+            - weight > 0
+            - weight < 10
+        action: CHALLENGE
+        challenge:
+          algorithm: metarefresh
+          difficulty: 1
+          report_as: 1
+
+      - name: moderate-suspicion
+        expression:
+          all:
+            - weight >= 10
+            - weight < 20
+        action: CHALLENGE
+        challenge:
+          algorithm: fast
+          difficulty: 2
+          report_as: 2
+
+      - name: mild-proof-of-work
+        expression:
+          all:
+            - weight >= 20
+            - weight < 30
+        action: CHALLENGE
+        challenge:
+          algorithm: fast
+          difficulty: 4
+          report_as: 4
+
+      - name: extreme-suspicion
+        expression: weight >= 30
+        action: CHALLENGE
+        challenge:
+          algorithm: fast
+          difficulty: 6
+          report_as: 6

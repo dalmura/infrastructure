@@ -1,0 +1,43 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: authentik-worker
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: worker
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: authentik
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: authentik-db
+      toPorts:
+        - ports:
+            - port: "5432"
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        # Required for Email notifications
+        - matchName: "email-smtp.us-east-1.amazonaws.com"
+      toPorts:
+        - ports:
+          - port: "465"
+            protocol: TCP

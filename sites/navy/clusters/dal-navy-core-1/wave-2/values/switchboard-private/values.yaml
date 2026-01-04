@@ -1,0 +1,26 @@
+cert-manager:
+  installCRDs: false
+
+external-dns:
+  crd:
+    create: false
+
+integrations:
+  certManager:
+    enabled: true
+    certificateTemplate:
+      spec:
+        issuerRef:
+          kind: ClusterIssuer
+          name: dalmura-letsencrypt-prod
+    issuer: dalmura-letsencrypt-prod
+
+  externalDNS:
+    enabled: true
+
+    targetService:
+      namespace: traefik-private
+      name: traefik-private
+
+selector:
+  ingressClass: ingress-private

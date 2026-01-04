@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dalmura/infrastructure.git
+    path: sites/navy/clusters/dal-navy-core-1/wave-1/overlays/cert-manager
+    targetRevision: HEAD
+  destination:
+    namespace: cert-manager
+    server: {{ .Values.spec.destination.server }}

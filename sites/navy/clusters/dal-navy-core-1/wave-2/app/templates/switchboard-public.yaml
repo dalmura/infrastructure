@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: switchboard-public
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: ghcr.io/borchero/charts
+      chart: switchboard
+      targetRevision: 0.7.1
+      helm:
+        valueFiles:
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-2/values/switchboard-public/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: switchboard-public
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 2

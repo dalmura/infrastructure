@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-public
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 38.0.1
+      helm:
+        valueFiles:
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-2/values/traefik-public/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/navy/clusters/dal-navy-core-1/wave-2/overlays/traefik-public
+      targetRevision: HEAD
+  destination:
+    namespace: traefik-public
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 2
