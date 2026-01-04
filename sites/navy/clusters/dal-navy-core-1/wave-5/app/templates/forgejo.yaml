@@ -13,12 +13,12 @@ spec:
       targetRevision: 15.0.3
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/forgejo/values.yaml
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-5/values/forgejo/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/forgejo
+      path: sites/navy/clusters/dal-navy-core-1/wave-5/overlays/forgejo
       targetRevision: HEAD
   destination:
     namespace: forgejo

@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/cloudnativepg-image-catalog
+      path: sites/navy/clusters/dal-navy-core-1/wave-2/overlays/cloudnativepg-image-catalog
       targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}

@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-9/overlays/cnpg-test
+      path: sites/navy/clusters/dal-navy-core-1/wave-9/overlays/cnpg-test
       targetRevision: HEAD
   destination:
     namespace: cnpg-test

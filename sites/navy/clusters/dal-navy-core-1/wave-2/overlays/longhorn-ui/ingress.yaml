@@ -4,17 +4,17 @@ metadata:
   name: longhorn-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: longhorn.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: longhorn.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - longhorn.indigo.dalmura.cloud
+      - longhorn.navy.dalmura.cloud
       secretName: longhorn-cert
   rules:
-  - host: longhorn.indigo.dalmura.cloud
+  - host: longhorn.navy.dalmura.cloud
     http:
       paths:
       - path: /

@@ -13,12 +13,12 @@ spec:
       targetRevision: 7.14.0
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-2/values/kubernetes-dashboard/values.yaml
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-2/values/kubernetes-dashboard/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/kubernetes-dashboard
+      path: sites/navy/clusters/dal-navy-core-1/wave-2/overlays/kubernetes-dashboard
       targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}

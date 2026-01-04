@@ -28,7 +28,7 @@ gitea:
     passwordMode: initialOnlyRequireReset
 
   config:
-    APP_NAME: 'Indigo Git'
+    APP_NAME: 'Navy Git'
     database:
       DB_TYPE: postgres
       HOST: forgejo-db-rw
@@ -36,8 +36,8 @@ gitea:
       SCHEMA: public
 
     server:
-      DOMAIN: forgejo.indigo.dalmura.cloud
-      ROOT_URL: https://forgejo.indigo.dalmura.cloud
+      DOMAIN: forgejo.navy.dalmura.cloud
+      ROOT_URL: https://forgejo.navy.dalmura.cloud
 
     service:
       REQUIRE_SIGNIN_VIEW: true
@@ -45,7 +45,7 @@ gitea:
 
     openid:
       ENABLE_OPENID_SIGNUP: true
-      WHITELISTED_URIS: authentik.indigo.dalmura.com.au
+      WHITELISTED_URIS: authentik.navy.dalmura.com.au
 
     security:
       INSTALL_LOCK: true

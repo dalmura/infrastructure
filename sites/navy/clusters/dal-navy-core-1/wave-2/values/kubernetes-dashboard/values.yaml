@@ -1,13 +1,13 @@
 app:
   settings:
     global:
-      clusterName: "dal-indigo-core-1"
+      clusterName: "dal-navy-core-1"
       itemsPerPage: 20
 
   ingress:
     enabled: true
     hosts:
-      - kubernetes-dashboard.indigo.dalmura.cloud
+      - kubernetes-dashboard.navy.dalmura.cloud
     ingressClassName: ingress-private
     useDefaultAnnotations: false
     issuer:
@@ -17,6 +17,6 @@ app:
       enabled: true
       secretName: kubernetes-dashboard-cert
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: kubernetes-dashboard.indigo.dalmura.cloud
+      external-dns.alpha.kubernetes.io/hostname: kubernetes-dashboard.navy.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"

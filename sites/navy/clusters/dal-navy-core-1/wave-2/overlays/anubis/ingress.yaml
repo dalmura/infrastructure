@@ -4,17 +4,17 @@ metadata:
   name: anubis
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: anubis.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: anubis.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-public
   tls:
     - hosts:
-      - anubis.indigo.dalmura.cloud
+      - anubis.navy.dalmura.cloud
       secretName: anubis-cert
   rules:
-  - host: anubis.indigo.dalmura.cloud
+  - host: anubis.navy.dalmura.cloud
     http:
       paths:
       - path: /

@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-4/overlays/renovate
+      path: sites/navy/clusters/dal-navy-core-1/wave-4/overlays/renovate
       targetRevision: HEAD
   destination:
     namespace: renovate

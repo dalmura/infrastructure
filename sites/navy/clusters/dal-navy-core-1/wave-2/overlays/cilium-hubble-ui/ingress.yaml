@@ -4,17 +4,17 @@ metadata:
   name: cilium-hubble-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: cilium-hubble.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: cilium-hubble.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - cilium-hubble.indigo.dalmura.cloud
+      - cilium-hubble.navy.dalmura.cloud
       secretName: cilium-hubble-cert
   rules:
-  - host: cilium-hubble.indigo.dalmura.cloud
+  - host: cilium-hubble.navy.dalmura.cloud
     http:
       paths:
       - path: /

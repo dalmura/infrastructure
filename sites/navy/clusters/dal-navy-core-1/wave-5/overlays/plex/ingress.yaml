@@ -5,18 +5,18 @@ metadata:
   name: plex
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: plex.indigo.dalmura.cloud
-    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: plex.navy.dalmura.cloud
+    external-dns.alpha.kubernetes.io/target: navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-public
   tls:
     - hosts:
-      - plex.indigo.dalmura.cloud
+      - plex.navy.dalmura.cloud
       secretName: plex-cert
   rules:
-  - host: plex.indigo.dalmura.cloud
+  - host: plex.navy.dalmura.cloud
     http:
       paths:
       - path: /

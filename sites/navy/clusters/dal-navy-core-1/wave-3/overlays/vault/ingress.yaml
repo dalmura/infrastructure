@@ -4,17 +4,17 @@ metadata:
   name: vault
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: vault.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: vault.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - vault.indigo.dalmura.cloud
+      - vault.navy.dalmura.cloud
       secretName: vault-cert
   rules:
-  - host: vault.indigo.dalmura.cloud
+  - host: vault.navy.dalmura.cloud
     http:
       paths:
       - path: /

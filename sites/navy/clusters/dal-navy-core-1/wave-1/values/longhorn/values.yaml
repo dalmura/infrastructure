@@ -12,5 +12,5 @@ defaultSettings:
   concurrentAutomaticEngineUpgradePerNodeLimit: "1"
 
 defaultBackupStore:
-  backupTarget: "s3://dal-site-backups@us-east-1/indigo/longhorn/"
+  backupTarget: "s3://dal-site-backups@us-east-1/navy/longhorn/"
   backupTargetCredentialSecret: aws-s3-credentials-secret

@@ -4,17 +4,17 @@ metadata:
   name: argocd-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: argocd.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: argocd.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - argocd.indigo.dalmura.cloud
+      - argocd.navy.dalmura.cloud
       secretName: argocd-cert
   rules:
-  - host: argocd.indigo.dalmura.cloud
+  - host: argocd.navy.dalmura.cloud
     http:
       paths:
       - path: /

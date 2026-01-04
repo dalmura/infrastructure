@@ -12,13 +12,13 @@ data:
 
       # Authentik hosts its .well-known for apps further down the path
       - name: authentik-well-known-paths
-        host: authentik.indigo.dalmura.cloud
+        host: authentik.navy.dalmura.cloud
         path_regex: ^.*/\.well-known/.*$
         action: ALLOW
 
       # Authentik hosts assets under a subpath
       - name: authentik-user-assets
-        host: authentik.indigo.dalmura.cloud
+        host: authentik.navy.dalmura.cloud
         path_regex: ^/if/user/assets/.*$
         action: ALLOW
 

@@ -13,12 +13,12 @@ spec:
       targetRevision: 1.4.0
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/plex/values.yaml
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-5/values/plex/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/plex
+      path: sites/navy/clusters/dal-navy-core-1/wave-5/overlays/plex
       targetRevision: HEAD
   destination:
     namespace: plex

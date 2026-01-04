@@ -23,7 +23,7 @@ spec:
 
   backup:
     barmanObjectStore:
-      destinationPath: s3://dal-site-backups/indigo/forgejo/postgres/
+      destinationPath: s3://dal-site-backups/navy/forgejo/postgres/
       s3Credentials:
         accessKeyId:
           name: forgejo-db-backup
@@ -36,7 +36,7 @@ spec:
       wal:
         compression: gzip
       tags:
-        site: indigo
+        site: navy
         service: forgejo
         db: forgejo-db
     retentionPolicy: "10d"

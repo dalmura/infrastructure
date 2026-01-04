@@ -10,7 +10,7 @@ data:
   # General
   PHOTOPRISM_HTTP_HOST: "0.0.0.0"
   PHOTOPRISM_HTTP_PORT: "2342"
-  PHOTOPRISM_SITE_URL: "https://photos.indigo.dalmura.cloud/"
+  PHOTOPRISM_SITE_URL: "https://photos.navy.dalmura.cloud/"
   PHOTOPRISM_DISABLE_TLS: "true"
 
   # Filesystem

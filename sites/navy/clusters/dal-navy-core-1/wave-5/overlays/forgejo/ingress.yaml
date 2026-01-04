@@ -5,17 +5,17 @@ metadata:
   name: forgejo
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: forgejo.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: forgejo.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - forgejo.indigo.dalmura.cloud
+      - forgejo.navy.dalmura.cloud
       secretName: forgejo-cert
   rules:
-  - host: forgejo.indigo.dalmura.cloud
+  - host: forgejo.navy.dalmura.cloud
     http:
       paths:
       - path: /

@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/photoprism
+      path: sites/navy/clusters/dal-navy-core-1/wave-5/overlays/photoprism
       targetRevision: HEAD
   destination:
     namespace: photoprism

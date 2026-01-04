@@ -8,7 +8,7 @@ metadata:
   name: whoami
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: whoami.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: whoami.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
     traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
@@ -16,10 +16,10 @@ spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - whoami.indigo.dalmura.cloud
+      - whoami.navy.dalmura.cloud
       secretName: whoami-cert
   rules:
-  - host: whoami.indigo.dalmura.cloud
+  - host: whoami.navy.dalmura.cloud
     http:
       paths:
       - path: /

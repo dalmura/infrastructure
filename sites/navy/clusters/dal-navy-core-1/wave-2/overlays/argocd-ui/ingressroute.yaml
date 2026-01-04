@@ -4,21 +4,21 @@ metadata:
   name: argocd-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: argocd.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: argocd.navy.dalmura.cloud
     kubernetes.io/ingress.class: ingress-private
 spec:
   entryPoints:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`argocd.indigo.dalmura.cloud`)
+      match: Host(`argocd.navy.dalmura.cloud`)
       priority: 10
       services:
         - kind: Service
           name: argocd-server
           port: 443
     - kind: Rule
-      match: Host(`argocd.indigo.dalmura.cloud`) && Header(`Content-Type`, `application/grpc`)
+      match: Host(`argocd.navy.dalmura.cloud`) && Header(`Content-Type`, `application/grpc`)
       priority: 11
       services:
         - kind: Service
@@ -28,4 +28,4 @@ spec:
   tls:
     secretName: argocd-cert
     domains:
-      - main: argocd.indigo.dalmura.cloud
+      - main: argocd.navy.dalmura.cloud

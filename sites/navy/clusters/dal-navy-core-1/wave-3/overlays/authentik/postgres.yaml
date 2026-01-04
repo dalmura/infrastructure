@@ -23,7 +23,7 @@ spec:
 
   backup:
     barmanObjectStore:
-      destinationPath: s3://dal-site-backups/indigo/authentik/postgres/
+      destinationPath: s3://dal-site-backups/navy/authentik/postgres/
       s3Credentials:
         accessKeyId:
           name: authentik-db-backup-secret
@@ -37,7 +37,7 @@ spec:
         compression: gzip
         maxParallel: 4
       tags:
-        site: indigo
+        site: navy
         service: authentik
         db: authentik-db
     retentionPolicy: "10d"

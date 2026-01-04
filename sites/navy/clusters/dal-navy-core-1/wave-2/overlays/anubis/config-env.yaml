@@ -5,9 +5,9 @@ metadata:
 data:
   BIND: ":8080"
   TARGET: " "
-  COOKIE_DOMAIN: "indigo.dalmura.cloud"
-  REDIRECT_DOMAINS: "authentik.indigo.dalmura.cloud"
-  PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
+  COOKIE_DOMAIN: "navy.dalmura.cloud"
+  REDIRECT_DOMAINS: "authentik.navy.dalmura.cloud"
+  PUBLIC_URL: "https://anubis.navy.dalmura.cloud"
   POLICY_FNAME: "/data/cfg/botPolicy.yaml"
   SLOG_LEVEL: "INFO"
   XFF_STRIP_PRIVATE: "false"

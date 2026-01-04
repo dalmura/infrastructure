@@ -8,7 +8,7 @@ metadata:
   name: photoprism
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: photos.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: photos.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
     #traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
@@ -16,10 +16,10 @@ spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-      - photos.indigo.dalmura.cloud
+      - photos.navy.dalmura.cloud
       secretName: photoprism-cert
   rules:
-  - host: photos.indigo.dalmura.cloud
+  - host: photos.navy.dalmura.cloud
     http:
       paths:
       - path: /

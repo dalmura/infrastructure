@@ -10,8 +10,8 @@ server:
     enabled: false
 
 ha:
-  apiAddr: https://vault.indigo.dalmura.cloud
-  clusterAddr: https://cluster.vault.indigo.dalmura.cloud
+  apiAddr: https://vault.navy.dalmura.cloud
+  clusterAddr: https://cluster.vault.navy.dalmura.cloud
 
 ui:
   enabled: true
