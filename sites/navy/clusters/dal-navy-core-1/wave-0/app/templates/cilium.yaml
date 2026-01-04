@@ -13,7 +13,7 @@ spec:
       targetRevision: 1.18.4
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/cilium/values.yaml
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-0/values/cilium/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
