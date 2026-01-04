@@ -13,7 +13,7 @@ spec:
       targetRevision: 2.2.5
       helm:
         valueFiles:
-        - $values/sites/indigo/clusters/dal-navy-core-1/wave-0/values/reloader/values.yaml
+        - $values/sites/navy/clusters/dal-navy-core-1/wave-0/values/reloader/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
