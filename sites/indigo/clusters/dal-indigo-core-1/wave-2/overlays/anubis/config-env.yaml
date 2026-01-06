@@ -6,7 +6,7 @@ data:
   BIND: ":8080"
   TARGET: " "
   COOKIE_DOMAIN: "indigo.dalmura.cloud"
-  REDIRECT_DOMAINS: "authentik.indigo.dalmura.cloud"
+  REDIRECT_DOMAINS: "auth.indigo.dalmura.cloud"
   PUBLIC_URL: "https://anubis.indigo.dalmura.cloud"
   POLICY_FNAME: "/data/cfg/botPolicy.yaml"
   SLOG_LEVEL: "INFO"

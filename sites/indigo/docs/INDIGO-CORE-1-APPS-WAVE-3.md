@@ -149,7 +149,7 @@ The `authentik-server` pod should now come up as healthy.
 
 ## Access Authentik
 
-Authentik will be available over its configured ingress domain name `authentik.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://authentik.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the admin user `akadmin`'s password.
+Authentik will be available over its configured ingress domain name `auth.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://auth.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the admin user `akadmin`'s password.
 
 Immediately perform the following steps:
 * Use the email `indigo+auth@dalmura.cloud`

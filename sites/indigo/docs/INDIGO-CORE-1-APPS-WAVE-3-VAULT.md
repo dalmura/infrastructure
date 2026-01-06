@@ -30,7 +30,7 @@ In order to be able to log into Vault using Authentik we need to perform the fol
 
 ### Authentik Configuration
 
-Log into [Authentik](https://authentik.indigo.dalmura.cloud) as the `site-admin` user.
+Log into [Authentik](https://auth.indigo.dalmura.cloud) as the `site-admin` user.
 
 In `Applications` => `Applications`:
 * Create with provider
@@ -153,7 +153,7 @@ Enable OIDC authentication:
 vault auth enable oidc_authentik
 
 vault write auth/oidc_authentik/config \
-    oidc_discovery_url="https://authentik.indigo.dalmura.cloud/application/o/vault/" \
+    oidc_discovery_url="https://auth.indigo.dalmura.cloud/application/o/vault/" \
     oidc_client_id="<Client ID from above>" \
     oidc_client_secret="<Client Secret from above>" \
     default_role="default"

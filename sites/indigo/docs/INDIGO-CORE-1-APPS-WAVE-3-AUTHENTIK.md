@@ -5,22 +5,32 @@ This guide covers the overall setup of the Authentik instance deployed as part o
 Eventually this configuration will be moved into the likes of the [Authentik Terraform Provider](https://registry.terraform.io/providers/goauthentik/authentik/latest/docs), but for now it's here!
 
 We assume you've followed the steps at:
-* [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have Authentik running with your own admin user
+* [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have Authentik running, with your own admin user, and available via its Ingress
 
 ## Email Configuration
 
-Install this:
+* Download the flow file from:
 https://docs.goauthentik.io/docs/add-secure-apps/flows-stages/flow/examples/flows#recovery-with-email-verification
-
-Edit the above created flow and set 'no authentication' to 'no requirement', there's a bug.
-
-Update the brand's 'recovery flow' to reference the above installed flow thingy.
+* Navigate to 'Flows and Stages' => 'Flows'
+* Click 'Import' and select the file from above
+* This will be created as `default-recovery-flow`
+* Edit the above creeated flow and set 'no authentication' to 'no requirement', there's a bug
+* Navigate to 'System' => 'Brands'
+* Edit the `authentik-default` brand's 'recovery flow' and select the only option `default-recovery-flow`
+* Click Update to save the configuration
 
 This will allow you/users to send password recovery emails.
 
 ## General
 
 Under `Customization` => `Policies` open the `default-password-change-password-policy` policy and review the password strength configuration.
+
+Currently these are enabled:
+* Check static rules
+  * 8 characters minimum
+  * At least 1 of upper, lower, digit, symbol
+* Cannot appear on `haveibeenpwned.com`
+* Must have a reasonably complex password according to [zxcvbn](https://github.com/dropbox/zxcvbn#readme)
 
 ## Users & Groups
 
@@ -51,7 +61,6 @@ Cloudflare Steps:
 * Log into your Cloudflare Account and go to the Turnstile product page
 * Click Add Widget
 * Widget name: indigo-captcha
-* Add hostname: authentik.indigo.dalmura.cloud
 * Add hostname: auth.indigo.dalmura.cloud
 * Widget Mode: Managed (seems fine, recommended)
 * Pre-clearance: No

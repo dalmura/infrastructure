@@ -16,7 +16,7 @@ Optionally some applications support HTTP headers (eg. `X-Forwarded-User` and `X
 
 ## Configuration of a new OIDC Application
 
-Within [Authentik](https://authentik.indigo.dalmura.cloud) log in, under `Applications` => `Applications`:
+Within [Authentik](https://auth.indigo.dalmura.cloud) log in, under `Applications` => `Applications`:
 * Click `Create with Provider`
 * Name: Your Application
 * Slug: your-application
@@ -205,7 +205,7 @@ data:
   dex.config: |
       connectors:
       - config:
-          issuer: https://authentik.indigo.dalmura.cloud/application/o/argo-cd/
+          issuer: https://auth.indigo.dalmura.cloud/application/o/argo-cd/
           clientID: $dex.authentik.clientId
           clientSecret: $dex.authentik.clientSecret
           insecureEnableGroups: true
