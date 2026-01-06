@@ -5,7 +5,7 @@ These are:
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
-* `argocd` is logged in
+* `argocd` and `vault` are logged in
 
 ## Renovate Secret
 Renovate requires a 'config.js' secret to be created to confirm the initial configuration that contains github tokens/etc.
@@ -75,4 +75,31 @@ argocd app sync -l app.kubernetes.io/instance=wave-4
 
 By default the `ExternalSecret` and `SecretStore` resources will be broken until we deploy the correct Vault and ESO integration for Renovate.
 
+We'll need to follow the steps in [INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) specifically setting up the Vault config.
 
+Use the following context to substitute in:
+* Namespace: `renovate`
+* ServiceAccount: `renovate-sa`
+* Reader Role: `workload-reader-renovate`
+* Vault Secret Engine: `site`
+* Vault Secret Path: `site/data/wave-4/renovate/*`
+
+This should result in:
+```
+# Create the Vault permissions policy
+vault policy write workload-reader-renovate -<<EOF
+path "site/data/wave-4/renovate/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+# Create the role that ESO will use to access Vault
+vault write auth/kubernetes/role/workload-reader-renovate \
+   bound_service_account_names=renovate-sa \
+   bound_service_account_namespaces=renovate \
+   token_policies=workload-reader-renovate \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+```
+
+After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the renovate app in ArgoCD.
