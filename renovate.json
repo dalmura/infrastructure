@@ -32,6 +32,9 @@
   "kustomize": {
     "managerFilePatterns": [
       "sites/indigo/clusters/*/*/overlays/*/kustomization.yaml"
+    ],
+    "ignorePaths": [
+      "sites/archived/**"
     ]
   },
   "customManagers": [
