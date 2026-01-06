@@ -19,6 +19,13 @@ https://docs.goauthentik.io/docs/add-secure-apps/flows-stages/flow/examples/flow
 * Edit the `authentik-default` brand's 'recovery flow' and select the only option `default-recovery-flow`
 * Click Update to save the configuration
 
+Next we'll tweak the Password Recovery email a little bit:
+* Navigate to 'Flows and Stages' => 'Flows'
+* Click the `default-recovery-flow`
+* Click the 'Stage Bindings' tab
+* Edit the `default-recovery-email` stage
+* Change the Subject field: Password Reset
+
 This will allow you/users to send password recovery emails.
 
 ## General
@@ -82,7 +89,10 @@ Process:
 Now we integrate the above stage into the Username stage:
 * Go to `Flows and Stages` => `Stages`
 * Select `default-authentication-identification` and click Edit
-* Captcha stage: Select `indigo-captcha`
+* Captcha stage: `indigo-captcha`
+* Click Update
+* Select `default-recovery-identification` and click Edit
+* Captcha stage: `indigo-captcha`
 * Click Update
 
 Before logging out, open a new incognito tab and verify the login logic still works, otherwise you risk locking yourself out.
