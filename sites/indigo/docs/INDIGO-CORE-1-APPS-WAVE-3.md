@@ -9,7 +9,7 @@ We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 2](INDIGO-CORE-1-APPS-WAVE-2.md) and have all the precursors up and running
 * `argocd` is logged in
 * Longorn is running
-* Traefik ingress controller
+* Traefik's Ingress Controller is working and you can access ArgoCD/Longhorn/etc UI's
 
 ## Obtain AWS Credentials
 You can get the required AWS Credentials from the `dalmura/network` repo, the README.md contains the instructions how to get them.

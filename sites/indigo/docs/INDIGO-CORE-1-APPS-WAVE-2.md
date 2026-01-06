@@ -94,3 +94,5 @@ In case in the future the Traefik dashboards are behind authentication, and the 
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/traefik-ingress-controller -n traefik-public 8080:8080
 ```
+
+On to [INDIGO-CORE-1-APPS-WAVE-3.md](INDIGO-CORE-1-APPS-WAVE-3.md)!
