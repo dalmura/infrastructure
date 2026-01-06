@@ -26,7 +26,7 @@ Create the AWS Secrets Engine:
 vault secrets enable aws
 
 vault write aws/config/root \
-    access_key=<iam_vendor_key.id> \
+    access_key='<iam_vendor_key.id>' \
     secret_key='<iam_vendor_key.secret>' \
     region=us-east-1 \
     username_template='{{ printf "dal-indigo-vault-%s-%s-%s" (printf "%s" (.DisplayName) | truncate 42) (unix_time) (random 20) | truncate 64 }}'
