@@ -10,6 +10,12 @@ We assume you've followed the steps at:
 ## Renovate Secret
 Renovate requires a 'config.js' secret to be created to confirm the initial configuration that contains github tokens/etc.
 
+Go to [Github Tokens](https://github.com/settings/tokens):
+* Create a token named `indigo-cloud-renovate`
+* Give it the whole `repo` scope
+* Ensure there is 'No expiration' set on the token
+* Note down the token value, you cannot see it again
+
 Open up [Vault](https://vault.indigo.dalmura.cloud/), sign in as as user with the `site-admins` or `hub-power-users`, as we'll be saving the config under the `site/` path in Vault.
 
 Create a secret under the `site` secret with the path `wave-4/renovate/config` with the following `config.js` key.
@@ -17,7 +23,7 @@ Create a secret under the `site` secret with the path `wave-4/renovate/config` w
 The contents of the `config.js` key:
 ```
 module.exports = {
-  token: '<your github token here>',
+  token: '<your github token from above>',
   platform: 'github',
   onboardingConfig: {
     extends: ['config:recommended'],
