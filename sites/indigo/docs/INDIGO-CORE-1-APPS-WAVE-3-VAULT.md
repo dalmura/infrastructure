@@ -16,13 +16,13 @@ The current configuration is:
 * Total Shares: 3
 * Threshold: 2
 
-Which means there are 3 secrets that could unseal the vault. But only 2 of them are required at any unsealing event.
+Which means there are 3 secrets that could unseal the vault, but only 2 of them are required at any unsealing event.
 
 Could just make it 1/1, but I figured eventually 1 or 2 can remain in offline storage as the unseal events would be irregular at best.
 
-After this you will be presented with a screen to copy down each individual unseal share, along with a root token.
+After this you will be presented with a screen to copy down the root token, along with each individual unseal share.
 
-The root token will let you authenticate to vault as an admin that can do anything. We will use this to setup Keycloak integration!
+The root token will let you authenticate to Vault as an admin that can do anything. We will use this to setup the Authentik integration (so normal users can log in!).
 
 ## Authentik Integration
 
@@ -33,9 +33,9 @@ In order to be able to log into Vault using Authentik we need to perform the fol
 Log into [Authentik](https://auth.indigo.dalmura.cloud) as the `site-admin` user.
 
 In `Applications` => `Applications`:
-* Create with provider
+* Click 'Create with provider'
 * Name: `Vault`
-* Slug: `Vault`
+* Slug: `vault`
 * Group: Empty
 * Policy engine mode: Any
 * UI Settings - Launch URL: `<TBD>`
@@ -48,15 +48,17 @@ In `Applications` => `Applications`:
 * Note down the `Client ID`
 * Note down the `Client Secret`
 * Enter the following 3x `Strict` Redirect URIs:
-   * `https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc_authentik/oidc/callback`
-   * `https://vault.indigo.dalmura.cloud/oidc_authentik/callback`
+   * `https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc/oidc/callback`
+   * `https://vault.indigo.dalmura.cloud/oidc/callback`
    * `http://localhost:8250/oidc/callback`
 * All other settings can be left as default for now
 * Click Next
 * Click Bind existing policy/group/user
-* Click Group and select the `spoke-users`, repeat with `hub-power-users` and repeat with `site-admins`
+* Click Group and select the `spoke-users` (Order: 1)
+* Repeat with `hub-power-users` (Order: 2)
+* Repeat with `site-admins` (Order: 3)
 * Click Next and review the settings
-* Click Create
+* Click Create (then Close)
 
 Ensure you've noted down the `Client ID` and `Client Secret` from earlier.
 
@@ -66,7 +68,8 @@ If not, you can go to `Applications` => `Providers`, click the `edit` icon for t
 Entitlements are application specific roles that can be mapped to Authentik groups. This adds a layer of abstraction as it allows you to name these application specific roles like what the application is expecting.
 
 To setup the entitlements themselves and map them to groups:
-* Click `Applications` => `Applications` on the side menu and click/enter our new Vault application.
+* Click `Applications` => `Applications`
+* Click on the new Vault application
 * Click on the `Application entitlements` tab header
 * Create three new entitlements:
    * `administrator`
@@ -80,15 +83,15 @@ To setup the entitlements themselves and map them to groups:
 To configure the provider to allow the entitlements through the oauth token:
 * Click `Applications` => `Providers`
 * Edit the Vault provider
-* Scroll down and expand the `Advanced protocol settings
-* Under the `Scopes` section ensure the "authentik default OAuth Mapping: Application Entitlements" is added to the `Selected Scopes`
-
+* Scroll down and expand the `Advanced protocol settings`
+* Under the `Scopes` section ensure the "authentik default OAuth Mapping: Application Entitlements" is added to the `Selected Scopes` on the right
+* Click Update
 
 To verify the above setup, click through `Applications` => `Providers`, select our Vault provider, and click the `Preview` header tab.
 
 Select a user in the text box you want to validate and ensure there is:
 * The `preferred_username` field is populated
-* The `roles` field is filled out with the correct groups
+* The `roles` and `entitlements` fields are filled out with the correct groups
 
 ### Vault Configuration
 
@@ -150,17 +153,17 @@ Eg a `spoke-users` group member will just get the `basic-user` vault role, but a
 
 Enable OIDC authentication:
 ```
-vault auth enable oidc_authentik
+vault auth enable oidc
 
-vault write auth/oidc_authentik/config \
+vault write auth/oidc/config \
     oidc_discovery_url="https://auth.indigo.dalmura.cloud/application/o/vault/" \
     oidc_client_id="<Client ID from above>" \
     oidc_client_secret="<Client Secret from above>" \
     default_role="default"
 
-vault write auth/oidc_authentik/role/default \
-    allowed_redirect_uris="https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc_authentik/oidc/callback" \
-    allowed_redirect_uris="https://vault.indigo.dalmura.cloud/oidc_authentik/callback" \
+vault write auth/oidc/role/default \
+    allowed_redirect_uris="https://vault.indigo.dalmura.cloud/ui/vault/auth/oidc/oidc/callback" \
+    allowed_redirect_uris="https://vault.indigo.dalmura.cloud/oidc/callback" \
     allowed_redirect_uris="http://localhost:8250/oidc/callback" \
     user_claim="preferred_username" \
     groups_claim="roles" \
@@ -174,48 +177,48 @@ vault write identity/group \
     policies="basic-user,default" \
     type="external"
 
-# id: 0f41c516-1176-73d6-e192-3116e0a3d326
+# id: b35b0274-582f-8a41-1568-2327fe3b3a79
 
 vault write identity/group \
     name="power-user" \
     policies="power-user,basic-user,default" \
     type="external"
 
-# id: 09623ddb-29be-ffb3-a4d5-57ea95c2570c
+# id: 225ae6ed-255d-6345-6d41-44b5f9b13535
 
 vault write identity/group \
     name="administrator" \
     policies="administrator,default" \
     type="external"
 
-# id: 010641cc-629e-2f09-301f-d2d0f7c1cb68
+# id: 95128bf7-018c-4b78-9e85-b6af15ade4d8
 ```
 
 Note down the returned `id` value for each of the above groups as we'll use them below.
 
 Get the vault auth OIDC accessor 'id':
 ```
-vault auth list -format json | jq -r '."oidc_authentik/".accessor'
+vault auth list -format json | jq -r '."oidc/".accessor'
 
-# accessor: auth_oidc_a6ed9622
+# accessor: auth_oidc_46a33451
 ```
 
 Create the group-aliases:
 ```
 vault write identity/group-alias \
     name="basic-user" \
-    mount_accessor="auth_oidc_a6ed9622" \
-    canonical_id="0f41c516-1176-73d6-e192-3116e0a3d326"
+    mount_accessor="auth_oidc_46a33451" \
+    canonical_id="b35b0274-582f-8a41-1568-2327fe3b3a79"
 
 vault write identity/group-alias \
     name="power-user" \
-    mount_accessor="auth_oidc_a6ed9622" \
-    canonical_id="09623ddb-29be-ffb3-a4d5-57ea95c2570c"
+    mount_accessor="auth_oidc_46a33451" \
+    canonical_id="225ae6ed-255d-6345-6d41-44b5f9b13535"
 
 vault write identity/group-alias \
     name="administrator" \
-    mount_accessor="auth_oidc_a6ed9622" \
-    canonical_id="010641cc-629e-2f09-301f-d2d0f7c1cb68"
+    mount_accessor="auth_oidc_46a33451" \
+    canonical_id="95128bf7-018c-4b78-9e85-b6af15ade4d8"
 ```
 
 The `name` of these group-alias' need to match the Authentik Entitlements the user is associated with via their Authentik Groups.
