@@ -70,3 +70,9 @@ argocd app sync wave-4
 # Deploy the child applications
 argocd app sync -l app.kubernetes.io/instance=wave-4
 ```
+
+## Post Install Configuration
+
+By default the `ExternalSecret` and `SecretStore` resources will be broken until we deploy the correct Vault and ESO integration for Renovate.
+
+
