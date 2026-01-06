@@ -103,7 +103,8 @@ The default PV for authentik-media will be owned by root (UID 0/GID 0) where as 
 
 Ideally this is set as an init container or something, but for now this is fine.
 
-Scale down the Authentik Deployment to 0, or just deploy the PV manually via ArgoCD first before the Deployment.
+Scale down the `authentik-server` Deployment to 0 (you can do this in ArgoCD UI or via the CLI), or just deploy the PV manually via ArgoCD first before the Deployment.
+
 
 Run the following:
 ```
@@ -129,6 +130,8 @@ spec:
           name: authentik-media
 
 $ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f pod.yaml
+# Give it 30s to be created
+
 $ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n authentik task-pv-pod -- /bin/bash
 
 # Inside the container:
@@ -140,20 +143,27 @@ $ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n authentik delete pod tas
 $ rm pod.yaml
 ```
 
+Scale back up the `authentik-server` Deployment to 1 (you can do this in ArgoCD UI or via the CLI).
+
+The `authentik-server` pod should now come up as healthy.
+
 ## Access Authentik
 
-Authentik will be available over its configured ingress domain name `authentik.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://authentik.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the `akadmin` users password.
+Authentik will be available over its configured ingress domain name `authentik.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://authentik.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the admin user `akadmin`'s password.
 
 Immediately perform the following steps:
+* Use the email `indigo+auth@dalmura.cloud`
 * Set a temporary password for the `akadmin` user
-* Log into the `akadmin` user
-* Click the 'Admin Interface' in the top right
+* You will now be logged in as the `akadmin` user automatically
+* Click the 'Admin interface' in the top right
 * Go to 'Directory' => 'Users'
-* Create a `site-admin` user with type as 'Internal'
+* Create a `site-admin` user with type as 'Internal', `indigo+auth@dalmura.cloud` as the email
 * Click on the `site-admin` user
-* Click 'Set password' and persist the new admin credentials into your password vault
+* Click 'Set password' and persist the new admin credentials into your external password vault
 * Add the `site-admin` user into the 'authentik Admins' group
 * Log out and log in as the new `site-admin` user
-* Navigate back to 'Directory' => 'Users' and delete the `akadmin` default user
+* Click the 'Admin interface' in the top right
+* Navigate back to 'Directory' => 'Users'
+* Delete the `akadmin` default user
 
 After this you can proceed to [Authentik Configuration](INDIGO-CORE-1-APPS-WAVE-3-AUTHENTIK.md) for configuring Authentik itself.
