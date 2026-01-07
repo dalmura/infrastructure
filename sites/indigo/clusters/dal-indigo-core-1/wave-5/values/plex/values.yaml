@@ -8,6 +8,10 @@ pms:
     # Required for hardware transcoding support
     privileged: true
 
+  claimSecret:
+    name: plex-secrets
+    key: PLEX_CLAIM
+
 serviceAccount:
   create: true
 
