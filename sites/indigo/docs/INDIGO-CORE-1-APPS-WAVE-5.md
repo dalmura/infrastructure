@@ -3,12 +3,14 @@
 These are:
 * [Frigate](https://frigate.video/) for Security NVR
 * [Plex](https://www.plex.tv/) for Media Library Playback
+* [Forgejo](https://forgejo.org/) as a Github replacement
+* [Photoprism](https://github.com/photoprism/photoprism) for Photo management
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
 * `argocd` is logged in
 * `vault` is logged in (see [dynamic user docs](INDIGO-CORE-1-APPS-WAVE-3-DYNAMIC-AWS-USERS.md) if not)
-* Traefik ingress controller is running
+* Traefik's Ingress Controller is working and you can access ArgoCD/Longhorn/etc UI's
 * Vault is operational
 
 ## Obtain AWS IAM Policy ARN
@@ -87,10 +89,10 @@ vault write auth/kubernetes/role/workload-reader-plex-secrets \
 ```
 
 We provision within [wave-5/overlays/plex/](sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/plex/):
-* `VaultAuth` to reference the above created 'auth role' (the Service Account is handled via the Helm chart)
-* `VaultStaticSecret` to reference the above created `site/wave-5/plex/env` vault secret
+* `SecretStore` to reference the above created role
+* `ExternalSecret` to reference the secret data to mount into the container
 
-The end result after deploying this will be a `plex-env` Secret managed by VSO that will automatically update when it's modified within Vault.
+The end result after deploying this will be a `plex-env` Secret managed by ESO that will refresh when it's modified within Vault.
 
 ## Verifying apps
 
