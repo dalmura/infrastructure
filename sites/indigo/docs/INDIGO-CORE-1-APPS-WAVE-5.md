@@ -189,7 +189,8 @@ The slightly easier option is to maintain a custom Frigate image:
 * Go to github and create a classic PAT with `write:packages` scope
 * Log into github container registry: `docker login ghcr.io -u <your github user>`
 * You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.16.3`
-* And finally `docker push ghcr.io/dalmura/frigate:v0.16.3`
+* Push up the image `docker push ghcr.io/dalmura/frigate:v0.16.3`
+* Update the github package settings to public visibility
 * Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.16.3`
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
