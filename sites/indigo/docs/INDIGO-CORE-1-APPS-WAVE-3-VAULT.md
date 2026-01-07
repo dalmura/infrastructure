@@ -229,4 +229,4 @@ Once a user signs in a Vault Entity (aka user) is created, along with an Entity 
 
 Users should now be able to autheticate with Vault via the OIDC authentication method (using the `default_authentik` profile).
 
-Now proceed to setting up [dynamic AWS IAM User management](INDIGO-CORE-1-APPS-WAVE-3-VAULT-AWS-USERS.md).
+Now proceed to setting up [dynamic AWS IAM User management](INDIGO-CORE-1-APPS-WAVE-3-DYNAMIC-AWS-USERS.md).

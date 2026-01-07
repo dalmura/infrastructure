@@ -14,6 +14,8 @@ We use the following [Sidero Labs](https://www.siderolabs.com/) products:
 
 Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.com/) or [Sidero Metal](https://www.sidero.dev/) won't be used due to high cost and hardware incompatibilities respectively. See [archived/indigo-sidero](/sites/archived/indigo-sidero/) for an initial attempt at getting Sidero Metal working, but ultimately failing due to hardware incompatibilites.
 
+Omni now supports a [self hosted non-production deployment](https://docs.siderolabs.com/omni/infrastructure-and-extensions/self-hosted/overview), so at some point that will be investigated and possibly used.
+
 ## Cluster Composition
 
 * [Cilium CNI](https://cilium.io/get-started/)
@@ -69,11 +71,17 @@ Cluster management/lifecycle functionality like [Omni](https://omni.siderolabs.c
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
    * Not Implemented Yet
-      * [Prometheus](https://github.com/prometheus-operator/kube-prometheus)
-         * Cluster hardware, k8s and application monitoring
-      * ?alertmanager?
-      * ?loki logs?
-      * ?grafana?
+      * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)
+         * Lightweight Prometheus replacement
+         * Scrapes metrics from the cluster
+      * [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)
+         * Lightweight Loki replacement
+         * Scrapes container logs from the cluster
+      * [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
+         * Client alerting
+         * Pushed to from VictoriaMetrics based alert rules
+      * [Grafana](https://grafana.com/docs/grafana/latest/)
+         * Dashboards for above Metrics & Logs
 * ArgoCD - Wave 5
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
@@ -96,7 +104,10 @@ Follow this list in order:
 * [`dal-indigo-core-1` Apps - Wave 1](docs/INDIGO-CORE-1-APPS-WAVE-1.md)
 * [`dal-indigo-core-1` Apps - Wave 2](docs/INDIGO-CORE-1-APPS-WAVE-2.md)
 * [`dal-indigo-core-1` Apps - Wave 3](docs/INDIGO-CORE-1-APPS-WAVE-3.md)
-* TODO: [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
+   * [`dal-indigo-core-1` Apps - Wave 3 - Authentik](docs/INDIGO-CORE-1-APPS-WAVE-3-AUTHENTIK.md)
+   * [`dal-indigo-core-1` Apps - Wave 3 - Vault](docs/INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)
+   * [`dal-indigo-core-1` Apps - Wave 3 - Dynamic AWS Users](docs/INDIGO-CORE-1-APPS-WAVE-3-DYNAMIC-AWS-USERS.md)
+* [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
 
 ## Ongoing Maintenance
