@@ -245,3 +245,16 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photop
 # Reset the admin users password
 photoprism passwd admin
 ```
+
+## Plex Setup
+
+You can add libraries as normal, they will be mounted into the container via NFS available under `/data`.
+
+Remote access will work, but will require these additional settings:
+* Settings => Remote Access
+   * Manually specify public port: 32406
+* Settings => Network
+   * Client Network: IPv4 Only
+   * Custom server access URLs: `https://plex.indigo.dalmura.cloud:32406/`
+
+After setting the above you can go back to Settings => Remote Access and click Retry.
