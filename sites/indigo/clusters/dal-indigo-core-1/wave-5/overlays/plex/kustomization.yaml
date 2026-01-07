@@ -5,3 +5,5 @@ namespace: plex
 
 resources:
   - ingress.yaml
+  - secret-store-site.yaml
+  - external-secret.yaml
