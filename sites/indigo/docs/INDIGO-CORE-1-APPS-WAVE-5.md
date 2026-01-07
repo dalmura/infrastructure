@@ -131,7 +131,7 @@ argocd app sync wave-5
 argocd app sync -l app.kubernetes.io/instance=wave-5
 ```
 
-This will take a solid 3-5 mins as the Pod comes up and the certificate is issued.
+This will take a solid 3-5 mins as the Pods come up and the certificates are issued.
 
 ## Setup Frigate Config
 
@@ -175,6 +175,22 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate scale deploy friga
 ```
 
 For Frigate to work correctly, the kernel module version must match the library version bundled into the Friagte container. If not you will get `HAILO_INVALID_DRIVER_VERSION` errors in Frigate.
+
+If the above `HAILO_INVALID_DRIVER_VERSION` error happens, there are two choices:
+* Maintain a custom Talos image with the version Frigate uses
+* Maintain a custom Frigate image with the version Talos uses
+
+The slightly easier option is to maintain a custom Frigate image:
+* Ensure https://github.com/frigate-nvr/hailort/ has a release for the version Talos is using
+* Clone https://github.com/blakeblackshear/frigate/
+* Run `git tag` and checkout the latest stable version (eg v0.16.3)
+* Edit `docker/main/install_hailort.sh` and set `hailo_version` to what Talos has
+* Run `make local` for your local docker to have `frigate:latest` image built
+* Go to github and create a classic PAT with `write:packages` scope
+* Log into github container registry: `docker login ghcr.io -u <your github user>`
+* You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.16.3`
+* And finally `docker push ghcr.io/dalmura/frigate:v0.16.3`
+* Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.16.3`
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
 

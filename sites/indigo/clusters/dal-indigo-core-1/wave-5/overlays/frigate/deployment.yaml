@@ -22,7 +22,8 @@ spec:
         app.kubernetes.io/name: frigate
     spec:
       containers:
-        - image: ghcr.io/blakeblackshear/frigate:0.16.3
+        - #image: ghcr.io/blakeblackshear/frigate:0.16.3
+          image: ghcr.io/dalmura/frigate:v0.16.3
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 5
