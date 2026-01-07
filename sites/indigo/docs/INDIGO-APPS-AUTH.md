@@ -12,7 +12,7 @@ Apps that support OIDC providers will be able to integrate with Authentik direct
 
 Apps that do *not* support OIDC providers will instead rely on Authentik's reverse proxy to gate access to the application.
 
-Optionally some applications support HTTP headers (eg. `X-Forwarded-User` and `X-Forwarded-Groups`) as a way to tell if a user is logged in and provide access to certain features.
+Optionally some applications support HTTP headers (eg. `X-Forwarded-User` and `X-Forwarded-Groups`) as a way to tell if a user is logged in and provide access to certain features (eg. Frigate relies on this).
 
 ## Configuration of a new OIDC Application
 
@@ -67,7 +67,7 @@ Next up create a Proxy Provider under `Applications` => `Providers` in Authentik
 * Name: `${APP} Proxy Provider`, eg `Frigate Proxy Provider`
 * Authorization flow: default-provider-authorization-implicit-consent
 * Select 'Forward Auth (single application)'
-* External host: `https://${APP}.indigo.dalmura.cloud/`, eg `htts://frigate.indigo.dalmura.cloud/`
+* External host: `https://${APP}.indigo.dalmura.cloud/`, eg `https://frigate.indigo.dalmura.cloud/`
 * Token validity: `hours=24` (default)
 * All other advanced settings as default
 
@@ -76,7 +76,7 @@ This will create the application specific proxy provider, and give you a warning
 Next up create an Application, eg Frigate, under `Applications` => `Applications` in Authentik:
 * Click Create
 * Name: `${APP}`, eg `Frigate`
-* Slug: `${app}`, eg `frigate`
+* Slug: `${app}`, eg `frigate` (should autopopulate based on Name)
 * Group: Your choice, eg `security`
 * Provider: Select the one you just created, eg `Frigate Proxy Provider`
 * No Backchannel Providers

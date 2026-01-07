@@ -195,6 +195,11 @@ The slightly easier option is to maintain a custom Frigate image:
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
 
+Follow the steps in [INDIGO-APPS-AUTH.md](INDIGO-APPS-AUTH.md) and configure Frigate in Authentik before you access it via the UI.
+
+You will need to follow the 'Reverse Proxy' setup flow as Frigate doesn't offer native OIDC authentication.
+
+Once authentication is configured, it should be accessible privately via https://frigate.indigo.dalmura.cloud/
 
 ## Initial Forgejo Setup
 
@@ -242,14 +247,6 @@ Configuring OIDC via the Forgejo UI:
 Within Authentik you can override the Application URL to be `https://forgejo.indigo.dalmura.cloud/user/oauth2/indigo-auth` which should also auto-login the user instead of just sending them to the default home page.
 
 
-## Access Frigate
-
-Should be accessible privately via https://frigate.indigo.dalmura.cloud/
-
-## Access Plex
-
-Should be accessible publically via https://plex.indigo.dalmura.cloud/
-
 ## Photoprism Setup
 
 Configured for OIDC login, follow the usual steps in Authentik to create an Application with an OIDC provider. See the `external-secret.yaml` in the overlays for what parameters it expects.
@@ -275,3 +272,5 @@ Remote access will work, but will require these additional settings:
    * Custom server access URLs: `https://plex.indigo.dalmura.cloud:32406/`
 
 After setting the above you can go back to Settings => Remote Access and click Retry.
+
+Plex should then be accessible publically via `https://plex.indigo.dalmura.cloud:32406/`
