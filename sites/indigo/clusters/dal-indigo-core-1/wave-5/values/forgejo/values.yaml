@@ -45,7 +45,7 @@ gitea:
 
     openid:
       ENABLE_OPENID_SIGNUP: true
-      WHITELISTED_URIS: auth.indigo.dalmura.com.au
+      WHITELISTED_URIS: auth.indigo.dalmura.cloud
 
     security:
       INSTALL_LOCK: true
