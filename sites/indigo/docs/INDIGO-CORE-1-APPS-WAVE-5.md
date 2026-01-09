@@ -274,11 +274,32 @@ Setting the following key and values:
 ### Reset admin password
 If you ever get locked out of the instance:
 ```bash
-# Shell into the photoprism container
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photoprism-5c59758d8b-r5j7v -- /bin/bash
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n photoprism
+NAME                          READY   STATUS    RESTARTS   AGE
+photoprism-85f94f89dd-g7628   1/1     Running   0          24m
+
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photoprism-85f94f89dd-g7628 -- /bin/bash
 
 # Reset the admin users password
-photoprism passwd admin
+$ photoprism passwd admin
+```
+
+### Upgrade a new OIDC user
+Users when initially logging in will be a 'Guest' and unable to see anything.
+
+You'll need to get a shell on the photoprism container and run the following:
+```
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n photoprism
+NAME                          READY   STATUS    RESTARTS   AGE
+photoprism-85f94f89dd-g7628   1/1     Running   0          24m
+
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photoprism-85f94f89dd-g7628 -- /bin/bash
+
+# Look at current users
+$ photoprism users ls
+
+# Find the user and then update them to (Super)Admin role with WebDAV access
+$ photoprism users mod --role admin --superadmin --webdav <username from above>
 ```
 
 ## Plex Setup
