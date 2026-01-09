@@ -54,10 +54,13 @@ Create the following Groups:
    * Access to a broad set of user friendly applications
 * `spoke-users-media`
    * Access to media managements applications
+   * Set the parent group as `spoke-users`
 * `hub-power-users`
    * Access to most apps across the site at the highest privilege level
+   * Set the parent group as `spoke-users`
 * `site-admins`
    * Access to everything at the highest privilege level by default
+   * Set the parent group as `hub-power-users`
 
 Create whatever initial User(s) you'd like and assign them as required to the above Group(s).
 
