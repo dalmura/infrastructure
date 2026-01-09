@@ -21,7 +21,7 @@ data:
   PHOTOPRISM_IMPORT_PATH: "/photos/import"
 
   # Static OIDC settings
-  PHOTOPRISM_OIDC_URI: "https://auth.indigo.dalmura.cloud/application/o/photoprism/.well-known/openid-configuration"
+  PHOTOPRISM_OIDC_URI: "https://auth.indigo.dalmura.cloud/application/o/photoprism/"
   PHOTOPRISM_OIDC_SCOPES: "openid email profile entitlements"
   PHOTOPRISM_OIDC_PROVIDER: "Authentik"
   PHOTOPRISM_OIDC_REDIRECT: "true"
