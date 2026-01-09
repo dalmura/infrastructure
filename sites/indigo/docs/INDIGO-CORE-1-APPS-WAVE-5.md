@@ -222,7 +222,12 @@ $ gitea admin user change-password --username 'user-from-above' --password 'my-e
 You can then go to the web interface and sign in.
 
 ### OIDC Configuration
-Initially follow the [Authentik OIDC Configuration](./INDIGO-APPS-AUTH.md) and create your Application/Provider combination.
+Initially follow the [Native OIDC Configuration](./INDIGO-APPS-AUTH.md) and create your Application/Provider combination.
+
+Extra context for the above:
+* Callback URL: `https://forgejo.indigo.dalmura.cloud/user/oauth2/indigo-auth/callback`
+* Ensure you add the 'entitlements' scope from the doco
+* Bind the `spoke-users` group, order 0
 
 Configuring OIDC via the Forgejo UI:
 * Log into the UI with the reset admin password from above
