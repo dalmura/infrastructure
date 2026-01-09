@@ -21,6 +21,9 @@ spec:
         app.kubernetes.io/instance: photoprism
         app.kubernetes.io/name: photoprism
     spec:
+      securityContext:
+        # Ensures the storage volume permissions match
+        fsGroup: 9002
       containers:
         - envFrom:
             - configMapRef:
