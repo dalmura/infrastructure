@@ -20,10 +20,6 @@ spec:
             # ForwardAuth middlewre
             io.kubernetes.pod.namespace: traefik-private
             app.kubernetes.io/name: traefik
-        - matchLabels:
-            # Forgejo
-            io.kubernetes.pod.namespace: forgejo
-            app.kubernetes.io/name: forgejo
       toPorts:
         - ports:
             - port: "9000" # This is the port of the pod, not the service

@@ -239,9 +239,7 @@ Configuring OIDC via the Forgejo UI:
  * Client ID: `<paste from authentik>`
  * Client Secret: `<paste from authentik>`
  * OpenID Connect Auto Discovery URL: `<paste from authentik>`
-   * Ensure the above uses the Authentik cluster service URL not the ingress URL
-   * Eg. `http://authentik-server.authentik.svc.cluster.local/application/o/forgejo/.well-known/openid-configuration`
-   * There's a Network Policy on the Authentik server that allows this
+   * Eg. `https://auth.indigo.dalmura.cloud/application/o/forgejo/.well-known/openid-configuration`
  * Additional scopes: email profile entitlements
  * Required claim name: entitlements
  * Required claim value: user
