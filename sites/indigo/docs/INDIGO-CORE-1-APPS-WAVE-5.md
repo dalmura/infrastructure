@@ -201,7 +201,7 @@ You will need to follow the 'Reverse Proxy' setup flow as Frigate doesn't offer 
 
 Once authentication is configured, it should be accessible privately via https://frigate.indigo.dalmura.cloud/
 
-## Initial Forgejo Setup
+## Forgejo Setup
 
 The below commands that run `gitea` assume you have a shell in the main pod:
 ```bash
@@ -249,9 +249,30 @@ Within Authentik you can override the Application URL to be `https://forgejo.ind
 
 ## Photoprism Setup
 
-Configured for OIDC login, follow the usual steps in Authentik to create an Application with an OIDC provider. See the `external-secret.yaml` in the overlays for what parameters it expects.
+### OIDC Authentication
+See [secret-store-site.yaml](../clusters/dal-indigo-core-1/wave-5/overlays/photoprism/secret-store-site.yaml) and [external-secret.yaml](../clusters/dal-indigo-core-1/wave-5/overlays/photoprism/external-secret.yaml) for the required inputs into the below config.
 
-If you ever get locked out of the instance and need to reset the `admin` password:
+Additional settings:
+* Redirect URI: `https://photos.indigo.dalmura.cloud/api/v1/oidc/redirect`
+* Bind `spoke-users` to allow anyone to log in, photos are scoped to each user account
+   * Order: 0
+* TBC: Entitlements
+
+Follow the steps in [INDIGO-APPS-AUTH.md](INDIGO-APPS-AUTH.md) for 'Configuration of a new OIDC Application', as Photoprism supports OIDC.
+
+After the Authentik side is setup, follow the steps in [INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) with the following additional configuration:
+* Reader Role: `workload-reader-photoprism`
+* Service Account: `photoprism-sa`
+* Secret Engine: `site`
+* Secret Path: `wave-5/photoprism/config`
+
+Setting the following key and values:
+* `admin_password`: Whatever you want
+* `oidc_client`: <Client ID value from above Authentik config>
+* `oidc_secret`: <Client Secret value from above Authentic config>
+
+### Reset admin password
+If you ever get locked out of the instance:
 ```bash
 # Shell into the photoprism container
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n photoprism photoprism-5c59758d8b-r5j7v -- /bin/bash

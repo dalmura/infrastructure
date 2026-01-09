@@ -25,6 +25,8 @@ Within [Authentik](https://auth.indigo.dalmura.cloud) log in, under `Application
 * Click `OAuth2/OpenID Provider`
 * Leave Name as default: `Provider for XYZ`
 * Authorization flow: Just pick `implicit-consent`
+   * This removes an extra step when first signing in via Authentik
+   * We are ok with this as all applications are controlled and internal
 * Client type: Confidential
 * Note down the Client ID and Client Secret
 * Set one or more Redirect URIs based on your applications doco

@@ -19,3 +19,11 @@ data:
   PHOTOPRISM_DISABLE_CHOWN: "true"
   PHOTOPRISM_ORIGINALS_PATH: "/photos/originals"
   PHOTOPRISM_IMPORT_PATH: "/photos/import"
+
+  # Static OIDC settings
+  PHOTOPRISM_OIDC_URI: "https://auth.indigo.dalmura.cloud/application/o/photoprism/.well-known/openid-configuration"
+  PHOTOPRISM_OIDC_SCOPES: "openid email profile entitlements"
+  PHOTOPRISM_OIDC_PROVIDER: "Authentik"
+  PHOTOPRISM_OIDC_REDIRECT: "true"
+  PHOTOPRISM_OIDC_REGISTER: "true"
+  PHOTOPRISM_OIDC_WEBDAV: "true"
