@@ -24,6 +24,7 @@ spec:
       securityContext:
         # Ensures the storage volume permissions match
         fsGroup: 9002
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - envFrom:
             - configMapRef:
