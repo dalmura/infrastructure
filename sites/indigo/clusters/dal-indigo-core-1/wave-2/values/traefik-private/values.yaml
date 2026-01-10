@@ -33,6 +33,8 @@ ports:
       default: true
   ssh:
     port: 22
+    expose:
+      default: true
 
 service:
   annotations:
