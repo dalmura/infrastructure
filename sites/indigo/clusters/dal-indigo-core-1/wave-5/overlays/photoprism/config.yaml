@@ -12,6 +12,7 @@ data:
   PHOTOPRISM_HTTP_PORT: "2342"
   PHOTOPRISM_SITE_URL: "https://photos.indigo.dalmura.cloud/"
   PHOTOPRISM_DISABLE_TLS: "true"
+  PHOTOPRISM_SITE_CAPTION: "Photo Management"
 
   # Filesystem
   PHOTOPRISM_UID: "9002"
