@@ -1,6 +1,6 @@
 machine:
   nodeLabels:
-    node.kubernetes.io/instance-type: "eq14.16gb.amd64"
+    node.kubernetes.io/instance-type: "rpi4.4gb.arm64"
 
   network:
     interfaces:
@@ -11,7 +11,7 @@ machine:
           routeMetric: 2048
       - interface: "enx<HW_ADDRESS>"
         vip:
-          ip: 192.168.81.192
+          ip: 192.168.81.200
         vlans:
           - # SERVERS
             vlanId: 103
@@ -27,7 +27,7 @@ machine:
 
   install:
     diskSelector:
-      model: AirDisk 512GB SSD
+      size: ">= 200GB"
 
 cluster:
   network:
