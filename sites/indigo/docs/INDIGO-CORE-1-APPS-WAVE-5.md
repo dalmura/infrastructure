@@ -228,6 +228,10 @@ Extra context for the above:
 * Callback URL: `https://forgejo.indigo.dalmura.cloud/user/oauth2/indigo-auth/callback`
 * Ensure you add the 'entitlements' scope from the doco
 * Bind the `spoke-users` group, order 0
+* Create the following Application entitlements:
+   * `user` - bind to `spoke-users` group
+   * `admin` - bind to `site-admins` group
+   * If you forget this step Forgejo will claim your account is 'restricted' and you cannot log in
 
 Configuring OIDC via the Forgejo UI:
 * Log into the UI with the reset admin password from above
