@@ -7,7 +7,8 @@ ingress:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
   ingressClassName: ingress-private
   hosts:
-    - headlamp.indigo.dalmura.cloud
+    - host: headlamp.indigo.dalmura.cloud
   tls:
-    enabled: true
-    secretName: headlamp-cert
+    - secretName: headlamp-cert
+      hosts:
+        - headlamp.indigo.dalmura.cloud
