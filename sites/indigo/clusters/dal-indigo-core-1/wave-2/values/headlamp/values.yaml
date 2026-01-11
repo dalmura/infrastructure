@@ -8,6 +8,9 @@ ingress:
   ingressClassName: ingress-private
   hosts:
     - host: headlamp.indigo.dalmura.cloud
+      paths:
+        - path: /
+          type: Prefix
   tls:
     - secretName: headlamp-cert
       hosts:
