@@ -64,9 +64,9 @@ ArgoCD via CLI:
 argocd --grpc-web login argocd.indigo.dalmura.cloud
 ```
 
-Kubernetes Dashboard will require a Bearer Token:
+Headlamp will require a Bearer Token from the `headlamp` Service Account:
 ```
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kubernetes-dashboard create token admin-user
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 create token headlamp -n headlamp
 ```
 
 Just paste in the giant string returned from that command to log in. These tokens are JWTs and aren't stored anywhere, so you can always just rerun the above command to generate new tokens as required.
