@@ -5,7 +5,7 @@ These are:
 * [Switchboard](https://github.com/borchero/switchboard/) for helping manage DNS/TLS for Traefik Ingress CRDs
 * [CloudNative PG](https://cloudnative-pg.io/documentation/current/) for managed PostgreSQL clusters
 * [Anubis](https://github.com/TecharoHQ/anubis) for helping limit the impacts of web scraping
-* [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) simple k8s native cluster overview dashboard
+* [Headlamp](https://headlamp.dev/) k8s cluster dashboard
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 1](INDIGO-CORE-1-APPS-WAVE-1.md) and have all the precursors up and running, `argocd` is logged in and Longhorn is running
@@ -55,7 +55,7 @@ The following URLs should be browsable:
 * [ArgoCD UI](https://argocd.indigo.dalmura.cloud/)
 * [Cilium Hubble UI](https://cilium-hubble.indigo.dalmura.cloud/)
 * [Longhorn UI](https://longhorn.indigo.dalmura.cloud/)
-* [Kubernetes Dashboard](https://kubernetes-dashboard.indigo.dalmura.cloud/)
+* [Headlamp](https://headlamp.indigo.dalmura.cloud/)
 * [Traefik Dashboard - Private](https://traefik-private.indigo.dalmura.cloud/dashboard/)
 * [Traefik Dashboard - Public](https://traefik-public.indigo.dalmura.cloud/dashboard/)
 

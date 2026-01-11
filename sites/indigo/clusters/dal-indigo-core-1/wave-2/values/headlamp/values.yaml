@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: headlamp.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+  ingressClassName: ingress-private
+  hosts:
+    - headlamp.indigo.dalmura.cloud
+  tls:
+    enabled: true
+    secretName: headlamp-cert
