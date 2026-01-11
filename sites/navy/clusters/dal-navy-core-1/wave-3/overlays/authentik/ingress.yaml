@@ -4,7 +4,7 @@ metadata:
   name: authentik
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: authentik.navy.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: auth.navy.dalmura.cloud
     # Uncomment when we want to CNAME to public interface
     #external-dns.alpha.kubernetes.io/target: navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
@@ -14,10 +14,10 @@ spec:
   ingressClassName: ingress-public
   tls:
     - hosts:
-      - authentik.navy.dalmura.cloud
+      - auth.navy.dalmura.cloud
       secretName: authentik-cert
   rules:
-  - host: authentik.navy.dalmura.cloud
+  - host: auth.navy.dalmura.cloud
     http:
       paths:
       - path: /
