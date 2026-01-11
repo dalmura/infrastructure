@@ -17,9 +17,6 @@ spec:
     - repoURL: https://github.com/dalmura/infrastructure.git
       targetRevision: HEAD
       ref: values
-    - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-2/overlays/headlamp
-      targetRevision: HEAD
   destination:
     server: {{ .Values.spec.destination.server }}
     namespace: headlamp
