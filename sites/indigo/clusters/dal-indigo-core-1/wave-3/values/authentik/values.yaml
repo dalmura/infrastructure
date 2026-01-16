@@ -85,10 +85,3 @@ worker:
     - name: authentik-email-secrets
       mountPath: /email-config
       readOnly: true
-
-redis:
-  enabled: true
-
-  master:
-    persistence:
-      storageClass: cluster-nobackup
