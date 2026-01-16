@@ -50,6 +50,8 @@ spec:
         - matchName: "challenges.cloudflare.com"
         # Required for user avatars
         - matchName: "www.gravatar.com"
+        # Required for version check
+        - matchName: "version.goauthentik.io"
       toPorts:
         - ports:
           - port: "443"

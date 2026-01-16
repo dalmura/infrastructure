@@ -129,7 +129,6 @@ We just need to ensure the `x-authentik-entitlements` are being set correctly:
 A few of the core site services run their own UI Ingress services, which are either unauthenticated or have their own authentication, because they were deployed _before_ Authentik was created (wave-1 and wave-2 were deployed before wave-3).
 
 These are:
-* [ArgoCD](https://argocd.indigo.dalmura.cloud) - Own authentication
 * [Longhorn](https://longhorn.indigo.dalmura.cloud) - Unauthenticated
   * via Authentik Proxy Provider
 * [Cilium Hubble](https://cilium-hubble) - Unauthenticated
@@ -138,8 +137,10 @@ These are:
   * via Authentik Proxy Provider
 * [Traefik - Private](https://traefik-private.indigo.dalmura.cloud) - Unauthenticated
   * via Authentik Proxy Provider
-* [k8s Dashboard](https://kubernetes-dashboard.indigo.dalmura.cloud) - Own authentication
-  * We'll leave this alone for now, pending TODO
+* [ArgoCD](https://argocd.indigo.dalmura.cloud) - Own authentication
+  * via Authentik OAuth Provider
+* [Headlamp](https://headlamp.indigo.dalmura.cloud) - Own authentication
+  * via k8s itself
 
 For the unauthenticated endpoints we can inject the Authentik Traefik Middleware into the Ingress resource.
 
@@ -174,6 +175,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-private annotate i
 ```
 
 Doing this still requires you to follow the above `Configuration of a new Reverse Proxy Application` section and setup an application in Authentik.
+
 
 For ArgoCD just follow [their documentation](https://integrations.goauthentik.io/infrastructure/argocd/) which just mimics the above `Native OIDC Authentication` section of this page.
 
@@ -244,9 +246,22 @@ data:
 
 Then kill the ArgoCD `server` and `dex` pods first before login would work correctly (otherwise you'll get weird errors about token failing to validate.
 
-You should now be able to log into ArgoCD correctly!
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd get pods
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete pod argocd-dex-server-68b5bf7857-mwt78
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd delete pod argocd-server-85b6b97b-k5p25
+```
+
+You should now be able to log into [ArgoCD](https://argocd.indigo.dalmura.cloud/) correctly!
 
 Using SSO to log into the ArgoCD CLI is supported as well, this will open a browser to perform the authentication:
 ```
 argocd --grpc-web login argocd.indigo.dalmura.cloud --sso
 ```
+
+For Headlamp just generate a token:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 create token headlamp -n headlamp
+```
+
+This `headlamp` Service Account has a Cluster Role Binding to the `cluster-admin` Cluster Role, which means any tokens generated will have full permissions in the cluster (which is a bit dangerous, so treat the tokens with care.
