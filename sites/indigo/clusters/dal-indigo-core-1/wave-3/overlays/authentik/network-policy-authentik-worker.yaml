@@ -41,3 +41,10 @@ spec:
         - ports:
           - port: "465"
             protocol: TCP
+    - toFQDNs:
+        # Required for version check
+        - matchName: "version.goauthentik.io"
+      toPorts:
+        - ports:
+          - port: "443"
+            protocol: TCP
