@@ -25,19 +25,12 @@ spec:
         - image: emojirades/emojirades:latest
           imagePullPolicy: IfNotPresent
           name: emojirades
-
           command:
             - "-vv"
             - "multiple"
-            #- "--workspaces-uri"
-            #- "{{ shard_prefix }}/{{ item }}/"
-            #- "--onboarding-queue"
-            #- "{{ onboarding_queue_prefix }}{{ item }}"
-            #- "--db-uri"
-            #- "postgresql+psycopg2://{{ emojirades_db_auth[item]['db_username'] }}:{{ emojirades_db_auth[item]['db_password'] }}@emojirades_shard_{{ item }}_db:5432/{{ emojirades_db_name }}"
-
           environment:
             TZ: "Australia/Melbourne"
-            #AWS_ACCESS_KEY_ID: FROM_SECRET
-            #AWS_SECRET_ACCESS_KEY: FROM_SECRET
             AWS_DEFAULT_REGION: "ap-southeast-2"
+          envFrom:
+            - secretRef:
+                name: emojirades-secrets
