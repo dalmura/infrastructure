@@ -4,7 +4,8 @@ kind: Kustomization
 namespace: emojirades
 
 resources:
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
+  - service-account.yaml
+  - vault-dynamic-secret.yaml
+  - external-secret.yaml
   - postgres.yaml
+  - deployment.yaml

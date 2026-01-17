@@ -4,7 +4,7 @@ kind: Cluster
 metadata:
   name: emojirades-db
 spec:
-  description: "Forgejo DB"
+  description: "Emojirades DB"
   instances: 1
 
   enableSuperuserAccess: true
@@ -23,14 +23,14 @@ spec:
 
   backup:
     barmanObjectStore:
-      destinationPath: s3://dal-site-backups/indigo/postgres/emojirades-db/
+      destinationPath: s3://dal-site-backups/indigo/emojirades/postgres/
       s3Credentials:
         accessKeyId:
-          name: emojirades-db-backup-secret
-          key: ACCESS_KEY_ID
+          name: emojirades-db-backup
+          key: access_key
         secretAccessKey:
-          name: emojirades-db-backup-secret
-          key: SECRET_ACCESS_KEY
+          name: emojirades-db-backup
+          key: secret_key
       data:
         compression: gzip
       wal:
@@ -39,6 +39,7 @@ spec:
         site: indigo
         service: emojirades
         db: emojirades-db
+    retentionPolicy: "3d"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
