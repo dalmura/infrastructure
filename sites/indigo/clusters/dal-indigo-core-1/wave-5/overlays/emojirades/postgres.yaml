@@ -1,0 +1,52 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: emojirades-db
+spec:
+  description: "Emojirades DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 18
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 10Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/indigo/emojirades/postgres/
+      s3Credentials:
+        accessKeyId:
+          name: emojirades-db-backup
+          key: access_key
+        secretAccessKey:
+          name: emojirades-db-backup
+          key: secret_key
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+      tags:
+        site: indigo
+        service: emojirades
+        db: emojirades-db
+    retentionPolicy: "3d"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: emojirades-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: emojirades-db
