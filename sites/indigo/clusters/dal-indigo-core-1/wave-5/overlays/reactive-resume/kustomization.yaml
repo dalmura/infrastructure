@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: reactive-resume
+
+resources:
+  - service-account.yaml
+  - vault-dynamic-secret.yaml
+  - external-secret.yaml
+  - postgres.yaml
+  - service.yaml
+  - ingress.yaml
