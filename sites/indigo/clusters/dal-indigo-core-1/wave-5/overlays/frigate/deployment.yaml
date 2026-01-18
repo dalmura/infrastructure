@@ -32,6 +32,7 @@ spec:
               port: http
               scheme: HTTP
             initialDelaySeconds: 20
+            periodSeconds: 30
             timeoutSeconds: 10
           name: frigate
           ports:
