@@ -324,3 +324,16 @@ Remote access will work, but will require these additional settings:
 After setting the above you can go back to Settings => Remote Access and click Retry.
 
 Plex should then be accessible publically via `https://plex.indigo.dalmura.cloud:32406/`
+
+## Emojirades Setup
+If postgres is empty/fresh you'll need to init it, assuming you have a local emojirades checkout with the basic dev env setup:
+```
+# Port forward the postgres db
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/emojirades-db-rw -n emojirades 5432:5432
+
+# Get the DB URI
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get secret emojirades-db-app -n emojirades -o json | jq -r '.data."fqdn-uri"' | base64 -d; echo
+
+# Ensure you replace the hostname with 'localhost' from the port-forward above
+emojirades -vv init --db-uri "<get DB uri from secret emojirades-db-app in namespace>"
+```
