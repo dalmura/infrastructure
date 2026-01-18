@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: code.forgejo.org/forgejo-helm
       chart: forgejo
-      targetRevision: 16.0.0
+      targetRevision: 16.0.1
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/forgejo/values.yaml
