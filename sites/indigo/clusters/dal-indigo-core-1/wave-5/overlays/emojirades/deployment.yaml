@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: emojirades
+    app.kubernetes.io/name: emojirades
+  name: emojirades
+  namespace: emojirades
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: emojirades
+      app.kubernetes.io/name: emojirades
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: emojirades
+        app.kubernetes.io/name: emojirades
+    spec:
+      containers:
+        - image: ghcr.io/emojirades/emojirades:v1.12.0
+          imagePullPolicy: IfNotPresent
+          name: emojirades
+          command:
+            - "-vv"
+            - "multiple"
+          environment:
+            TZ: "Australia/Melbourne"
+            AWS_DEFAULT_REGION: "ap-southeast-2"
+          envFrom:
+            - secretRef:
+                name: emojirades-secrets
