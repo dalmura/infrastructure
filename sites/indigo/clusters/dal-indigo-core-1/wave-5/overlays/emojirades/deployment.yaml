@@ -25,7 +25,7 @@ spec:
         - image: ghcr.io/emojirades/emojirades:v1.12.0
           imagePullPolicy: IfNotPresent
           name: emojirades
-          command:
+          args:
             - "-vv"
             - "multiple"
           environment:
