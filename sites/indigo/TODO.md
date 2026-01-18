@@ -2,8 +2,6 @@
 
 Stuff to eventually get around to.
 
-* Authentik
-  * Setup branding/etc
 * Investigate Authentik federation with other sites
   * Wait for another site to have Authentik running
 * Longhorn

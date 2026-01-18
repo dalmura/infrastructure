@@ -89,9 +89,15 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Media Playback
    * [Forgejo](https://forgejo.org/)
       * Git server
-   * TODO
-      * [Emojirades](https://emojirades.io/)
-         * Emoji based guessing game
+   * [Emojirades](https://emojirades.io/)
+      * Emoji based guessing game
+   * Not Implemented Yet
+      * [Reactive Resume](https://rxresu.me/)
+         * Resume builder
+      * [Tandoor](https://tandoor.dev/)
+         * Recipe management
+      * [Github Runner](https://github.com/actions/actions-runner-controller)
+         * Github Actions runner management
       * [Bookstack](https://www.bookstackapp.com/)
          * Wiki Knowledge Base
       * [Home Assistant](https://www.home-assistant.io/)
@@ -100,12 +106,6 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
          * Chat/comms
       * [PeerTube](https://joinpeertube.org/)
          * Videos
-      * [Reactive Resume](https://rxresu.me/)
-         * Resume builder
-      * [Tandoor](https://tandoor.dev/)
-         * Recipe management
-      * [Github Runner](https://github.com/actions/actions-runner-controller)
-         * Github Actions runner management
 
 ## Configuration
 
