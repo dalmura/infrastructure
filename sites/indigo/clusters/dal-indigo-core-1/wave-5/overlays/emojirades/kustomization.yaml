@@ -6,6 +6,8 @@ namespace: emojirades
 resources:
   - service-account.yaml
   - vault-dynamic-secret.yaml
+  - secret-store-site.yaml
+  - external-secret-db-backup.yaml
   - external-secret.yaml
   - postgres.yaml
   - deployment.yaml
