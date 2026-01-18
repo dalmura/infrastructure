@@ -52,6 +52,8 @@ spec:
         - matchName: "www.gravatar.com"
         # Required for version check
         - matchName: "version.goauthentik.io"
+        # Required for password pwnd check
+        - matchName: "api.pwnedpasswords.com"
       toPorts:
         - ports:
           - port: "443"
