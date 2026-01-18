@@ -5,6 +5,7 @@ These are:
 * [Plex](https://www.plex.tv/) for Media Library Playback
 * [Forgejo](https://forgejo.org/) as a Github replacement
 * [Photoprism](https://github.com/photoprism/photoprism) for Photo management
+* [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
