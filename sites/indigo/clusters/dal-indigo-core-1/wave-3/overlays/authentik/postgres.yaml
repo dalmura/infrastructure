@@ -19,7 +19,7 @@ spec:
 
   storage:
     storageClass: cluster-nobackup
-    size: 10Gi
+    size: 20Gi
 
   backup:
     barmanObjectStore:
