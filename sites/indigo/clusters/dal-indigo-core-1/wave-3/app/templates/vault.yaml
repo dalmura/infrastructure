@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://helm.releases.hashicorp.com
       chart: vault
-      targetRevision: 0.31.0
+      targetRevision: 0.32.0
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-3/values/vault/values.yaml
