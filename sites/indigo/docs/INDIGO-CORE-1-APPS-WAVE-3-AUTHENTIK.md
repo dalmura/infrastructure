@@ -39,6 +39,12 @@ Currently these are enabled:
 * Cannot appear on `haveibeenpwned.com`
 * Must have a reasonably complex password according to [zxcvbn](https://github.com/dropbox/zxcvbn#readme)
 
+Under `Flows and Stages` => `Flows` edit `default-authentication-flow`:
+* Expand `Behavior settings`
+* Toggle 'Compatibility mode' *on*
+
+This will let password managers have a better time auto-filling.
+
 ## Users & Groups
 
 We'll setup a few initial groups and add more as part of the other apps configuration steps.
