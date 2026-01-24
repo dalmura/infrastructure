@@ -227,22 +227,7 @@ data:
   ...
 ```
 
-Edit the `argocd-rbac-cm` ConfigMap:
-```
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n argocd edit configmap argocd-rbac-cm
-```
-
-Adding the following (adding the data key if it's not there):
-```
-metadata:
-  ...
-data:
-  ...
-  policy.csv: |
-    g, Admin, role:admin
-    g, Viewer, role:readonly
-  ...
-```
+The `argocd-rbac-cm` ConfigMap is already set via the Helm chart values file.
 
 Then kill the ArgoCD `server` and `dex` pods first before login would work correctly (otherwise you'll get weird errors about token failing to validate.
 
