@@ -20,10 +20,4 @@ spec:
   destination:
     server: {{ .Values.spec.destination.server }}
     namespace: argocd
-  revisionHistoryLimit: 1
-  ignoreDifferences:
-    - group: "*"
-      kind: ConfigMap
-      name: argocd-rbac-cm
-      jsonPointers:
-        - /data/policy.csv
+  revisionHistoryLimit: 0
