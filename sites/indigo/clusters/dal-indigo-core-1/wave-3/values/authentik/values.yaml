@@ -39,6 +39,9 @@ server:
     - name: authentik-media
       persistentVolumeClaim:
         claimName: authentik-media
+    - name: authentik-data
+      persistentVolumeClaim:
+        claimName: authentik-data
 
   volumeMounts:
     - name: authentik-db-creds
@@ -51,7 +54,9 @@ server:
       mountPath: /email-config
       readOnly: true
     - name: authentik-media
-      mountPath: /media
+      mountPath: /data/media
+    - name: authentik-data
+      mountPath: /data
 
 worker:
   livenessProbe:
