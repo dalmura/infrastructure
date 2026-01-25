@@ -2,6 +2,8 @@
 
 These are:
 * [Renovate](https://docs.renovatebot.com/) for automated dependency management
+* [VictoriaLogs Single](https://docs.victoriametrics.com/helm/victoria-logs-single/)
+* [VictoriaMetrics Single](https://docs.victoriametrics.com/helm/victoria-metrics-single/)
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -33,6 +35,25 @@ module.exports = {
 ```
 
 We've already configured the 'ExternalSecret' resource in the wave-4 renovate application to reference the above secret correctly.
+
+## VictoriaMetrics/Logs Helm Chart Versions
+
+You can look at the latest version of the charts with:
+```bash
+helm repo add vm https://victoriametrics.github.io/helm-charts/
+
+helm repo update
+helm search repo vm/
+
+NAME                             	CHART VERSION	APP VERSION	DESCRIPTION
+...
+vm/victoria-logs-collector       	0.2.7        	v1.43.1    	VictoriaLogs Collector - collects logs from Kub...
+vm/victoria-logs-single          	0.11.24      	v1.43.1    	The VictoriaLogs single Helm chart deploys Vict...
+vm/victoria-metrics-single       	0.29.0       	v1.134.0   	VictoriaMetrics Single version - high-performan...
+...
+
+You can then copy them into the app template file.
+```
 
 ## Verifying apps
 
@@ -71,8 +92,7 @@ argocd app sync wave-4
 argocd app sync -l app.kubernetes.io/instance=wave-4
 ```
 
-## Post Install Configuration
-
+## Renovate Configuration
 By default the `ExternalSecret` and `SecretStore` resources will be broken until we deploy the correct Vault and ESO integration for Renovate.
 
 We'll need to follow the steps in [INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) specifically setting up the Vault config.
