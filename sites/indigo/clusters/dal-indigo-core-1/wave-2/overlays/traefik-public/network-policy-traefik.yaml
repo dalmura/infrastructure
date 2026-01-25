@@ -20,6 +20,12 @@ spec:
       toPorts:
         - ports:
             - port: "8080"
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9100"
   egress:
     - toEntities:
         - kube-apiserver
