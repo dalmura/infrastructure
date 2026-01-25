@@ -21,6 +21,9 @@ data:
   PHOTOPRISM_ORIGINALS_PATH: "/photos/originals"
   PHOTOPRISM_IMPORT_PATH: "/photos/import"
 
+  # Indexing
+  PHOTOPRISM_AUTO_IMPORT: "600"  # 10 minutes delay
+
   # Static OIDC settings
   PHOTOPRISM_OIDC_URI: "https://auth.indigo.dalmura.cloud/application/o/photoprism/"
   PHOTOPRISM_OIDC_SCOPES: "openid email profile entitlements"
