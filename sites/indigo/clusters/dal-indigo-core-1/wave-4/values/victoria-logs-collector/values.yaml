@@ -2,4 +2,4 @@
 nameOverride: vlc
 
 remoteWrite:
-  - url: http://vls-victoria-logs-single-server:9428
+  - url: http://victoria-logs-single-vls-server:9428
