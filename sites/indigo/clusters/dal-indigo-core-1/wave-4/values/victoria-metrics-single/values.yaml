@@ -2,7 +2,7 @@
 nameOverride: vms
 
 server:
-  retentionPeriod: 6m
+  retentionPeriod: 6M
 
   scrape:
     enabled: true
