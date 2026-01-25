@@ -1,0 +1,12 @@
+---
+nameOverride: vms
+
+server:
+  retentionPeriod: 6m
+
+  scrape:
+    enabled: true
+
+  persistentVolume:
+    size: 20Gi
+    storageClassName: cluster-nobackup
