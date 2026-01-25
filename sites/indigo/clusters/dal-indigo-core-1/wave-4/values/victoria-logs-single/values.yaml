@@ -1,0 +1,8 @@
+---
+nameOverride: vls
+
+server:
+  retentionPeriod: 7d
+  persistentVolume:
+    size: 10Gi
+    storageClassName: cluster-nobackup

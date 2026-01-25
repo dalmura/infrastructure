@@ -1,0 +1,5 @@
+---
+nameOverride: vlc
+
+remoteWrite:
+  - url: http://vls-victoria-logs-single-server:9428
