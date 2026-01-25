@@ -70,13 +70,13 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
 * ArgoCD - Wave 4
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
+   * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)
+      * Lightweight Prometheus replacement
+      * Scrapes metrics from the cluster
+   * [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)
+      * Lightweight Loki replacement
+      * Scrapes container logs from the cluster via the Collector
    * Not Implemented Yet
-      * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)
-         * Lightweight Prometheus replacement
-         * Scrapes metrics from the cluster
-      * [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)
-         * Lightweight Loki replacement
-         * Scrapes container logs from the cluster
       * [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
          * Client alerting
          * Pushed to from VictoriaMetrics based alert rules

@@ -3,6 +3,7 @@
 These are:
 * [Renovate](https://docs.renovatebot.com/) for automated dependency management
 * [VictoriaLogs Single](https://docs.victoriametrics.com/helm/victoria-logs-single/)
+* [VictoriaLogs Collector](https://docs.victoriametrics.com/helm/victoria-logs-collector/)
 * [VictoriaMetrics Single](https://docs.victoriametrics.com/helm/victoria-metrics-single/)
 
 We assume you've followed the steps at:
@@ -36,7 +37,7 @@ module.exports = {
 
 We've already configured the 'ExternalSecret' resource in the wave-4 renovate application to reference the above secret correctly.
 
-## VictoriaMetrics/Logs Helm Chart Versions
+## Victoria Metrics/Logs Helm Chart Versions
 
 You can look at the latest version of the charts with:
 ```bash
