@@ -75,6 +75,9 @@ vault write auth/kubernetes/role/workload-reader-example-app-db-backup \
    token_policies=workload-reader-example-app-db-backup \
    audience='https://192.168.77.2:6443/' \
    ttl=24h
+
+# WARNING: The above ttl will set the maximum lifetime of any IAM Users created
+# WARNING: So ensure your ExternalSecret's refreshInterval is lower than this
 ```
 
 The above assumes you already know the Namespace of your app along with the name of the Service Account created.
