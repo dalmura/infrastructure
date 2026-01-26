@@ -124,3 +124,31 @@ vault write auth/kubernetes/role/workload-reader-renovate \
 ```
 
 After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the renovate app in ArgoCD.
+
+## Grafana Access
+
+Once DNS propagates Grafana will be available via it's [Ingress Resource](https://grafana.indigo.dalmura.cloud/)
+
+You can get the default admin credentials via:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get secret grafana -n grafana -o json | jq -r '.data."admin-user"' | base64 -d; echo
+
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get secret grafana -n grafana -o json | jq -r '.data."admin-password"' | base64 -d; echo
+```
+
+If the above is wrong/out of sync, you can manually reset the admin password via the Pod's CLI:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n grafana grafana-78c77f8d86-skkl7 -- /bin/bash
+
+$ grafana-cli admin reset-admin-password <your-password-here>
+```
+
+Either way you will be prompted to change the password on first login.
+
+## Grafana Configuration
+
+Once you have logged in you will need to point Grafana to the following data sources:
+* VictoriaMetrics (cluster metrics)
+* VictoriaLogs (cluster logs)
+
+

@@ -32,7 +32,7 @@ spec:
       name: grafana
       jsonPointers:
         - "/data/admin-password"
-    - group: ""
+    - group: "apps"
       kind: Deployment
       name: grafana
       jsonPointers:
