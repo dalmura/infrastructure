@@ -176,6 +176,12 @@ User mapping:
 
 ## Grafana Configuration
 
-Once you have logged in you will need to point Grafana to the following data sources:
-* VictoriaMetrics (cluster metrics)
-* VictoriaLogs (cluster logs)
+Open `Connections` and install the following new connection plugins:
+* `VictoriaLogs`
+* `VictoriaMetrics`
+
+Navigate to `Data sources` and add the following:
+* VictoriaLogs
+   * HTTP URL: `http://victoria-logs-single-vls-server.victoria-logs.svc.cluster.local:9428/`
+* VictoriaMetrics
+   * HTTP URL: `http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428/`
