@@ -2,6 +2,10 @@
 
 Stuff to eventually get around to.
 
+* Alertmanager
+  * Longhorn volume >90% over 5 minutes alert
+  * Node Disk >90% over 5 minutes alert
+  * Node CPU >90% over 5 minutes alert
 * Investigate Authentik federation with other sites
   * Wait for another site to have Authentik running
 * Longhorn
