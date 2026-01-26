@@ -39,7 +39,7 @@ spec:
         site: indigo
         service: forgejo
         db: forgejo-db
-    retentionPolicy: "10d"
+    retentionPolicy: "7d"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
