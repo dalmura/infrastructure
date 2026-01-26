@@ -1,6 +1,7 @@
 ---
 
-deploymentStrategy: Recreate
+deploymentStrategy:
+  type: Recreate
 
 persistence:
   enabled: true
