@@ -26,4 +26,15 @@ spec:
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: grafana
+      jsonPointers:
+        - "/data/admin-password"
+    - group: ""
+      kind: Deployment
+      name: grafana
+      jsonPointers:
+        - "/spec/template/metadata/annotations/checksum~1secret"
   revisionHistoryLimit: 1
