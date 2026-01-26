@@ -7,6 +7,12 @@ server:
   scrape:
     enabled: true
 
+    extraScrapeConfigs:
+      - job_name: victoria-logs-single
+        static_configs:
+          - targets:
+              - http://victoria-logs-single-vls-server.victoria-logs.svc.cluster.local:9428/metrics
+
   persistentVolume:
     size: 20Gi
     storageClassName: cluster-nobackup
