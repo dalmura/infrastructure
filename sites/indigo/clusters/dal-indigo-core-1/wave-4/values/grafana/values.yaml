@@ -1,0 +1,8 @@
+---
+
+deploymentStrategy: Recreate
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: cluster-nobackup
