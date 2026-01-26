@@ -145,6 +145,18 @@ $ grafana-cli admin reset-admin-password <your-password-here>
 
 Either way you will be prompted to change the password on first login.
 
+Once logged in we need to setup OIDC Authentication from Authentik.
+
+Follow [INDIGO-APPS-AUTH.md](./INDIGO-APPS-AUTH.md)'s 'Native OIDC Authentication' steps providing the following:
+* Redirect URI: `https://grafana.indigo.dalmura.cloud/login/generic_oauth`
+* Ensuring 'Application Entitlements' scope is added
+* Binding `hub-power-users` (order 0) and `site-admins` (order 1)
+
+Noting the following for configuration in Grafana:
+* Client ID from Authentik
+* Client Secret from Authentik
+* Discovery URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/.well-known/openid-configuration`
+
 ## Grafana Configuration
 
 Once you have logged in you will need to point Grafana to the following data sources:

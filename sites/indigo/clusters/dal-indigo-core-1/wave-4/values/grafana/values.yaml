@@ -1,4 +1,8 @@
 ---
+grafana.ini:
+  server:
+    root_url: "https://grafana.indigo.dalmura.cloud"
+    domain: "grafana.indigo.dalmura.cloud"
 
 deploymentStrategy:
   type: Recreate
