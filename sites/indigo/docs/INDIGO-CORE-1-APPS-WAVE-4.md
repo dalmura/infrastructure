@@ -149,18 +149,33 @@ Once logged in we need to setup OIDC Authentication from Authentik.
 
 Follow [INDIGO-APPS-AUTH.md](./INDIGO-APPS-AUTH.md)'s 'Native OIDC Authentication' steps providing the following:
 * Redirect URI: `https://grafana.indigo.dalmura.cloud/login/generic_oauth`
+* Logout URI: `https://grafana.indigo.dalmura.cloud/logout'
+* Logout Method: `Front-chanel`
 * Ensuring 'Application Entitlements' scope is added
 * Binding `hub-power-users` (order 0) and `site-admins` (order 1)
 
-Noting the following for configuration in Grafana:
+After creating the above, navigate to the Grafana application and create the following entitlements:
+* `Grafana Admins` bound to `site-admin`
+* `Grafana Editors` bound to `hub-power-users`
+
+Now in Grafana go to `Administration` => `Authentication` and configure `Generic OAuth`.
+
+General settings:
+* Display Name: Dalmura SSO
 * Client ID from Authentik
 * Client Secret from Authentik
-* Discovery URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/.well-known/openid-configuration`
+* Scopes: `openid`, `profile`, `email`, `entitlements`
+* OpenID Connect Discovery URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/.well-known/openid-configuration`
+* Sign out redirect URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/end-session/'
+
+User mapping:
+* Name attribute path: `name`
+* Login attribute path: `preferred_username`
+* Role attribute path: `contains(entitlements[*], 'Grafana Admins') && 'Admin' || contains(entitlements[*], 'Grafana Editors') && 'Editor' || 'Viewer'`
+
 
 ## Grafana Configuration
 
 Once you have logged in you will need to point Grafana to the following data sources:
 * VictoriaMetrics (cluster metrics)
 * VictoriaLogs (cluster logs)
-
-
