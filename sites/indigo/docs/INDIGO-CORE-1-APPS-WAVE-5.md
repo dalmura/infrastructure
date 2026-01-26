@@ -54,8 +54,10 @@ vault write auth/kubernetes/role/workload-reader-forgejo-secrets \
    bound_service_account_namespaces=forgejo \
    token_policies=workload-reader-forgejo-secrets \
    audience='https://192.168.77.2:6443/' \
-   ttl=24h
+   ttl=31d
 ```
+
+The above 31d is required as the ttl here sets the lifetime of the IAM Users that are vended by Vault.
 
 ## Plex Secrets
 Plex requires a `PLEX_CLAIM` environment variable that we need to securely pass into the Pod as a once-off activity. After that it's not required anymore. To avoid committing this into git and having someone else steal it for the few seconds it's visible but not used yet, we do it via a Vault secret.
