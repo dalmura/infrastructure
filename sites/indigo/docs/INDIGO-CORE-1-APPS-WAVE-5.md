@@ -328,6 +328,9 @@ After setting the above you can go back to Settings => Remote Access and click R
 Plex should then be accessible publically via `https://plex.indigo.dalmura.cloud:32406/`
 
 ## Emojirades Setup
+
+Assuming you've setup all the normal vault/etc settings, ensure the ttl is set to 31d and not 24h due to IAM user DB vending.
+
 If postgres is empty/fresh you'll need to init it, assuming you have a local emojirades checkout with the basic dev env setup:
 ```
 # Port forward the postgres db
