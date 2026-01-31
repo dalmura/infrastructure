@@ -9,5 +9,6 @@ resources:
   - secret-store-site.yaml
   - external-secret-db-backup.yaml
   - external-secret.yaml
+  - object-store.yaml
   - postgres.yaml
   - deployment.yaml
