@@ -125,6 +125,10 @@ vault write auth/kubernetes/role/workload-reader-renovate \
 
 After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the renovate app in ArgoCD.
 
+## VLS/VMS Ingress
+
+In order for [VictoriaLogs](https://vls.indigo.dalmura.cloud) and [VictoriaMetrics](https://vms.indigo.dalmura.cloud) Ingress resources to both work with Authentik, they will both need to be setup in Authentik as Applications with a Proxy Provider.
+
 ## Grafana Access
 
 Once DNS propagates Grafana will be available via it's [Ingress Resource](https://grafana.indigo.dalmura.cloud/)
