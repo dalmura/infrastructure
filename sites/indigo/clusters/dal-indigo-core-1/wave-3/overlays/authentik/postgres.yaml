@@ -21,26 +21,11 @@ spec:
     storageClass: cluster-nobackup
     size: 20Gi
 
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://dal-site-backups/indigo/authentik/postgres/
-      s3Credentials:
-        accessKeyId:
-          name: authentik-db-backup-secret
-          key: ACCESS_KEY_ID
-        secretAccessKey:
-          name: authentik-db-backup-secret
-          key: SECRET_ACCESS_KEY
-      data:
-        compression: gzip
-      wal:
-        compression: gzip
-        maxParallel: 4
-      tags:
-        site: indigo
-        service: authentik
-        db: authentik-db
-    retentionPolicy: "10d"
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: authentik-postgres
 
   postgresql:
     parameters:
@@ -52,7 +37,10 @@ kind: ScheduledBackup
 metadata:
   name: authentik-db-backup
 spec:
-  schedule: "0 0 0 * * *"
-  backupOwnerReference: self
   cluster:
     name: authentik-db
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

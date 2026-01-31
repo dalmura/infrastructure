@@ -1,0 +1,23 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: authentik-postgres
+spec:
+  configuration:
+    destinationPath: "s3://dal-site-backups/indigo/authentik/postgres/"
+    s3Credentials:
+      accessKeyId:
+        name: authentik-db-backup-secret
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: authentik-db-backup-secret
+        key: SECRET_ACCESS_KEY
+    data:
+      compression: gzip
+    wal:
+      compression: gzip
+    tags:
+      site: indigo
+      service: authentik
+      db: authentik-db
+  retentionPolicy: "10d"
