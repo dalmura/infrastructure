@@ -4,7 +4,6 @@ metadata:
   name: forgejo-postgres
 spec:
   configuration:
-    retentionPolicy: "7d"
     destinationPath: "s3://dal-site-backups/indigo/forgejo/postgres/"
     s3Credentials:
       accessKeyId:
@@ -21,3 +20,4 @@ spec:
       site: indigo
       service: forgejo
       db: forgejo-db
+  retentionPolicy: "7d"
