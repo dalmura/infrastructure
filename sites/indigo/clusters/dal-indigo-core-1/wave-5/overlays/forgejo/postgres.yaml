@@ -21,25 +21,11 @@ spec:
     storageClass: cluster-nobackup
     size: 50Gi
 
-  backup:
-    barmanObjectStore:
-      retentionPolicy: "7d"
-      destinationPath: s3://dal-site-backups/indigo/forgejo/postgres/
-      s3Credentials:
-        accessKeyId:
-          name: forgejo-db-backup
-          key: access_key
-        secretAccessKey:
-          name: forgejo-db-backup
-          key: secret_key
-      data:
-        compression: gzip
-      wal:
-        compression: gzip
-      tags:
-        site: indigo
-        service: forgejo
-        db: forgejo-db
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: forgejo-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
