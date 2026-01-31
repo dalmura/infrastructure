@@ -299,6 +299,12 @@ Wait until all nodes become `Ready`:
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 ```
 
+## Cluster uptime monitoring via UptimeKuma
+
+Currently dal-indigo-fw-0 is running [UptimeKuma](http://192.168.79.210:3001/dashboard) which you can add a ping monitor for 192.168.77.2 (the Cluster VIP).
+
+This provides a _very_ lightweight uptime check that the control plane is running and responding to traffic.
+
 You now have a k8s cluster with just Control Plane nodes running with:
 * 3x rpi4.4gb.arm64 Control Plane nodes
   * Cilium in Strict Mode as the CNI
