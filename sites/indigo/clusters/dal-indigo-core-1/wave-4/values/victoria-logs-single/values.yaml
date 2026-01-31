@@ -6,3 +6,22 @@ server:
   persistentVolume:
     size: 10Gi
     storageClassName: cluster-nobackup
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: vls.indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: true
+      traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+    hosts:
+      - name: vls.indigo.dalmura.cloud
+        path:
+          - /
+        port: http
+    ingressClassName: ingress-private
+    tls:
+      - hosts:
+          - vls.indigo.dalmura.cloud
+        secretName: vls-cert
