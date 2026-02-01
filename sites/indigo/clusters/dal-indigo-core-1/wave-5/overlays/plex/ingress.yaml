@@ -25,4 +25,14 @@ spec:
           service:
             name: plex-plex-media-server
             port:
-              number: 32400
+              number: 32406
+  - host: 144-6-187-246.79f84ee1cc4f4dd2a724980241c5e392.plex.direct
+    http:
+      paths:
+        - path: /
+          pathType:
+          backend:
+            service:
+              name: plex-plex-media-server
+              port:
+                number: 32406
