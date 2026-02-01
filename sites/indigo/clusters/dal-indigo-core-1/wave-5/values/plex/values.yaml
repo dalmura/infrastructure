@@ -12,6 +12,9 @@ pms:
     name: plex-secrets
     key: PLEX_CLAIM
 
+service:
+  port: 32406
+
 serviceAccount:
   create: true
 
