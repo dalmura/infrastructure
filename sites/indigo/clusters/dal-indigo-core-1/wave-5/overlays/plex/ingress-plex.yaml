@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: ingress-route-plex
+  annotations:
+    kubernetes.io/ingress.class: ingress-public
+
+spec:
+  entryPoints:
+    - plex
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: plex-plex-media-server
+          port: 32406
