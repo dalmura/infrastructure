@@ -30,7 +30,7 @@ spec:
     http:
       paths:
         - path: /
-          pathType:
+          pathType: Prefix
           backend:
             service:
               name: plex-plex-media-server
