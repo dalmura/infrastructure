@@ -1,0 +1,59 @@
+---
+nameOverride: vma
+
+server:
+  strategy:
+    type: Recreate
+
+  datasource:
+    url: http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
+
+  notifier:
+    alertmanager:
+      url: http://localhost:9093
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: vma.indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+    hosts:
+      - name: vma.indigo.dalmura.cloud
+        path:
+          - /
+        port: http
+    ingressClassName: ingress-private
+    tls:
+      - hosts:
+          - vma.indigo.dalmura.cloud
+        secretName: vma-cert
+
+alertmanager:
+  enabled: true
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: alert-manager.indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+    hosts:
+      - name: alert-manager.indigo.dalmura.cloud
+        path:
+          - /
+        port: http
+    ingressClassName: ingress-private
+    tls:
+      - hosts:
+          - alert-manager.indigo.dalmura.cloud
+        secretName: alert-manager-cert
+
+  persistentVolume:
+    enabled: true
+    size: 100Mi
+    storageClassName: cluster-nobackup
