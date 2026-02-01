@@ -13,7 +13,8 @@ spec:
         - cluster
       toPorts:
         - ports:
-            - port: "443"
+            - port: "443"   # HTTPS
+            - port: "32406" # Plex
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: traefik-private
