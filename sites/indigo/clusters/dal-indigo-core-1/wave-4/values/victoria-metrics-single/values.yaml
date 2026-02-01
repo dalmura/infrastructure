@@ -4,6 +4,9 @@ nameOverride: vms
 server:
   retentionPeriod: 6M
 
+  extraArgs:
+    vmalert.proxyURL: http://victoria-metrics-alert-vma-server.victoria-metrics.svc.cluster.local:8880/
+
   scrape:
     enabled: true
 
