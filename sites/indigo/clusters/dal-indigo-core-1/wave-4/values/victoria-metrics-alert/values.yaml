@@ -35,6 +35,19 @@ server:
           - vma.indigo.dalmura.cloud
         secretName: vma-cert
 
+  config:
+    alerts:
+      groups:
+        - name: longhorn-volume-full
+          rules:
+            - alert: LonghornVolumeFull
+              expr: "1 > 2"
+              labels:
+                severity: critical
+              annotations:
+                summary: "Longhorn volume {{ $labels.name }} is >90% full"
+                description: "Longhorn volume {{ $labels.name }} is >90% full, either reclaim space or expand volume."
+
 alertmanager:
   enabled: true
 
