@@ -32,6 +32,10 @@ ports:
     port: 8080
     expose:
       default: true
+  plex:
+    port: 32406
+    expose:
+      default: true
 
 service:
   annotations:
