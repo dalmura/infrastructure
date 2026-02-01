@@ -6,6 +6,9 @@ server:
     type: Recreate
     rollingUpdate: null
 
+  extraArgs:
+    external.label: "cluster=dal-indigo-core-1"
+
   datasource:
     url: http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
 
