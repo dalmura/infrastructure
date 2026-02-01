@@ -4,7 +4,7 @@ nameOverride: vma
 server:
   strategy:
     type: Recreate
-    rollingUpdate: {}
+    rollingUpdate: null
 
   datasource:
     url: http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
