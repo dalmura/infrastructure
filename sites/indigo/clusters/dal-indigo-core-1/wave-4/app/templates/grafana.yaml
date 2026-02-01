@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://grafana.github.io/helm-charts
+    - repoURL: https://grafana-community.github.io/helm-charts
       chart: grafana
-      targetRevision: 10.5.15
+      targetRevision: 11.0.1
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-4/values/grafana/values.yaml
