@@ -24,6 +24,7 @@ server:
       #    - targets:
       #        - http://longhorn-backend.longhorn-system.svc.cluster.local:9500/metrics
       - job_name: longhorn
+        scrape_interval: 1m
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
