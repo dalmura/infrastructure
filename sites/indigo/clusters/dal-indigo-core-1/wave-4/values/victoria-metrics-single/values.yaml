@@ -15,10 +15,25 @@ server:
         static_configs:
           - targets:
               - http://victoria-logs-single-vls-server.victoria-logs.svc.cluster.local:9428/metrics
+      # Longhorn metrics suck, the service only sends you to _one_ of the manager pods
+      # And each manager pod serves up its own metrics
+      # So there's no simple way to scrape all pods combined
+      # See below for how to properly do it
+      #- job_name: longhorn
+      #  static_configs:
+      #    - targets:
+      #        - http://longhorn-backend.longhorn-system.svc.cluster.local:9500/metrics
       - job_name: longhorn
-        static_configs:
-          - targets:
-              - http://longhorn-backend.longhorn-system.svc.cluster.local:9500/metrics
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            regex: "longhorn-system"
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: "longhorn-manager"
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "9500"
+    action: keep
 
   persistentVolume:
     size: 20Gi
