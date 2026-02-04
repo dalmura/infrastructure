@@ -16,7 +16,7 @@ server:
           - targets:
               - http://victoria-logs-single-vls-server.victoria-logs.svc.cluster.local:9428/metrics
       - job_name: longhorn
-        statuc_configs:
+        static_configs:
           - targets:
               - http://longhorn-backend.longhorn-system.svc.cluster.local:9500/metrics
 
