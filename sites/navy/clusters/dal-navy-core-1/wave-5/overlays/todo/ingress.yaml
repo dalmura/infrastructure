@@ -11,7 +11,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: notes.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+    # Removed authentik middleware - app handles OIDC natively
 spec:
   ingressClassName: ingress-private
   tls:

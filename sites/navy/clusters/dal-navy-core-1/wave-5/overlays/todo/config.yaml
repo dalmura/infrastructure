@@ -10,3 +10,7 @@ data:
   PORT: "5000"
   DEBUG: "0"
   APP_NAME: "ToDo & Notes"
+  # OIDC / Authentik
+  OIDC_ENABLED: "1"
+  OIDC_ISSUER: "https://auth.dalmura.cloud/application/o/todo/"
+  OIDC_SCOPES: "openid profile email"
