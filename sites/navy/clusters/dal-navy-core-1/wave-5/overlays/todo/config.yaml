@@ -12,5 +12,5 @@ data:
   APP_NAME: "ToDo & Notes"
   # OIDC / Authentik
   OIDC_ENABLED: "1"
-  OIDC_ISSUER: "https://auth.navy.dalmura.cloud/application/o/todo/"
+  OIDC_ISSUER: "https://auth.navy.dalmura.cloud/application/o/notes/"
   OIDC_SCOPES: "openid profile email entitlements"
