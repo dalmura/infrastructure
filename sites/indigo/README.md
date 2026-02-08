@@ -76,12 +76,12 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
    * [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)
       * Lightweight Loki replacement
       * Scrapes container logs from the cluster via the Collector
+   * [Grafana](https://grafana.com/docs/grafana/latest/)
+      * Dashboards for above Metrics & Logs
    * Not Implemented Yet
       * [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
          * Client alerting
          * Pushed to from VictoriaMetrics based alert rules
-      * [Grafana](https://grafana.com/docs/grafana/latest/)
-         * Dashboards for above Metrics & Logs
 * ArgoCD - Wave 5
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
