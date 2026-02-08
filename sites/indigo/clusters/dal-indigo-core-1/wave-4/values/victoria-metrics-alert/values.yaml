@@ -74,3 +74,9 @@ alertmanager:
     enabled: true
     size: 100Mi
     storageClassName: cluster-nobackup
+
+  baseURL: "https://alert-manager.indigo.dalmura.cloud/"
+
+  #config:
+  #  global:
+  #    slack_api_url_file: /slack/webhook.yaml
