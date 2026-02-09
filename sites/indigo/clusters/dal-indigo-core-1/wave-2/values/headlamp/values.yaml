@@ -52,10 +52,11 @@ volumes:
 ingress:
   enabled: true
   annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: headlamp.indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
-    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
   ingressClassName: ingress-private
   hosts:
     - host: headlamp.indigo.dalmura.cloud
