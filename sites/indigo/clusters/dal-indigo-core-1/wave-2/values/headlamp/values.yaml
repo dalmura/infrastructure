@@ -3,6 +3,10 @@ config:
   extraArgs:
     - "-kubeconfig=/mnt/config/kubeconfig"
 
+env:
+  - name: KUBECONFIG
+    value: "/mnt/config/kubeconfig"
+
 initContainers:
   - name: init-kubeconfig
     image: busybox:latest
