@@ -2,4 +2,10 @@ metrics:
   service:
     enabled: false
 
+certController:
+  revisionHistoryLimit: 0
+
 revisionHistoryLimit: 0
+
+webhook:
+  revisionHistoryLimit: 0
