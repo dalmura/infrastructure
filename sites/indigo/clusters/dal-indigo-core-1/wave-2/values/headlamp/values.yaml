@@ -1,11 +1,7 @@
 config:
   inCluster: false
-  extraArgs:
-    - "-kubeconfig=/mnt/config/kubeconfig"
-
-env:
-  - name: KUBECONFIG
-    value: "/mnt/config/kubeconfig"
+  #extraArgs:
+  #  - "-kubeconfig=/mnt/config/kubeconfig"
 
 initContainers:
   - name: init-kubeconfig
@@ -19,7 +15,7 @@ initContainers:
         KUBE_CA=$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | base64 | tr -d '\n')
         NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-        cat <<EOF > /mnt/config/kubeconfig
+        cat <<EOF > /home/headlamp/.config/Headlamp/kubeconfigs/config
         apiVersion: v1
         kind: Config
         clusters:
@@ -42,11 +38,11 @@ initContainers:
 
     volumeMounts:
       - name: shared-config
-        mountPath: /mnt/config
+        mountPath: /home/headlamp/.config/Headlamp/kubeconfigs
 
 volumeMounts:
   - name: shared-config
-    mountPath: /mnt/config
+    mountPath: /home/headlamp/.config/Headlamp/kubeconfigs
 
 volumes:
   - name: shared-config
