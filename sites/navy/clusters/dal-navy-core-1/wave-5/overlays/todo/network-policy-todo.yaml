@@ -16,5 +16,34 @@ spec:
         - ports:
             - port: "5000" # This is the port of the pod, not the service
               protocol: TCP
-  egress: []
+  egress:
+    # Allow DNS resolution
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow access to Authentik for OIDC
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
+            app.kubernetes.io/name: authentik
+            app.kubernetes.io/component: server
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    # Allow HTTPS to Authentik (for OIDC discovery and authentication)
+    - toFQDNs:
+        - matchName: "auth.navy.dalmura.cloud"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 
