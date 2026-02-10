@@ -42,6 +42,9 @@ spec:
               - matchPattern: "*.authentik.svc.cluster.local"
               - matchPattern: "authentik-server"
               - matchPattern: "authentik-server.authentik"
+              - matchPattern: "*.todo.svc.cluster.local"
+              - matchPattern: "todo"
+              - matchPattern: "todo.todo"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -53,6 +56,8 @@ spec:
             io.kubernetes.pod.namespace: anubis
         - matchLabels:
             io.kubernetes.pod.namespace: authentik
+        - matchLabels:
+            io.kubernetes.pod.namespace: todo
     - toFQDNs:
         - matchName: "plugins.traefik.io"
         - matchName: "get.geojs.io"
