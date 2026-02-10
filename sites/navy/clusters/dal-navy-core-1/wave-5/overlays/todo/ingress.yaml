@@ -12,7 +12,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  ingressClassName: ingress-private
+  ingressClassName: ingress-public
   tls:
     - hosts:
         - notes.navy.dalmura.cloud
