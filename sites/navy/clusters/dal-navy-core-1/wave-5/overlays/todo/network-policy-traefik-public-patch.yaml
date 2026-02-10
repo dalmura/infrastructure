@@ -1,0 +1,19 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: ingress-public-todo-access
+  namespace: traefik-public
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  egress:
+    # Allow traefik-public to reach todo namespace on port 5000
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: todo
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+

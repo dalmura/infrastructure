@@ -11,3 +11,4 @@ resources:
   - service.yaml
   - ingress.yaml
   - network-policy-todo.yaml
+  - network-policy-traefik-public-patch.yaml
