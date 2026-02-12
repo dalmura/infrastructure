@@ -6,7 +6,7 @@ namespace: todo
 resources:
   - config.yaml
   - secret.sealed.yaml
-  - pvc-storage.yaml
+  - postgres.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

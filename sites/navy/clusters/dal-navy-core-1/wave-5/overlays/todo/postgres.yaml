@@ -1,0 +1,58 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: todo-db
+spec:
+  description: "ToDo & Notes DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 5Gi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://dal-site-backups/navy/todo/postgres/
+      s3Credentials:
+        accessKeyId:
+          name: todo-db-backup-secret
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: todo-db-backup-secret
+          key: SECRET_ACCESS_KEY
+      data:
+        compression: gzip
+      wal:
+        compression: gzip
+        maxParallel: 4
+      tags:
+        site: navy
+        service: todo
+        db: todo-db
+    retentionPolicy: "10d"
+
+  postgresql:
+    parameters:
+      archive_timeout: "30min"
+      max_connections: "100"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: todo-db-backup
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: todo-db
