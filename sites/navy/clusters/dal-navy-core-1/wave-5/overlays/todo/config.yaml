@@ -14,4 +14,4 @@ data:
   OIDC_ISSUER: "https://auth.navy.dalmura.cloud/application/o/notes/"
   OIDC_SCOPES: "openid profile email"
   # Additional JWT issuers for mobile app (format: issuer_url|client_id)
-  OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E"
+  OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile/|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E"
