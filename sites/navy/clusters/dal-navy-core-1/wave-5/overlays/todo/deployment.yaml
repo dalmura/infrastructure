@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: todo
-          image: ghcr.io/anchavesb/todo:v0.4.1
+          image: ghcr.io/anchavesb/todo:v0.4.2
           imagePullPolicy: IfNotPresent
           env:
             - name: DATABASE_URL
