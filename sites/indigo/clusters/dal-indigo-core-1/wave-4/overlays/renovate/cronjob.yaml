@@ -14,7 +14,7 @@ spec:
         spec:
           containers:
             - name: renovate
-              image: renovate/renovate:42
+              image: renovate/renovate:43
               env:
                 - name: LOG_LEVEL
                   value: debug
