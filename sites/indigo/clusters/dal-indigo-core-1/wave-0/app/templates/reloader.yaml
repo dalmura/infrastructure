@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://stakater.github.io/stakater-charts/
       chart: reloader
-      targetRevision: 2.2.7
+      targetRevision: 2.2.8
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/reloader/values.yaml
