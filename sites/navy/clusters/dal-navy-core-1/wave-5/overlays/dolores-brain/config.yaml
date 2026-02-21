@@ -6,7 +6,7 @@ metadata:
 data:
   DEFAULT_PROVIDER: "ollama"
   DEFAULT_MODEL: "llama3.2"
-  OLLAMA_BASE_URL: "https://ollama.navy.dalmura.cloud"
+  OLLAMA_BASE_URL: "http://192.168.83.253:11434"
   OLLAMA_MODEL: "llama3.2"
   DEFAULT_MAX_TOKENS: "1024"
   DEFAULT_TEMPERATURE: "0.7"
