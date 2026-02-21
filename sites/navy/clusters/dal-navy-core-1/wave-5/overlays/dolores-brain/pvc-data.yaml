@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/instance: dolores-brain
+    app.kubernetes.io/name: dolores-brain
+  name: dolores-brain-data
+  namespace: dolores-brain
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: cluster-regular
+  resources:
+    requests:
+      storage: 1Gi
