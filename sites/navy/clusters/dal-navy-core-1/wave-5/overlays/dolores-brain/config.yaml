@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dolores-brain-config
+  namespace: dolores-brain
+data:
+  DEFAULT_PROVIDER: "ollama"
+  DEFAULT_MODEL: "llama3.2"
+  OLLAMA_BASE_URL: "https://ollama.navy.dalmura.cloud"
+  OLLAMA_MODEL: "llama3.2"
+  DEFAULT_MAX_TOKENS: "1024"
+  DEFAULT_TEMPERATURE: "0.7"
+  BRAIN_DB_PATH: "/data/conversations.db"
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
