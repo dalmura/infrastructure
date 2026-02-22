@@ -70,6 +70,15 @@ alertmanager:
           - alert-manager.indigo.dalmura.cloud
         secretName: alert-manager-cert
 
+  #securityContext:
+  #  enabled: true
+  #  fsGroup: 65534
+
+  podSecurityContext:
+    enabled: true
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+
   persistentVolume:
     enabled: true
     size: 100Mi
