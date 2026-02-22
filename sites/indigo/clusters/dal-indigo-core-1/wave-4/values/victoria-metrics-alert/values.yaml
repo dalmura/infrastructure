@@ -41,12 +41,12 @@ server:
         - name: longhorn-volume-full
           rules:
             - alert: LonghornVolumeFull
-              expr: "1 > 2"
+              expr: "((avg by (volume) (longhorn_volume_actual_size_bytes)) / (avg by (volume) (longhorn_volume_capacity_bytes))) * 100 > 95"
               labels:
                 severity: critical
               annotations:
-                summary: "Longhorn volume {{ $labels.name }} is >90% full"
-                description: "Longhorn volume {{ $labels.name }} is >90% full, either reclaim space or expand volume."
+                summary: "Longhorn volume {{ $labels.name }} is >95% full"
+                description: "Longhorn volume {{ $labels.name }} is >95% full, either reclaim space or expand volume."
 
 alertmanager:
   enabled: true
