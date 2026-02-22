@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://grafana-community.github.io/helm-charts
       chart: grafana
-      targetRevision: 11.1.7
+      targetRevision: 11.1.8
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-4/values/grafana/values.yaml
