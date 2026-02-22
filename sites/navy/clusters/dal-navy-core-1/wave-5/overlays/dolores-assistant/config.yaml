@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dolores-assistant-config
+  namespace: dolores-assistant
+data:
+  DOLORES_STT_URL: "http://localhost:8001"
+  DOLORES_TTS_URL: "http://localhost:8002"
+  DOLORES_BRAIN_URL: "http://dolores-brain.dolores-brain.svc.cluster.local:8003"
+  STT_TIMEOUT: "30"
+  TTS_TIMEOUT: "30"
+  BRAIN_TIMEOUT: "60"
+  MAX_SESSION_SECONDS: "300"
+  DEFAULT_VOICE_ID: "default"
+  DEFAULT_PROVIDER: "ollama"
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
