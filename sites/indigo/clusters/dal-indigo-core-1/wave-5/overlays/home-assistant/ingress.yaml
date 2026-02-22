@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: home-assistant
+  name: ha
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: ha.indigo.dalmura.cloud
