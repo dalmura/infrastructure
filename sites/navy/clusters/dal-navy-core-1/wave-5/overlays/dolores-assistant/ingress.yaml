@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dolores-assistant
+  namespace: dolores-assistant
+  labels:
+    app.kubernetes.io/instance: dolores-assistant
+    app.kubernetes.io/name: dolores-assistant
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: dolores.navy.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - dolores.navy.dalmura.cloud
+      secretName: dolores-assistant-cert
+  rules:
+    - host: dolores.navy.dalmura.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dolores-assistant
+                port:
+                  number: 8000

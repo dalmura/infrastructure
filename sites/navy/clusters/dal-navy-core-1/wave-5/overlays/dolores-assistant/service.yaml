@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: dolores-assistant
+    app.kubernetes.io/name: dolores-assistant
+  name: dolores-assistant
+  namespace: dolores-assistant
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8000
+      protocol: TCP
+      targetPort: http
+  selector:
+    app.kubernetes.io/instance: dolores-assistant
+    app.kubernetes.io/name: dolores-assistant
