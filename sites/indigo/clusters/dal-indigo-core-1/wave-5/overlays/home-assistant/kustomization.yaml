@@ -5,3 +5,4 @@ namespace: home-assistant
 
 resources:
   - ingress.yaml
+  - ingress-codeserver.yaml
