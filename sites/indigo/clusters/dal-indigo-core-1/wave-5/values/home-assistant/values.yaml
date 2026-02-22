@@ -1,7 +1,7 @@
 #envFrom:
 #  - # Do we need anything?
 
-nameOverride: ha
+fullnameOverride: ha
 
 ingress:
   # We manage this separately via overlays
