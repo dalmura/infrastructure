@@ -46,7 +46,7 @@ server:
                 severity: critical
               annotations:
                 summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full"
-                description: "Longhorn volume {{ $labels.pvc_namespace }}{{ $labels.pvc }} is >95% full, either reclaim space or expand volume."
+                description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full, either reclaim space or expand volume."
 
 alertmanager:
   enabled: true
