@@ -11,6 +11,7 @@ defaultSettings:
   backupExecutionTimeout: "5"
   concurrentAutomaticEngineUpgradePerNodeLimit: "1"
   upgradeChecker: false
+  replicaAutoBalance: "best-effort"
 
 defaultBackupStore:
   backupTarget: "s3://dal-site-backups@us-east-1/indigo/longhorn/"
