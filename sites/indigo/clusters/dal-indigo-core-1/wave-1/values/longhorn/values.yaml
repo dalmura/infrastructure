@@ -10,6 +10,7 @@ defaultSettings:
   allowCollectingLonghornUsageMetrics: false
   backupExecutionTimeout: "5"
   concurrentAutomaticEngineUpgradePerNodeLimit: "1"
+  upgradeChecker: false
 
 defaultBackupStore:
   backupTarget: "s3://dal-site-backups@us-east-1/indigo/longhorn/"
