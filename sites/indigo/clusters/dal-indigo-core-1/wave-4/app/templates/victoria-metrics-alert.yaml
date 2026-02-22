@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://victoriametrics.github.io/helm-charts/
       chart: victoria-metrics-alert
-      targetRevision: 0.31.0
+      targetRevision: 0.32.0
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-4/values/victoria-metrics-alert/values.yaml
