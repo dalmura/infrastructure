@@ -63,7 +63,7 @@ alertmanager:
       - name: alert-manager.indigo.dalmura.cloud
         path:
           - /
-        port: http
+        port: web
     ingressClassName: ingress-private
     tls:
       - hosts:
