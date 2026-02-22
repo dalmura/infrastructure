@@ -1,0 +1,22 @@
+#envFrom:
+#  - # Do we need anything?
+
+nameOverride: ha
+
+ingress:
+  # We manage this separately via overlays
+  # Setting external just enables some ha config
+  enabled: false
+  external: true
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: cluster-regular
+
+addons:
+  codeserver:
+    enabled: true
+    ingress:
+      # We manage this separately via overlays
+      enabled: false
