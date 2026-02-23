@@ -4,8 +4,8 @@ metadata:
   name: dolores-assistant-config
   namespace: dolores-assistant
 data:
-  DOLORES_STT_URL: "http://localhost:8001"
-  DOLORES_TTS_URL: "http://localhost:8002"
+  DOLORES_STT_URL: "http://192.168.83.253:8001"
+  DOLORES_TTS_URL: "http://192.168.83.253:8002"
   DOLORES_BRAIN_URL: "http://dolores-brain.dolores-brain.svc.cluster.local:8003"
   STT_TIMEOUT: "30"
   TTS_TIMEOUT: "30"
