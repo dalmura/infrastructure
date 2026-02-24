@@ -22,7 +22,7 @@ spec:
         app.kubernetes.io/name: emojirades
     spec:
       containers:
-        - image: ghcr.io/emojirades/emojirades:v1.13.0
+        - image: ghcr.io/emojirades/emojirades:v1.13.1
           imagePullPolicy: IfNotPresent
           name: emojirades
           args:
