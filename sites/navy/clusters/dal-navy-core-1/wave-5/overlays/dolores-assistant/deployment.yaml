@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: dolores-assistant
-          image: ghcr.io/anchavesb/dolores-assistant:v0.0.0
+          image: ghcr.io/anchavesb/dolores-assistant:v0.1.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -39,7 +39,7 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
+              path: /livez
               port: http
               scheme: HTTP
             initialDelaySeconds: 10
@@ -53,7 +53,7 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 3
           resources:
             requests:
