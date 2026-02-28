@@ -39,7 +39,7 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
+              path: /livez
               port: http
               scheme: HTTP
             initialDelaySeconds: 10
@@ -53,7 +53,7 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 3
           resources:
             requests:
