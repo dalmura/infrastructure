@@ -72,7 +72,8 @@ spec:
             - mountPath: /config
               name: config
             - mountPath: /media
-              name: media
+              name: footage
+              subPath: frigate
             - mountPath: /dev/shm
               name: dshm
             - mountPath: /tmp
@@ -91,9 +92,10 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: frigate-config
-        - name: media
-          persistentVolumeClaim:
-            claimName: frigate-media
+        - name: footage
+          nfs:
+            server: atlas.wlanding.dalmura.com.au
+            path: /misc
         - emptyDir:
             medium: Memory
             sizeLimit: 1Gi
