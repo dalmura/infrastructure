@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dolores-web
+  namespace: dolores-web
+  labels:
+    app.kubernetes.io/instance: dolores-web
+    app.kubernetes.io/name: dolores-web
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - dolores.navy.dalmura.cloud
+      secretName: dolores-web-cert
+  rules:
+    - host: dolores.navy.dalmura.cloud
+      http:
+        paths:
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: dolores-web
+                port:
+                  number: 8080
