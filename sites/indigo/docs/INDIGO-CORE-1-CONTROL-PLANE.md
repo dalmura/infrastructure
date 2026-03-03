@@ -64,18 +64,9 @@ talosctl gen secrets \
   --talos-version "${TALOS_VERSION}"
 ```
 
-TODO: Steps to encrypt secrets.yaml with the GPG key
-```bash
-gpg --output secrets.yaml.gpg \
-    --recipient 'network.public.key.alias' \
-    --encrypt secrets.yaml
-```
+You can now upload `secrets.yaml` into your external-to-the-cluster password manager. This file will be required to onboard new nodes and generate new talosctl files.
 
-TODO: Steps to decrypt a previously encrypted secrets.yaml
-```bash
-gpg --output secrets.yaml \
-    --decrypt secrets.yaml.gpg
-```
+This file will be maintained in the `Dalmura Cloud - Indigo` vault.
 
 Generate the control plane config and the initial talosctl config file:
 ```bash
