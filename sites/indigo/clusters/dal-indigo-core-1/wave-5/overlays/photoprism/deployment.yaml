@@ -31,7 +31,7 @@ spec:
                 name: photoprism-config
             - secretRef:
                 name: photoprism-credentials
-          image: photoprism/photoprism:251130
+          image: photoprism/photoprism:260305
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 5
