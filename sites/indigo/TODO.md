@@ -2,6 +2,9 @@
 
 Stuff to eventually get around to.
 
+* Renovate
+  * Figure out how each site will run its own
+  * Or figure out how to make it optional in wave-4 for other sites
 * Alertmanager
   * Longhorn volume >90% over 5 minutes alert
   * App Postgres DB unhealthy/errors
@@ -18,9 +21,6 @@ Stuff to eventually get around to.
 * CloudNativePG
   * Validate backups & restore strategy
   * Create example app in wave-9 to verify
-* Renovate
-  * Figure out how each site will run its own
-  * Or figure out how to make it optional in wave-4 for other sites
 * MetalLB
   * BGP instead of L2
 * Vault
