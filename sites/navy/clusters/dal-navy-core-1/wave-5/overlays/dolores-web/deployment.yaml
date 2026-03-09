@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: dolores-web
-          image: ghcr.io/anchavesb/dolores-web:v0.5.0
+          image: ghcr.io/anchavesb/dolores-web:v0.6.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
