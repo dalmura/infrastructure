@@ -14,5 +14,6 @@ data:
   OIDC_ENABLED: "1"
   OIDC_ISSUER: "https://auth.navy.dalmura.cloud/application/o/notes/"
   OIDC_SCOPES: "openid profile email"
-  # Additional JWT issuers for mobile app (format: issuer_url|client_id)
-  OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile/|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E"
+  # Additional JWT issuers (format: issuer_url|client_id, comma-separated)
+  # notes-mobile: mobile app, dolores: personal assistant JWT passthrough
+  OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile/|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E,https://auth.navy.dalmura.cloud/application/o/dolores/|mj86Z9NSMxKDxWf2kfyBOX0PqNxHW313IAmRrhW5"
