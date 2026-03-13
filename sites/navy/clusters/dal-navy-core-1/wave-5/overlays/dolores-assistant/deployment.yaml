@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: dolores-assistant
-          image: ghcr.io/anchavesb/dolores-assistant:v0.14.1
+          image: ghcr.io/anchavesb/dolores-assistant:v0.14.3
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
