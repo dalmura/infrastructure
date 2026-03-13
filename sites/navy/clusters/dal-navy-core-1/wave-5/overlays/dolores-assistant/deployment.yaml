@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: dolores-assistant
-          image: ghcr.io/anchavesb/dolores-assistant:v0.12.0
+          image: ghcr.io/anchavesb/dolores-assistant:v0.13.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -51,11 +51,11 @@ spec:
               path: /health
               port: http
               scheme: HTTP
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 10
-            failureThreshold: 3
+            failureThreshold: 5
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 512Mi
