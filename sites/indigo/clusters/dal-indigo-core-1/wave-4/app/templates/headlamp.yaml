@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://kubernetes-sigs.github.io/headlamp/
       chart: headlamp
-      targetRevision: 0.40.0
+      targetRevision: 0.40.1
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-4/values/headlamp/values.yaml
