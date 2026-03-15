@@ -3,6 +3,9 @@ config:
   extraArgs:
     - "-kubeconfig=/home/headlamp/.config/Headlamp/kubeconfigs/config"
 
+  # Bypasses: https://github.com/kubernetes-sigs/headlamp/issues/4883
+  sessionTTL: null
+
 initContainers:
   - name: init-kubeconfig
     image: busybox:latest
@@ -47,7 +50,6 @@ volumeMounts:
 volumes:
   - name: shared-config
     emptyDir: {}
-
 
 ingress:
   enabled: true
