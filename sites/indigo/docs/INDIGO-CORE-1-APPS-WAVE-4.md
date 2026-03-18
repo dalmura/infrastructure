@@ -157,7 +157,7 @@ Once logged in we need to setup OIDC Authentication from Authentik.
 
 Follow [INDIGO-APPS-AUTH.md](./INDIGO-APPS-AUTH.md)'s 'Native OIDC Authentication' steps providing the following:
 * Redirect URI: `https://grafana.indigo.dalmura.cloud/login/generic_oauth`
-* Logout URI: `https://grafana.indigo.dalmura.cloud/logout'
+* Logout URI: `https://grafana.indigo.dalmura.cloud/logout`
 * Logout Method: `Front-chanel`
 * Ensuring 'Application Entitlements' scope is added
 * Binding `hub-power-users` (order 0) and `site-admins` (order 1)
@@ -174,7 +174,7 @@ General settings:
 * Client Secret from Authentik
 * Scopes: `openid`, `profile`, `email`, `entitlements`
 * OpenID Connect Discovery URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/.well-known/openid-configuration`
-* Sign out redirect URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/end-session/'
+* Sign out redirect URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/end-session/`
 
 User mapping:
 * Name attribute path: `name`
