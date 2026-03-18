@@ -7,6 +7,9 @@ Stuff to eventually get around to.
   * App Postgres DB unhealthy/errors
   * Node Disk >90% over 5 minutes alert
   * Node CPU >90% over 5 minutes alert
+* Reloader
+  * Look into what Cert/Config => Deployment relationships we have
+  * Work to wire them up and be redeployed on change
 * CrowdSec integration
 * Cilium Network Policies
   * Can we isolate wave-5 onwards apps from each other/etc by default?
