@@ -125,6 +125,10 @@ vault write auth/kubernetes/role/workload-reader-renovate \
 
 After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the renovate app in ArgoCD.
 
+Renovate itself will be run from the Indigo site and cover all sites from a github dependency management perspective, as Renovate only supports a single instance per-repo.
+
+As new sites are onboarded we need to update the [renovate.json](/renovate.json) at the root of the repo, and any additional secrets are included in the above Secret.
+
 ## VLS/VMS Ingress
 
 In order for [VictoriaLogs](https://vls.indigo.dalmura.cloud) and [VictoriaMetrics](https://vms.indigo.dalmura.cloud) Ingress resources to both work with Authentik, they will both need to be setup in Authentik as Applications with a Proxy Provider.
