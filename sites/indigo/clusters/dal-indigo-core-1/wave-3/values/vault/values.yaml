@@ -9,6 +9,10 @@ server:
   ingress:
     enabled: false
 
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=200&uninitcode=200"
+
 ha:
   apiAddr: https://vault.indigo.dalmura.cloud
   clusterAddr: https://cluster.vault.indigo.dalmura.cloud
