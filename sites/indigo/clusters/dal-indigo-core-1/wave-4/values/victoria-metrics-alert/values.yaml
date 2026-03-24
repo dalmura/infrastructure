@@ -96,8 +96,10 @@ alertmanager:
     receivers:
       - name: dalmura-infra-slack
         slack_configs:
-          - channel: '#infrastructure'
-            send_resolved: true
+          - send_resolved: true
+            channel: '#infrastructure'
+            username: 'Indigo Alerts'
+            icon_emoji: 'warning'
 
   extraVolumes:
     - name: slack-config
