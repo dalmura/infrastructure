@@ -13,8 +13,7 @@ server:
     url: http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
 
   notifier:
-    alertmanager:
-      url: http://localhost:9093
+    url: http://localhost:9093
 
   ingress:
     enabled: true
