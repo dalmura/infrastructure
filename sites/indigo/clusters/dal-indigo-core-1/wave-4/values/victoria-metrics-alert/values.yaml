@@ -90,6 +90,15 @@ alertmanager:
     global:
       slack_api_url_file: /slack/webhook.txt
 
+    route:
+      receiver: dalmura-infra-slack
+
+    receivers:
+      - name: dalmura-infra-slack
+        slack_configs:
+          - channel: '#infrastructure'
+            send_resolved: true
+
   extraVolumes:
     - name: slack-config
       secret:
