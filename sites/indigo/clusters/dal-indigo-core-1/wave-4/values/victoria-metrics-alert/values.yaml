@@ -86,6 +86,16 @@ alertmanager:
 
   baseURL: "https://alert-manager.indigo.dalmura.cloud/"
 
-  #config:
-  #  global:
-  #    slack_api_url_file: /slack/webhook.yaml
+  config:
+    global:
+      slack_api_url_file: /slack/webhook.yaml
+
+  extraVolumes:
+    - name: slack-config
+      secret:
+        secretName: alert-manager-slack-config
+
+  extraVolumeMounts:
+    - name: slack-config
+      mountPath: /slack
+      readOnly: true
