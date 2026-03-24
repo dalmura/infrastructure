@@ -88,7 +88,7 @@ alertmanager:
 
   config:
     global:
-      slack_api_url_file: /slack/webhook.yaml
+      slack_api_url_file: /slack/webhook.txt
 
   extraVolumes:
     - name: slack-config
