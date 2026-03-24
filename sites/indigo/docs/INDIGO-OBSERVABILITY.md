@@ -52,7 +52,12 @@ VM Alert manages the alerting by:
 Grafana manages the BI dashboarding of all the logs and metrics.
 
 This currently is configured with the following Datasources:
-* 
+* Prometheus (VictoriaMetrics fake interop)
+  * Via `http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428/`
+* VictoriaLogs
+  * Via `http://victoria-logs-single-vls-server.victoria-logs.svc.cluster.local:9428/`
+* VictoriaMetrics
+  * Via `http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428/`
 
 And the following public dashboards:
 * [Longhorn Observability](https://grafana.com/grafana/dashboards/22705-longhorn-dashboard/)
