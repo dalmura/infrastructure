@@ -37,15 +37,15 @@ server:
   config:
     alerts:
       groups:
-        - name: test-alert-group
-          rules:
-            - alert: TestAlert
-              expr: "2 > 1"
-              labels:
-                severity: critical
-              annotations:
-                summary: "This is a Test Alert"
-                description: "A Test Alert designed to verify Slack comms"
+        #- name: test-alert-group
+        #  rules:
+        #    - alert: TestAlert
+        #      expr: "2 > 1"
+        #      labels:
+        #        severity: critical
+        #      annotations:
+        #        summary: "This is a Test Alert"
+        #        description: "A Test Alert designed to verify Slack comms"
         - name: longhorn-volume-full
           rules:
             - alert: LonghornVolumeFull
