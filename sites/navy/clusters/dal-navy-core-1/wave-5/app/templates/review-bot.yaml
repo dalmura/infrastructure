@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: review-bot
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/navy/clusters/dal-navy-core-1/wave-5/overlays/review-bot
+      targetRevision: HEAD
+  destination:
+    namespace: review-bot
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 1
