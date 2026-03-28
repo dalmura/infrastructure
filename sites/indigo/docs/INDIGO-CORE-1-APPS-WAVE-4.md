@@ -37,6 +37,20 @@ module.exports = {
 
 We've already configured the 'ExternalSecret' resource in the wave-4 renovate application to reference the above secret correctly.
 
+## Victoria Metrics Alert - Alert Manager Configuration
+Alert Manager requires a Slack Webhook URL to post notifications to.
+
+Go to Slack and create a Webhook.
+
+Open up [Vault](https://vault.indigo.dalmura.cloud/), sign in as as user with the `site-admins` or `hub-power-users`, as we'll be saving the config under the `site/` path in Vault.
+
+Create a secret under the `site` secret with the path `wave-4/victoria-metrics-alert/slack-config` with the following `webhook.txt` key.
+
+The contents of the `webhook.txt` key:
+```
+https://my.slack.webhook/path/to/something
+```
+
 ## Victoria Metrics/Logs Helm Chart Versions
 
 You can look at the latest version of the charts with:
@@ -125,6 +139,42 @@ vault write auth/kubernetes/role/workload-reader-renovate \
 
 After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the renovate app in ArgoCD.
 
+Renovate itself will be run from the Indigo site and cover all sites from a github dependency management perspective, as Renovate only supports a single instance per-repo.
+
+As new sites are onboarded we need to update the [renovate.json](/renovate.json) at the root of the repo, and any additional secrets are included in the above Secret.
+
+## VMS Alert Manager Configuration
+By default the `ExternalSecret` and `SecretStore` resources will be broken until we deploy the correct Vault and ESO integration for Alert Manager.
+
+We'll need to follow the steps in [INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) specifically setting up the Vault config.
+
+Use the following context to substitute in:
+* Namespace: `victoria-metrics`
+* ServiceAccount: `victoria-metrics-alert-sa`
+* Reader Role: `workload-reader-vma`
+* Vault Secret Engine: `site`
+* Vault Secret Path: `site/data/wave-4/victoria-metrics-alert/*`
+
+This should result in:
+```
+# Create the Vault permissions policy
+vault policy write workload-reader-vma -<<EOF
+path "site/data/wave-4/victoria-metrics-alert/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+# Create the role that ESO will use to access Vault
+vault write auth/kubernetes/role/workload-reader-vma \
+   bound_service_account_names=victoria-metrics-alert-sa \
+   bound_service_account_namespaces=victoria-metrics \
+   token_policies=workload-reader-vma \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+```
+
+After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the `victoria-metrics-alert` app in ArgoCD.
+
 ## VLS/VMS Ingress
 
 In order for [VictoriaLogs](https://vls.indigo.dalmura.cloud) and [VictoriaMetrics](https://vms.indigo.dalmura.cloud) Ingress resources to both work with Authentik, they will both need to be setup in Authentik as Applications with a Proxy Provider.
@@ -153,7 +203,7 @@ Once logged in we need to setup OIDC Authentication from Authentik.
 
 Follow [INDIGO-APPS-AUTH.md](./INDIGO-APPS-AUTH.md)'s 'Native OIDC Authentication' steps providing the following:
 * Redirect URI: `https://grafana.indigo.dalmura.cloud/login/generic_oauth`
-* Logout URI: `https://grafana.indigo.dalmura.cloud/logout'
+* Logout URI: `https://grafana.indigo.dalmura.cloud/logout`
 * Logout Method: `Front-chanel`
 * Ensuring 'Application Entitlements' scope is added
 * Binding `hub-power-users` (order 0) and `site-admins` (order 1)
@@ -170,7 +220,7 @@ General settings:
 * Client Secret from Authentik
 * Scopes: `openid`, `profile`, `email`, `entitlements`
 * OpenID Connect Discovery URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/.well-known/openid-configuration`
-* Sign out redirect URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/end-session/'
+* Sign out redirect URL: `https://auth.indigo.dalmura.cloud/application/o/grafana/end-session/`
 
 User mapping:
 * Name attribute path: `name`
