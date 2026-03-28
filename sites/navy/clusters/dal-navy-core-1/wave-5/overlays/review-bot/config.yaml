@@ -7,5 +7,6 @@ data:
   REVIEW_BOT_POLL_INTERVAL_SECONDS: "60"
   REVIEW_BOT_STATE_DB_PATH: "/data/state.db"
   REVIEW_BOT_MAX_CONCURRENT: "3"
+  OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile/|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E,https://auth.navy.dalmura.cloud/application/o/dolores/|mj86Z9NSMxKDxWf2kfyBOX0PqNxHW313IAmRrhW5"
   REVIEW_BOT_LOG_LEVEL: "INFO"
   REVIEW_BOT_LOG_FORMAT: "json"
