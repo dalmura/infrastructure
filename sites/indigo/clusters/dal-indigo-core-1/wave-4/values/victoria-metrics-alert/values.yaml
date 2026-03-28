@@ -13,8 +13,7 @@ server:
     url: http://victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
 
   notifier:
-    alertmanager:
-      url: http://localhost:9093
+    url: http://victoria-metrics-alert-vma-alertmanager.victoria-metrics.svc.cluster.local:9093
 
   ingress:
     enabled: true
@@ -38,6 +37,15 @@ server:
   config:
     alerts:
       groups:
+        #- name: test-alert-group
+        #  rules:
+        #    - alert: TestAlert
+        #      expr: "2 > 1"
+        #      labels:
+        #        severity: critical
+        #      annotations:
+        #        summary: "This is a Test Alert"
+        #        description: "A Test Alert designed to verify Slack comms"
         - name: longhorn-volume-full
           rules:
             - alert: LonghornVolumeFull
@@ -86,6 +94,27 @@ alertmanager:
 
   baseURL: "https://alert-manager.indigo.dalmura.cloud/"
 
-  #config:
-  #  global:
-  #    slack_api_url_file: /slack/webhook.yaml
+  config:
+    global:
+      slack_api_url_file: /slack/webhook.txt
+
+    route:
+      receiver: dalmura-infra-slack
+
+    receivers:
+      - name: dalmura-infra-slack
+        slack_configs:
+          - send_resolved: true
+            channel: '#infrastructure'
+            username: 'Indigo Alerts'
+            icon_emoji: 'warning'
+
+  extraVolumes:
+    - name: slack-config
+      secret:
+        secretName: alert-manager-slack-config
+
+  extraVolumeMounts:
+    - name: slack-config
+      mountPath: /slack
+      readOnly: true

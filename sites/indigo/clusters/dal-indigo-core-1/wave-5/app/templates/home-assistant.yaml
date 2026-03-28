@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://pajikos.github.io/home-assistant-helm-chart
       chart: home-assistant
-      targetRevision: 0.3.47
+      targetRevision: 0.3.51
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/home-assistant/values.yaml

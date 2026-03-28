@@ -52,7 +52,7 @@
   ],
   "packageRules": [
     {
-      "matchPaths": [
+      "matchFileNames": [
         "sites/indigo/**"
       ],
       "addLabels": [
@@ -62,7 +62,7 @@
       "additionalBranchPrefix": "indigo-"
     },
     {
-      "matchPaths": [
+      "matchFileNames": [
         "sites/navy/**"
       ],
       "addLabels": [
