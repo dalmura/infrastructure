@@ -39,11 +39,11 @@ spec:
                 secretKeyRef:
                   name: review-bot-secrets
                   key: github-token
-            - name: ANTHROPIC_API_KEY
+            - name: GEMINI_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: review-bot-secrets
-                  key: anthropic-api-key
+                  key: gemini-api-key
             - name: REVIEW_BOT_PSK
               valueFrom:
                 secretKeyRef:
