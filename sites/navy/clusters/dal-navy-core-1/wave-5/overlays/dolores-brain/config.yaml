@@ -8,6 +8,7 @@ data:
   DEFAULT_MODEL: "qwen2.5:7b"
   OLLAMA_BASE_URL: "http://192.168.83.253:11434"
   OLLAMA_MODEL: "qwen2.5:7b"
+  VISION_PROVIDER: ""
   DEFAULT_MAX_TOKENS: "1024"
   DEFAULT_TEMPERATURE: "0.7"
   BRAIN_DB_PATH: "/data/conversations.db"
