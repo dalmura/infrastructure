@@ -5,7 +5,6 @@ metadata:
     app.kubernetes.io/instance: review-bot
     app.kubernetes.io/name: review-bot
   name: review-bot-data
-  namespace: review-bot
 spec:
   accessModes:
     - ReadWriteOnce
