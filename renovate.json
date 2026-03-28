@@ -12,37 +12,37 @@
     "kustomize",
     "custom.regex"
   ],
+  "ignorePaths": [
+    "sites/archived/**"
+  ],
   "argocd": {
     "managerFilePatterns": [
-      "sites/indigo/clusters/*/*/app/templates/*.yaml"
+      "sites/*/clusters/*/*/app/templates/*.yaml"
     ]
   },
   "helm-values": {
     "managerFilePatterns": [
-      "sites/indigo/clusters/*/*/values/*/values.yaml"
+      "sites/*/clusters/*/*/values/*/values.yaml"
     ],
     "ignorePaths": [
-      "sites/indigo/clusters/*/*/app/**"
+      "sites/*/clusters/*/*/app/**"
     ]
   },
   "kubernetes": {
     "managerFilePatterns": [
-      "sites/indigo/clusters/*/*/overlays/*/deployment.yaml"
+      "sites/*/clusters/*/*/overlays/*/deployment.yaml"
     ]
   },
   "kustomize": {
     "managerFilePatterns": [
-      "sites/indigo/clusters/*/*/overlays/*/kustomization.yaml"
-    ],
-    "ignorePaths": [
-      "sites/archived/**"
+      "sites/*/clusters/*/*/overlays/*/kustomization.yaml"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "sites/indigo/clusters/dal-indigo-core-1/wave-2/values/traefik-public/values.yaml"
+        "sites/*/clusters/*/wave-2/values/traefik-public/values.yaml"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+version:\\s*(?<currentValue>.*)"
@@ -52,8 +52,32 @@
   ],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["photoprism/photoprism"],
+      "matchFileNames": [
+        "sites/indigo/**"
+      ],
+      "addLabels": [
+        "site/indigo"
+      ],
+      "commitMessagePrefix": "[indigo] ",
+      "additionalBranchPrefix": "indigo-"
+    },
+    {
+      "matchFileNames": [
+        "sites/navy/**"
+      ],
+      "addLabels": [
+        "site/navy"
+      ],
+      "commitMessagePrefix": "[navy] ",
+      "additionalBranchPrefix": "navy-"
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "photoprism/photoprism"
+      ],
       "versioning": "regex:^(?<major>\\d{2})(?<minor>\\d{2})(?<patch>\\d{2})$"
     }
   ]
