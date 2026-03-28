@@ -6,6 +6,6 @@ namespace: review-bot
 resources:
   - config.yaml
   - pvc-data.yaml
-  - external-secret.yaml
+  - secret.sealed.yaml
   - deployment.yaml
   - service.yaml
