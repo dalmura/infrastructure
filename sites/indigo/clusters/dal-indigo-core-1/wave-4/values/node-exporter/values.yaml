@@ -2,3 +2,6 @@
 hostNetwork: true
 
 revisionHistoryLimit: 1
+
+kubeRBACProxy:
+  enabled: true

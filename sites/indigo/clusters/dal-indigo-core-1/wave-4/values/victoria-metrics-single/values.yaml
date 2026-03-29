@@ -1,6 +1,12 @@
 ---
 nameOverride: vms
 
+rbac:
+  extraRules:
+    # node-exporter read permissions
+    - nonResourceURLs: ["/metrics"]
+      verbs: ["get"]
+
 server:
   retentionPeriod: 6M
 
@@ -38,6 +44,11 @@ server:
             regex: "9500"
             action: keep
       - job_name: node-exporter
+        scheme: https
+        # Use the default token that Kubernetes automatically mounts into the vmagent pod
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          insecure_skip_verify: true
         scrape_interval: 30s
         kubernetes_sd_configs:
           - role: endpoints
@@ -47,7 +58,7 @@ server:
             regex: .*node-exporter.*
           - source_labels: [__meta_kubernetes_endpoint_port_name]
             action: keep
-            regex: metrics
+            regex: metrics|https
           - source_labels: [__meta_kubernetes_node_name]
             action: replace
             target_label: instance
