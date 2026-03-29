@@ -4,7 +4,8 @@ nameOverride: vms
 rbac:
   extraRules:
     # node-exporter read permissions
-    - nonResourceURLs: ["/metrics"]
+    - apiGroups: [""]
+      resources: ["services/node-exporter-prometheus-node-exporter"]
       verbs: ["get"]
 
 server:
