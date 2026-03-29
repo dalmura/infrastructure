@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: review-bot-config
 data:
-  REVIEW_BOT_POLL_INTERVAL_SECONDS: "60"
+  REVIEW_BOT_POLL_INTERVAL_SECONDS: "900"
   REVIEW_BOT_STATE_DB_PATH: "/data/state.db"
   REVIEW_BOT_MAX_CONCURRENT: "3"
   REVIEW_BOT_LOG_LEVEL: "INFO"
