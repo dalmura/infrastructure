@@ -37,7 +37,7 @@ server:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             regex: "9500"
             action: keep
-      - job_name: node_exporter
+      - job_name: node-exporter
         scrape_interval: 30s
         kubernetes_sd_configs:
           - role: endpoints
