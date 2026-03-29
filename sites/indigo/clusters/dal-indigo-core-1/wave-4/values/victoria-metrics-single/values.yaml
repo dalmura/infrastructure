@@ -37,6 +37,21 @@ server:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             regex: "9500"
             action: keep
+      - job_name: node_exporter
+        scrape_interval: 30s
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: .*node-exporter.*
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: metrics
+          - source_labels: [__meta_kubernetes_node_name]
+            action: replace
+            target_label: instance
+
     action: keep
 
   persistentVolume:
