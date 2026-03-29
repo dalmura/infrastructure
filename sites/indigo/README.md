@@ -70,6 +70,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
 * ArgoCD - Wave 4
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
+   * [Node Exporter](https://github.com/prometheus/node_exporter)
+      * Comprehensive Node level metrics
    * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)
       * Lightweight Prometheus replacement
       * Scrapes metrics from the cluster
@@ -78,10 +80,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Scrapes container logs from the cluster via the Collector
    * [Grafana](https://grafana.com/docs/grafana/latest/)
       * Dashboards for above Metrics & Logs
-   * Not Implemented Yet
-      * [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
-         * Client alerting
-         * Pushed to from VictoriaMetrics based alert rules
+   * [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
+      * Slack alerting
 * ArgoCD - Wave 5
    * [Frigate](https://github.com/blakeblackshear/frigate)
       * Home security camera NVR w/object detection
@@ -91,6 +91,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Git server
    * [Emojirades](https://emojirades.io/)
       * Emoji based guessing game
+   * [Home Assistant](https://www.home-assistant.io/)
+      * Home Automation
    * Not Implemented Yet
       * [Reactive Resume](https://rxresu.me/)
          * Resume builder
@@ -100,8 +102,6 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
          * Github Actions runner management
       * [Bookstack](https://www.bookstackapp.com/)
          * Wiki Knowledge Base
-      * [Home Assistant](https://www.home-assistant.io/)
-         * Home Automation
       * [Matrix Comms](https://matrix.org/)
          * Chat/comms
       * [PeerTube](https://joinpeertube.org/)
@@ -125,6 +125,7 @@ Follow this list in order:
    * [`dal-indigo-core-1` Apps - Wave 3 - Vault](docs/INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)
    * [`dal-indigo-core-1` Apps - Wave 3 - Dynamic AWS Users](docs/INDIGO-CORE-1-APPS-WAVE-3-DYNAMIC-AWS-USERS.md)
 * [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
+   * [`dal-indigo-core-1` Observability](docs/INDIGO-OBSERVABILITY.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
 
 ## Ongoing Maintenance
