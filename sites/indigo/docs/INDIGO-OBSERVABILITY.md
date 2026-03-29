@@ -1,6 +1,7 @@
 # Indigo Observability
 
 After [INDIGO-CORE-1-APPS-WAVE-4.md](INDIGO-CORE-1-APPS-WAVE-4.md) has been deployed and configured, you have a basic setup that includes:
+* Node Exporter
 * [VictoriaLogs (VL) - Single](https://vls.indigo.dalmura.cloud/)
 * VictoriaLogs (VL) - Collector
 * [VictoriaMetrics (VM) - Single](https://vms.indigo.dalmura.cloud/)
@@ -32,6 +33,7 @@ Nothing else at the moment is writing *into* VL Single.
 VM Single itself is configured with metric scraping jobs, these are (currently):
 * VL Single metrics
 * Longhorn metrics
+* Node Exporter metrics
 
 See (VM Single's Helm values.yaml file for more info)[../clusters/dal-indigo-core-1/wave-4/values/victoria-metrics-single/values.yaml].
 
@@ -61,3 +63,4 @@ This currently is configured with the following Datasources:
 
 And the following public dashboards:
 * [Longhorn Observability](https://grafana.com/grafana/dashboards/22705-longhorn-dashboard/)
+* [Node Exporter Full](https://grafana.com/grafana/dashboards/1860-node-exporter-full/)
