@@ -1,0 +1,4 @@
+---
+hostNetwork: true
+
+revisionHistoryLimit: 1
