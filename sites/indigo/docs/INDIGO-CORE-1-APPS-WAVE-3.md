@@ -147,6 +147,53 @@ Scale back up the `authentik-server` Deployment to 1 (you can do this in ArgoCD 
 
 The `authentik-server` pod should now come up as healthy.
 
+## Configure MQTT Users
+
+MQTT initially will be in a broken state until you create the users authentication file `/mosquitto/data/passwordfile` inside the containers PV.
+
+This can be done via:
+```bash
+# Scale the deployment to 0
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto scale sts mosquitto --replicas=0
+
+# Start a small debug pod
+echo "
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-mosquitto-debug
+  namespace: mosquitto
+spec:
+  volumes:
+    - name: mosquitto
+      persistentVolumeClaim:
+        claimName: data-mosquitto-0
+  containers:
+    - name: debugger
+      image: busybox
+      command: ['sleep', '3600']
+      volumeMounts:
+        - mountPath: '/data'
+          name: mosquitto
+" | kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f -
+
+# Then access the pod
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto exec -it pvc-mosquitto-debug -- sh
+
+# Create the file
+cd /data
+touch passwordfile
+
+# Append user ABC into it
+TODO
+
+# After you're done delete it
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto delete pod pvc-mosquitto-debug
+
+# After you're done scale the STS
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto scale sts mosquitto --replicas=1
+```
+
 ## Access Authentik
 
 Authentik will be available over its configured ingress domain name `auth.indigo.dalmura.cloud`, once it's running you'll need to navigate to the [initial setup page](https://auth.indigo.dalmura.cloud/if/flow/initial-setup/) where you can set the admin user `akadmin`'s password.
