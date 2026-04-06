@@ -128,6 +128,7 @@ Follow this list in order:
 * [`dal-indigo-core-1` Apps - Wave 4](docs/INDIGO-CORE-1-APPS-WAVE-4.md)
    * [`dal-indigo-core-1` Observability](docs/INDIGO-OBSERVABILITY.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Home Assistant](docs/INDIGO-CORE-1-APPS-WAVE-5-HOME-ASSISTANT.md)
 
 ## Ongoing Maintenance
 
