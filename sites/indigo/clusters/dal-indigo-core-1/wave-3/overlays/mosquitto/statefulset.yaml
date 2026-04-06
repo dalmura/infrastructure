@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: broker
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+  name: mosquitto
+spec:
+  serviceName: mosquitto-headless
+  replicas: 1
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: broker
+      app.kubernetes.io/instance: mosquitto
+      app.kubernetes.io/name: mosquitto
+  template:
+    metadata:
+        app.kubernetes.io/component: broker
+        app.kubernetes.io/instance: mosquitto
+        app.kubernetes.io/name: mosquitto
+    spec:
+      serviceAccountName: mosquitto
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: mosquitto
+          image: "docker.io/library/eclipse-mosquitto:2.1.2-alpine"
+          imagePullPolicy: IfNotPresent
+          command:
+            - mosquitto
+          args:
+            - -c
+            - /mosquitto/config/mosquitto.conf
+          ports:
+            - name: mqtt
+              containerPort: 1883
+              protocol: TCP
+            - name: websocket
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: mqtt
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            initialDelaySeconds: 15
+            tcpSocket:
+              port: mqtt
+            timeoutSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config/mosquitto.conf
+              subPath: mosquitto.conf
+            - name: data
+              mountPath: /mosquitto/data
+      volumes:
+        - name: config
+          configMap:
+            name: mosquitto-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app.kubernetes.io/component: broker
+          app.kubernetes.io/instance: mosquitto
+          app.kubernetes.io/name: mosquitto
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: cluster-nobackup

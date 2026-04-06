@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto-mqttx
+  labels:
+    app.kubernetes.io/component: mqttx-web
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: mqttx-web
+      app.kubernetes.io/instance: mosquitto
+      app.kubernetes.io/name: mosquitto
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: mqttx-web
+        app.kubernetes.io/instance: mosquitto
+        app.kubernetes.io/name: mosquitto
+    spec:
+      containers:
+        - name: mqttx-web
+          image: "docker.io/emqx/mqttx-web:v1.13.0"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HELMFORGE_DEFAULT_CONNECTION_NAME
+              value: "Mosquitto"
+            - name: HELMFORGE_DEFAULT_BROKER_URL
+              value: "ws://mosquitto.mosquitto.svc.cluster.local:9001/mqtt"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: mqttx-web
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+  name: mosquitto-mqttx
+spec:
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+  selector:
+    app.kubernetes.io/component: mqttx-web
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+  type: ClusterIP

@@ -5,7 +5,6 @@ metadata:
     app.kubernetes.io/instance: photoprism
     app.kubernetes.io/name: photoprism
   name: photoprism
-  namespace: photoprism
 spec:
   replicas: 1
   revisionHistoryLimit: 3
