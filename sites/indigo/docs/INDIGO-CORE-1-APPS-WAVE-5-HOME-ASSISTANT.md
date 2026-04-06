@@ -31,3 +31,4 @@ You should now have a HACS menu item on the left!
 
 A list of other integrations:
 * [Airtouch 5](https://www.home-assistant.io/integrations/airtouch5/)
+* [Emerald HWS (via HACS)](https://github.com/ross-w/emerald-hws-ha)
