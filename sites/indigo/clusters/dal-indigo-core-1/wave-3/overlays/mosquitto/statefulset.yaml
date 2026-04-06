@@ -24,6 +24,9 @@ spec:
     spec:
       serviceAccountName: mosquitto-sa
       terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 1883
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: mosquitto
           image: "docker.io/library/eclipse-mosquitto:2.1.2-alpine"
