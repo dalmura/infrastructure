@@ -26,3 +26,8 @@ Install HACS within HA:
 * Accept all the checkboxes and perform the github auth
 
 You should now have a HACS menu item on the left!
+
+## Other Integrations
+
+A list of other integrations:
+* [Airtouch 5](https://www.home-assistant.io/integrations/airtouch5/)
