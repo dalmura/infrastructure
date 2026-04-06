@@ -70,6 +70,7 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
 * ArgoCD - Wave 4
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
+      * Covers all sites
    * [Node Exporter](https://github.com/prometheus/node_exporter)
       * Comprehensive Node level metrics
    * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)
