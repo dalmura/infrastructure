@@ -46,7 +46,7 @@ spec:
               port: mqtt
             timeoutSeconds: 10
           readinessProbe:
-            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            failureThreshold: 5
             initialDelaySeconds: 15
             tcpSocket:
               port: mqtt
