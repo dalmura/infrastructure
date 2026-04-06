@@ -5,7 +5,7 @@ metadata:
 data:
   mosquitto.conf: |
     persistence true
-    persistence_location /mosquitto/data/
+    persistence_location /mosquitto/data
     log_dest stdout
     allow_anonymous false
     per_listener_settings false
