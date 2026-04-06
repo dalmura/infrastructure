@@ -1,71 +1,60 @@
-{{- if .Values.websocketIngress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "mosquitto.fullname" . }}-websocket
   labels:
-    {{- include "mosquitto.labels" . | nindent 4 }}
-  {{- with .Values.websocketIngress.annotations }}
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+  name: mosquitto-websocket
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: mqtt.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
 spec:
-  {{- with .Values.websocketIngress.ingressClassName }}
-  ingressClassName: {{ . }}
-  {{- end }}
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - mqtt.indigo.dalmura.cloud
+      secretName: mosquitto-ws-cert
   rules:
-    {{- range .Values.websocketIngress.hosts }}
-    - host: {{ .host | quote }}
+    - host: mqtt.indigo.dalmura.cloud
       http:
         paths:
-          {{- range (.paths | default (list (dict "path" "/" "pathType" "Prefix"))) }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: /
+            pathType: Prefix
             backend:
               service:
-                name: {{ include "mosquitto.fullname" $ }}
+                name: mosquitto
                 port:
                   name: websocket
-          {{- end }}
-    {{- end }}
-  {{- with .Values.websocketIngress.tls }}
-  tls:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-{{- end }}
-{{- if .Values.mqttxWeb.ingress.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "mosquitto.fullname" . }}-mqttx
   labels:
-    {{- include "mosquitto.labels" . | nindent 4 }}
-  {{- with .Values.mqttxWeb.ingress.annotations }}
+    app.kubernetes.io/instance: mosquitto
+    app.kubernetes.io/name: mosquitto
+  name: mosquitto-mqttx
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: mqtt-ui.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
 spec:
-  {{- with .Values.mqttxWeb.ingress.ingressClassName }}
-  ingressClassName: {{ . }}
-  {{- end }}
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - mqtt-ui.indigo.dalmura.cloud
+      secretName: mosquitto-ui-cert
   rules:
-    {{- range .Values.mqttxWeb.ingress.hosts }}
-    - host: {{ .host | quote }}
+    - host: mqtt-ui.indigo.dalmura.cloud
       http:
         paths:
-          {{- range (.paths | default (list (dict "path" "/" "pathType" "Prefix"))) }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: /
+            pathType: Prefix
             backend:
               service:
-                name: {{ include "mosquitto.fullname" $ }}-mqttx
+                name: mosquitto-mqttx
                 port:
                   name: http
-          {{- end }}
-    {{- end }}
-  {{- with .Values.mqttxWeb.ingress.tls }}
-  tls:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-{{- end }}
