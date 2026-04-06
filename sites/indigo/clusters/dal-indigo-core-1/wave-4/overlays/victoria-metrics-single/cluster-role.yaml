@@ -1,0 +1,33 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: victoria-metrics-single-vms-service-extra-perms
+rules:
+  # Grants the specific permission requested by kube-rbac-proxy in your error
+  - apiGroups:
+      - ""
+    resources: 
+      - "services"
+      - "services/node-exporter-prometheus-node-exporter"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+  # A common fallback requirement for kube-rbac-proxy metrics endpoints
+  - nonResourceURLs:
+      - "/metrics"
+    verbs:
+      - "get"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: victoria-metrics-single-vms-service-extra-perms
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: victoria-metrics-single-vms-service-extra-perms
+subjects:
+- kind: ServiceAccount
+  name: victoria-metrics-single-vms-server
+  namespace: victoria-metrics
