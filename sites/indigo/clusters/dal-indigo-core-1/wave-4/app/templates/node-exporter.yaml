@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://prometheus-community.github.io/helm-charts/
       chart: prometheus-node-exporter
-      targetRevision: 4.52.2
+      targetRevision: 4.53.0
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-4/values/node-exporter/values.yaml
