@@ -2,6 +2,9 @@ global:
   domain: argocd.indigo.dalmura.cloud
   networkPolicy:
     create: true
+  logging:
+    format: json
+    level: warn
 
 configs:
   rbac:
