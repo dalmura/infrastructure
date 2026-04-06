@@ -22,7 +22,7 @@ spec:
         app.kubernetes.io/instance: mosquitto
         app.kubernetes.io/name: mosquitto
     spec:
-      serviceAccountName: mosquitto
+      serviceAccountName: mosquitto-sa
       terminationGracePeriodSeconds: 30
       containers:
         - name: mosquitto
