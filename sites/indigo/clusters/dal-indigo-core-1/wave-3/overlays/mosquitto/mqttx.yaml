@@ -26,10 +26,10 @@ spec:
           image: "docker.io/emqx/mqttx-web:v1.13.0"
           imagePullPolicy: IfNotPresent
           env:
-            - name: HELMFORGE_DEFAULT_CONNECTION_NAME
-              value: "Mosquitto"
-            - name: HELMFORGE_DEFAULT_BROKER_URL
+            - name: VUE_APP_DEFAULT_HOST
               value: "ws://mosquitto.mosquitto.svc.cluster.local:9001/mqtt"
+            - name: BASE_URL
+              value: "https://mqtt-ui.indigo.dalmura.cloud/"
           ports:
             - name: http
               containerPort: 80
