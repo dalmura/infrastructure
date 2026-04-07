@@ -177,21 +177,36 @@ spec:
           name: mosquitto
 " | kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 apply -f -
 
+# Give it 10-15s to come up
 # Then access the pod
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto exec -it pvc-mosquitto-debug -- sh
 
 # Create the file
 cd /data
 touch passwordfile
-
-# Append user ABC into it
-TODO
+chmod 1883:1883 passwordfile
+exit
 
 # After you're done delete it
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto delete pod pvc-mosquitto-debug
 
 # After you're done scale the STS
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto scale sts mosquitto --replicas=1
+```
+
+Mosquitto MQTT broker should now come up as 'healthy', which means you can debug into the mosquitto pod itself and add users:
+```
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n mosquitto exec -it mosquitto-0 -- sh
+
+cd /mosquitto/data
+
+chown root:root passwordfile
+chmod 0600 passwordfile
+mosquitto_passwd passwordfile mqttx
+mosquitto_passwd passwordfile hass
+mosquitto_passwd passwordfile frigate
+
+chown mosquitto:mosquitto passwordfile
 ```
 
 ## Access Authentik
