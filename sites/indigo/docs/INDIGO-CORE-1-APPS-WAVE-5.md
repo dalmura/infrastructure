@@ -204,6 +204,16 @@ You will need to follow the 'Reverse Proxy' setup flow as Frigate doesn't offer 
 
 Once authentication is configured, it should be accessible privately via https://frigate.indigo.dalmura.cloud/
 
+With Frigate's MQTT integration, your config block should include something like:
+```
+mqtt:
+  enabled: true
+  host: "mosquitto.mosquitto.svc.cluster.local"
+  port: 1883
+  user: "frigate"
+  password: "your_password_here"
+```
+
 ## Forgejo Setup
 
 The below commands that run `gitea` assume you have a shell in the main pod:

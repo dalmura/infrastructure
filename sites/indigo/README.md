@@ -67,6 +67,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Cluster Secrets Management
    * [External Secrets Operator](https://external-secrets.io/latest/)
       * Syncronise Vault secrets with k8s secrets
+   * [Eclipse Mosquitto MQTT](https://mosquitto.org/)
+      * MQTT Broker
 * ArgoCD - Wave 4
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
@@ -94,19 +96,21 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Emoji based guessing game
    * [Home Assistant](https://www.home-assistant.io/)
       * Home Automation
+   * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
+      * Personal Notes
    * Not Implemented Yet
-      * [Reactive Resume](https://rxresu.me/)
-         * Resume builder
-      * [Tandoor](https://tandoor.dev/)
-         * Recipe management
       * [Github Runner](https://github.com/actions/actions-runner-controller)
          * Github Actions runner management
-      * [Bookstack](https://www.bookstackapp.com/)
-         * Wiki Knowledge Base
+      * [Tandoor](https://tandoor.dev/)
+         * Recipe management
+      * [Reactive Resume](https://rxresu.me/)
+         * Resume builder
       * [Matrix Comms](https://matrix.org/)
          * Chat/comms
       * [PeerTube](https://joinpeertube.org/)
          * Videos
+      * [Bookstack](https://www.bookstackapp.com/)
+         * Wiki Knowledge Base
 
 ## Configuration
 
