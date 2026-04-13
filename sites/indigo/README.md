@@ -96,9 +96,9 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Emoji based guessing game
    * [Home Assistant](https://www.home-assistant.io/)
       * Home Automation
-   * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
-      * Personal Notes
    * Not Implemented Yet
+      * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
+         * Personal Notes
       * [Github Runner](https://github.com/actions/actions-runner-controller)
          * Github Actions runner management
       * [Tandoor](https://tandoor.dev/)
