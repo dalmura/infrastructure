@@ -3,9 +3,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    app.kubernetes.io/instance: obsidian-couchdb
-    app.kubernetes.io/name: obsidian-couchdb
-  name: obsidian-couchdb
+    app.kubernetes.io/instance: obsidian-livesync-couchdb
+    app.kubernetes.io/name: obsidian-livesync-couchdb
+  name: obsidian-livesync-couchdb
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: obsidian-couchdb.indigo.dalmura.cloud
