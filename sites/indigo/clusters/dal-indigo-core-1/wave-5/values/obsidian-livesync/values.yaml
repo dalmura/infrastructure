@@ -34,16 +34,4 @@ autoSetup:
     - '_global_changes'
 
 erlangFlags:
-  name: couchdb@127.0.0.1
-
-extraVolumes:
-  - name: init-script
-    configMap:
-      name: couchdb-init-script
-      defaultMode: 0755
-
-extraVolumeMounts:
-  - name: init-script
-    mountPath: /docker-entrypoint-initdb.d/disable-cluster.sh
-    subPath: disable-cluster.sh
-
+  name: couchdb
