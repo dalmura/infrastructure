@@ -3,29 +3,28 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    app.kubernetes.io/instance: frigate
-    app.kubernetes.io/name: frigate
-  name: frigate
+    app.kubernetes.io/instance: obsidian-couchdb
+    app.kubernetes.io/name: obsidian-couchdb
+  name: obsidian-couchdb
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: frigate.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/hostname: obsidian-couchdb.indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
-    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
 spec:
   ingressClassName: ingress-private
   tls:
     - hosts:
-        - frigate.indigo.dalmura.cloud
-      secretName: frigate-cert
+        - obsidian-couchdb.indigo.dalmura.cloud
+      secretName: obsidian-couchdb-cert
   rules:
-  - host: frigate.indigo.dalmura.cloud
+  - host: obsidian-couchdb.indigo.dalmura.cloud
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frigate
+            name: couchdb-svc
             port:
-              number: 8971
+              number: 5984

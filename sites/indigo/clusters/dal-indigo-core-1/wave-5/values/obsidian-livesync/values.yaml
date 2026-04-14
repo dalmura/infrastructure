@@ -1,0 +1,49 @@
+allowAdminParty: false
+createAdminSecret: true
+
+# Critical: set cluster size to 1 and use single node mode
+clusterSize: 1
+
+# Single node configuration
+couchdbConfig:
+  couchdb:
+    single_node: true
+    uuid: 6c9a7a43-62b5-47dc-ae51-f8da608faab1
+  cluster:
+    q: 1
+    n: 1
+  chttpd:
+    require_valid_user: false
+    enable_cors: true
+  cors:
+    credentials: true
+    origins: '*'
+    headers: 'accept, authorization, content-type, origin, referer, x-csrf-token'
+    methods: 'GET, PUT, POST, HEAD, DELETE'
+
+persistentVolume:
+  enabled: true
+  size: 10Gi
+  storageClass: cluster-regular
+
+autoSetup:
+  enabled: true
+  defaultDatabases:
+    - '_users'
+    - '_replicator'
+    - '_global_changes'
+
+erlangFlags:
+  name: couchdb@127.0.0.1
+
+extraVolumes:
+  - name: init-script
+    configMap:
+      name: couchdb-init-script
+      defaultMode: 0755
+
+extraVolumeMounts:
+  - name: init-script
+    mountPath: /docker-entrypoint-initdb.d/disable-cluster.sh
+    subPath: disable-cluster.sh
+
