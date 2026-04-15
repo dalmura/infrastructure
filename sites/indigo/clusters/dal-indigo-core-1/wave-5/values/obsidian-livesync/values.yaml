@@ -42,3 +42,9 @@ service:
 networkPolicy:
   # For now while troubleshooting
   enabled: false
+
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
