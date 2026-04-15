@@ -7,15 +7,15 @@ clusterSize: 1
 # Single node configuration
 couchdbConfig:
   couchdb:
-    single_node: true
-    uuid: 6c9a7a43-62b5-47dc-ae51-f8da608faab1
+    single_node: 'true'
+    uuid: '6c9a7a43-62b5-47dc-ae51-f8da608faab1'
   cluster:
     q: 1
     n: 1
   chttpd:
-    require_valid_user: false
-    enable_cors: true
-    bind_address: 0.0.0.0
+    require_valid_user: 'false'
+    enable_cors: 'true'
+    bind_address: '0.0.0.0'
   cors:
     credentials: true
     origins: '*'
