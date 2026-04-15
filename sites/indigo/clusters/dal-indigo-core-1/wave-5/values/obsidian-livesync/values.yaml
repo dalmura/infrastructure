@@ -15,6 +15,7 @@ couchdbConfig:
   chttpd:
     require_valid_user: false
     enable_cors: true
+    bind_address: 0.0.0.0
   cors:
     credentials: true
     origins: '*'
