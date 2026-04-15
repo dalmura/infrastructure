@@ -35,7 +35,7 @@ autoSetup:
     - '_global_changes'
 
 erlangFlags:
-  name: couchdb
+  name: couchdb@obsidian-livesync-couchdb-0.obsidian-livesync-couchdb.obsidian-livesync.svc.cluster.local
 
 service:
   enabled: true
