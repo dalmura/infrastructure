@@ -36,6 +36,9 @@ autoSetup:
 erlangFlags:
   name: couchdb
 
+service:
+  enabled: true
+
 networkPolicy:
   # For now while troubleshooting
   enabled: false
