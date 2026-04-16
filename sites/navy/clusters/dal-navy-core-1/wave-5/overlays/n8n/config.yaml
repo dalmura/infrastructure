@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: n8n-config
+data:
+  DB_TYPE: "postgresdb"
+  DB_POSTGRESDB_HOST: "n8n-db-rw"
+  DB_POSTGRESDB_PORT: "5432"
+  DB_POSTGRESDB_DATABASE: "app"
+  DB_POSTGRESDB_USER: "app"
+  N8N_ENCRYPTION_KEY: "replace-with-your-secure-key"
+  WEBHOOK_URL: "https://n8n.navy.dalmura.cloud/"
+  N8N_PROTOCOL: "https"
+  N8N_PORT: "5678"
