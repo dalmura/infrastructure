@@ -27,7 +27,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: review-bot
-          image: ghcr.io/anchavesb/review-bot:v0.2.0
+          image: ghcr.io/anchavesb/review-bot:v0.2.1
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
