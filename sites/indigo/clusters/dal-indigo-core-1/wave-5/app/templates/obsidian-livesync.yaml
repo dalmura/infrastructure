@@ -27,3 +27,20 @@ spec:
     syncOptions:
     - CreateNamespace=true
   revisionHistoryLimit: 0
+
+  ignoreDifferences:
+    # 1. Ignore the changing checksum annotation on the StatefulSet
+    - group: apps
+      kind: StatefulSet
+      name: obsidian-livesync-couchdb
+      jsonPointers:
+        - /spec/template/metadata/annotations/checksum~1secret
+
+    # 2. Ignore the dynamically generated data in the Secret
+    - group: ""
+      kind: Secret
+      name: obsidian-livesync-couchdb
+      jsonPointers:
+        - /data/adminPassword
+        - /data/cookieAuthSecret
+        - /data/erlangCookie

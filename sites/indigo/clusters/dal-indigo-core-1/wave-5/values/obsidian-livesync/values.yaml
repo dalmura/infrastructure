@@ -1,7 +1,6 @@
 allowAdminParty: false
 createAdminSecret: true
 
-# Critical: set cluster size to 1 and use single node mode
 clusterSize: 1
 
 # Single node configuration
