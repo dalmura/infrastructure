@@ -63,6 +63,15 @@
     },
     {
       "matchFileNames": [
+        "sites/indigo/**"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "groupName": "indigo patch updates"
+    },
+    {
+      "matchFileNames": [
         "sites/navy/**"
       ],
       "addLabels": [
