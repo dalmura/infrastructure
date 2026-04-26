@@ -67,7 +67,7 @@ server:
     action: keep
 
   persistentVolume:
-    size: 20Gi
+    size: 50Gi
     storageClassName: cluster-nobackup
 
   ingress:
