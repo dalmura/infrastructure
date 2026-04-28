@@ -1,0 +1,31 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app.kubernetes.io/instance: n8n
+    app.kubernetes.io/name: n8n
+  name: n8n
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: n8n.navy.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+      - n8n.navy.dalmura.cloud
+      secretName: n8n-cert
+  rules:
+  - host: n8n.navy.dalmura.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: n8n
+            port:
+              number: 5678
