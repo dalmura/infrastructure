@@ -8,13 +8,15 @@ couchdbConfig:
   couchdb:
     single_node: 'true'
     uuid: '6c9a7a43-62b5-47dc-ae51-f8da608faab1'
+    max_document_size: '50000000'
   cluster:
     q: 1
     n: 1
   chttpd:
-    require_valid_user: 'false'
+    require_valid_user_except_for_up: 'false'
     enable_cors: 'true'
     bind_address: '0.0.0.0'
+    max_http_request_size: '4294967296'
   cors:
     credentials: true
     origins: '*'
