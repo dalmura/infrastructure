@@ -2,8 +2,8 @@
 
 Set a few basic config vars for below
 ```bash
-export TALOS_VERSION=v1.12.0
-export CILIUM_VERSION=1.18.5
+export TALOS_VERSION=v1.13.0
+export CILIUM_VERSION=1.19.3
 ```
 
 Have kubectl and talosctl installed with their latest compatible versions. Talos have a [Support Matrix](https://www.talos.dev/latest/introduction/support-matrix/) to help out here.
@@ -24,10 +24,10 @@ Note down the following attributes:
 ```
 SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 
-FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&bootloader=auto&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.12.0'
+FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&bootloader=auto&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.13.0'
 
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.12.0'
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.13.0'
 ```
 
 You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:
@@ -243,7 +243,6 @@ If it's still just a single node/CP only you will need to edit the `hubble-relay
 tolerations:
   - effect: NoSchedule
     key: node-role.kubernetes.io/control-plane
-
 ```
 
 This will allow the hubble UI and Relay's to run on the CP nodes.
@@ -292,16 +291,16 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get nodes
 
 ## Cluster uptime monitoring via UptimeKuma
 
-Currently dal-indigo-fw-0 is running [UptimeKuma](http://192.168.79.210:3001/dashboard) which you can add a ping monitor for 192.168.77.2 (the Cluster VIP).
+Currently `dal-indigo-fw-0` is running [UptimeKuma](http://192.168.79.210:3001/dashboard) which you can add a ping monitor for `192.168.77.2` (the Cluster VIP).
 
 This provides a _very_ lightweight uptime check that the control plane is running and responding to traffic.
 
 You now have a k8s cluster with just Control Plane nodes running with:
-* 3x rpi4.4gb.arm64 Control Plane nodes
+* 3x `rpi4.4gb.arm64` Control Plane nodes
   * Cilium in Strict Mode as the CNI
 * Floating VIPs for easy k8s Control Plane access
-  * 192.168.77.2 on the SERVERS VLAN
-  * 192.168.77.130 on the SERVERS_STAGING VLAN
+  * `192.168.77.2` on the `SERVERS` VLAN
+  * `192.168.77.130` on the `SERVERS_STAGING` VLAN
 
 Before deploying any workloads you will need to deploy one or more Worker nodes:
 * [Raspberry Pi 4 nodes aka `rpi4.8gb.arm`](INDIGO-CORE-1-WORKERS-RPI4.md)
