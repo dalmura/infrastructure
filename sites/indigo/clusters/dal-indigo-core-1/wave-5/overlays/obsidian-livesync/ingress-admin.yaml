@@ -25,6 +25,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: couchdb-svc
+            name: obsidian-livesync-svc-couchdb
             port:
               number: 5984
