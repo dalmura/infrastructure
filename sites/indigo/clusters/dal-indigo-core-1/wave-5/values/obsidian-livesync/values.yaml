@@ -9,6 +9,8 @@ couchdbConfig:
     single_node: 'true'
     uuid: '6c9a7a43-62b5-47dc-ae51-f8da608faab1'
     max_document_size: '50000000'
+  compactions:
+    _default: [{db_fragmentation, "30%"}, {view_fragmentation, "30%"}]
   cluster:
     q: 1
     n: 1
