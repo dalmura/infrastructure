@@ -80,4 +80,11 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Allow egress to GitHub API
+    - toFQDNs:
+        - matchName: "api.github.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 
