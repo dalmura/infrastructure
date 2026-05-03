@@ -83,6 +83,7 @@ spec:
     # Allow egress to GitHub API
     - toFQDNs:
         - matchName: "api.github.com"
+        - matchName: "raw.githubusercontent.com"
       toPorts:
         - ports:
             - port: "443"
