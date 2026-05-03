@@ -75,6 +75,7 @@ spec:
     # AWS access for Emerald
     - toFQDNs:
         - matchName: "cognito-identity.ap-southeast-2.amazonaws.com"
+        - matchName: "a13v32g67itvz9-ats.iot.ap-southeast-2.amazonaws.com"
       toPorts:
         - ports:
             - port: "443"
