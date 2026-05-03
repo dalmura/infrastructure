@@ -46,6 +46,7 @@ spec:
         - matchName: "api.github.com"
         - matchName: "codeload.github.com"
         - matchName: "www.gravatar.com"
+        - matchName: "auth.indigo.dalmura.cloud"
       toPorts:
         - ports:
             - port: "443"
