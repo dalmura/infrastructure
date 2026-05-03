@@ -4,6 +4,8 @@ kind: Kustomization
 namespace: obsidian-livesync
 
 resources:
+  - secret-store-site.yaml
+  - external-secret.yaml
   - ingress.yaml
   - ingress-admin.yaml
   - maintenance-jobs.yaml

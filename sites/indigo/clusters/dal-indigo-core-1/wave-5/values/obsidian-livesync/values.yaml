@@ -1,5 +1,11 @@
 allowAdminParty: false
-createAdminSecret: true
+createAdminSecret: false
+
+extraSecretName: couchdb-secrets
+adminUsernameKey: ADMIN_USERNAME
+adminPasswordKey: ADMIN_PASSWORD
+cookieAuthSecretKey: COOKIE_AUTH_SECRET_KEY
+erlangCookieKey: ERLANG_COOKIE_KEY
 
 clusterSize: 1
 

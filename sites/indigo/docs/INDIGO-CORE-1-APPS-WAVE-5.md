@@ -352,3 +352,35 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get secret emojirades-db-app 
 # Ensure you replace the hostname with 'localhost' from the port-forward above
 emojirades -vv init --db-uri "<get DB uri from secret emojirades-db-app in namespace>"
 ```
+
+## Obsidian Livesync (CouchDB) Setup
+
+Follow the steps in [INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md](INDIGO-CORE-1-APPS-WAVE-3-EXTERNAL-SECRETS.md) with the following additional configuration:
+* Reader Role: `workload-reader-obsidian-livesync-secrets`
+* Service Account: `obsidian-livesync-couchdb`
+* Secret Engine: `site`
+* Secret Path: `wave-5/obsidian-livesync/couchdb-secrets`
+
+Setting the following key and values:
+* `ADMIN_USERNAME`: Something other than `admin`
+* `ADMIN_PASSWORD`: Generate yourself
+* `COOKIE_AUTH_SECRET_KEY`: Generate yourself (a-zA-Z0-9)
+* `ERLANG_COOKIE_KEY`: Generate yourself (a-zA-Z0-9)
+
+This should result in the following vault snippets:
+```
+vault policy write workload-reader-obsidian-livesync-secrets -<<EOF                                    
+# Site secrets store for Obsidian Livesync - CouchDB
+path "site/data/wave-5/obsidian-livesync/couchdb-secrets" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-obsidian-livesync-secrets \
+   bound_service_account_names=obsidian-livesync-couchdb \
+   bound_service_account_namespaces=obsidian-livesync \
+   token_policies=workload-reader-obsidian-livesync-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+
+```
