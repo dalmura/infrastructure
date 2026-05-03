@@ -86,6 +86,7 @@ spec:
               protocol: TCP
     # Allow egress to GitHub API
     - toFQDNs:
+        - matchName: "github.com"
         - matchName: "api.github.com"
         - matchName: "raw.githubusercontent.com"
         - matchName: "objects.githubusercontent.com"
