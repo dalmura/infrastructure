@@ -32,6 +32,14 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow egress to other Plex servers (World)
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "32400"
+              endPort: 32410
+              protocol: TCP
     # Allow egress to Plex Services
     - toFQDNs:
         - matchPattern: "**.sin.plex.bz"
