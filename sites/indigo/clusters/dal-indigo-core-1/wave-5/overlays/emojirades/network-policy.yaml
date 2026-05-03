@@ -1,0 +1,91 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: emojirades
+  namespace: emojirades
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: emojirades
+      app.kubernetes.io/instance: emojirades
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow connections to Postgres (CNPG)
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: emojirades-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow connections to Slack API
+    - toFQDNs:
+        - matchPattern: "*.slack.com"
+        - matchName: "slack.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow intra-namespace egress
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: emojirades
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: emojirades-db
+  namespace: emojirades
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: emojirades-db
+  ingress:
+    # Allow traffic from Emojirades app
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: emojirades
+            app.kubernetes.io/instance: emojirades
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-cluster DB communication
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: emojirades-db
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow intra-cluster DB communication
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: emojirades-db
+    # Allow egress to S3 for Barman backups
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

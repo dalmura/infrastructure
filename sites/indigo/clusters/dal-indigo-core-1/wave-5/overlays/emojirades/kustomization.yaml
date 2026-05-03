@@ -12,3 +12,4 @@ resources:
   - object-store.yaml
   - postgres.yaml
   - deployment.yaml
+  - network-policy.yaml
