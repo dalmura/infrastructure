@@ -31,3 +31,6 @@ data:
   PHOTOPRISM_OIDC_REDIRECT: "true"
   PHOTOPRISM_OIDC_REGISTER: "true"
   PHOTOPRISM_OIDC_WEBDAV: "true"
+
+  # Debug logging
+  PHOTOPRISM_LOG_LEVEL: "trace"
