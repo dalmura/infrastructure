@@ -50,4 +50,19 @@ spec:
         - ports:
             - port: "1883"
               protocol: TCP
+    # Allow egress to IOT_INTERNET devices
+    - toCIDR:
+        - 192.168.78.0/25
+      toPorts:
+        - ports:
+            - port: "9005"
+              protocol: TCP
+    # Allow egress to ESPHome devices
+    - toCIDR:
+        - 192.168.78.0/25   # IOT_INTERNET
+        - 192.168.78.128/25 # IOT_RESTRICTED
+      toPorts:
+        - ports:
+            - port: "6053"
+              protocol: TCP
 
