@@ -11,3 +11,4 @@ resources:
   - postgres.yaml
   - ingress.yaml
   - ingress-ssh.yaml
+  - network-policy.yaml

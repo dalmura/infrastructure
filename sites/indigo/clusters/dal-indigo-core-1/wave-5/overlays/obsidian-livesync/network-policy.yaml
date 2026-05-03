@@ -1,0 +1,67 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: obsidian-livesync-couchdb
+  namespace: obsidian-livesync
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: obsidian-livesync
+      app.kubernetes.io/name: couchdb
+  ingress:
+    # Allow traffic from within the same namespace (DB init, internal ops, etc)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-livesync
+    # Allow traffic from Traefik Private
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "5984"
+              protocol: TCP
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow intra-namespace egress
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-livesync
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: maintenance-bot
+  namespace: obsidian-livesync
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: maintenance-bot
+  egress:
+    # Allow access to K8s API for scaling
+    - toEntities:
+        - kube-apiserver
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"

@@ -44,7 +44,7 @@ service:
   enabled: true
 
 networkPolicy:
-  # For now while troubleshooting
+  # We have a custom one in overlays
   enabled: false
 
 livenessProbe:

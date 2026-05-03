@@ -1,0 +1,20 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik-private-egress-obsidian-livesync
+  namespace: traefik-private
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+      app.kubernetes.io/instance: traefik-private
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-livesync
+            app.kubernetes.io/instance: obsidian-livesync
+            app.kubernetes.io/name: couchdb
+      toPorts:
+        - ports:
+            - port: "5984"
+              protocol: TCP

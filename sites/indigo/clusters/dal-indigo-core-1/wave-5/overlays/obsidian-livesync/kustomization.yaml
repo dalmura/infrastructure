@@ -7,3 +7,4 @@ resources:
   - ingress.yaml
   - ingress-admin.yaml
   - maintenance-jobs.yaml
+  - network-policy.yaml
