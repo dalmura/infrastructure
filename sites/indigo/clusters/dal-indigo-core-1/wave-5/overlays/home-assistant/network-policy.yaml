@@ -76,6 +76,7 @@ spec:
     - toFQDNs:
         - matchName: "cognito-identity.ap-southeast-2.amazonaws.com"
         - matchName: "a13v32g67itvz9-ats.iot.ap-southeast-2.amazonaws.com"
+        - matchName: "api.emerald-ems.com.au"
       toPorts:
         - ports:
             - port: "443"
@@ -84,6 +85,20 @@ spec:
     - toFQDNs:
         - matchName: "api.github.com"
         - matchName: "raw.githubusercontent.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow egress to Weather Services
+    - toFQDNs:
+        - matchPattern: "*.api.met.no"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow egress to Radio Services
+    - toFQDNs:
+        - matchPattern: "*.api.radio-browser.info"
       toPorts:
         - ports:
             - port: "443"
