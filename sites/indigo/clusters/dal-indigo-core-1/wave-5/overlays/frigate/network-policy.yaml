@@ -31,9 +31,10 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # Allow connections to cameras on the IOT_RESTRICTED VLAN
+    # Allow connections to cameras on the IOT VLANs
     - toCIDR:
-        - 192.168.78.128/25
+        - 192.168.78.0/25   # IOT_INTERNET
+        - 192.168.78.128/25 # IOT_RESTRICTED
       toPorts:
         - ports:
             - port: "554"
@@ -42,3 +43,4 @@ spec:
               protocol: TCP
             - port: "443"
               protocol: TCP
+
