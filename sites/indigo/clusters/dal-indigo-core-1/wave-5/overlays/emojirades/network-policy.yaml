@@ -65,6 +65,16 @@ spec:
     - fromEndpoints:
         - matchLabels:
             cnpg.io/cluster: emojirades-db
+    # Allow traffic from CloudNativePG operator for health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "5432"
+              protocol: TCP
   egress:
     # Allow DNS
     - toEndpoints:
@@ -82,6 +92,9 @@ spec:
     - toEndpoints:
         - matchLabels:
             cnpg.io/cluster: emojirades-db
+    # Allow access to K8s API
+    - toEntities:
+        - kube-apiserver
     # Allow egress to S3 for Barman backups
     - toEntities:
         - world
