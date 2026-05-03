@@ -70,6 +70,7 @@ spec:
         - matchName: "brands.home-assistant.io"
         - matchName: "version.home-assistant.io"
         - matchName: "checkip.home-assistant.io"
+        - matchName: "alerts.home-assistant.io"
       toPorts:
         - ports:
             - port: "443"
@@ -87,6 +88,7 @@ spec:
     - toFQDNs:
         - matchName: "api.github.com"
         - matchName: "raw.githubusercontent.com"
+        - matchName: "objects.githubusercontent.com"
         - matchName: "data-v2.hacs.xyz"
       toPorts:
         - ports:
@@ -102,6 +104,14 @@ spec:
     # Allow egress to Radio Services
     - toFQDNs:
         - matchPattern: "*.api.radio-browser.info"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow egress to Mobile Push Notifications
+    - toFQDNs:
+        - matchName: "fcm.googleapis.com"
+        - matchName: "api.push.apple.com"
       toPorts:
         - ports:
             - port: "443"
