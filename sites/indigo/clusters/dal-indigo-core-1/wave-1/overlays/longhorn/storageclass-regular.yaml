@@ -10,6 +10,7 @@ reclaimPolicy: Delete
 volumeBindingMode: Immediate
 parameters:
   numberOfReplicas: "2"
+  staleReplicaTimeout: "30"
   dataLocality: "best-effort"
   fsType: ext4
   recurringJobSelector: '[{"name":"daily-default-backup", "isGroup":false}]'
