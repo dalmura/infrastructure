@@ -8,7 +8,7 @@ spec:
     matchLabels:
       io.kubernetes.pod.namespace: home-assistant
   ingress:
-    # 1. Allow traffic from Traefik Private
+    # Allow traffic from Traefik Private
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: traefik-private
@@ -32,3 +32,12 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow egress to Frigate API
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: frigate
+            app.kubernetes.io/name: frigate
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP

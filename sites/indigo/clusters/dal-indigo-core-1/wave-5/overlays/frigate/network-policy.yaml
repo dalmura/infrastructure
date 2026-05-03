@@ -18,6 +18,14 @@ spec:
         - ports:
             - port: "8971"
               protocol: TCP
+    # Allow traffic from Home Assistant (Integration)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
   egress:
     # Allow DNS
     - toEndpoints:
