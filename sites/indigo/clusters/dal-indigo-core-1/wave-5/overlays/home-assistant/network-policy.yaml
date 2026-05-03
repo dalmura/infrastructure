@@ -41,4 +41,13 @@ spec:
         - ports:
             - port: "5000"
               protocol: TCP
+    # Allow egress to Mosquitto MQTT
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: mosquitto
+            app.kubernetes.io/name: mosquitto
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP
 
