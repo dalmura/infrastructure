@@ -33,4 +33,4 @@ data:
   PHOTOPRISM_OIDC_WEBDAV: "true"
 
   # Debug logging
-  PHOTOPRISM_LOG_LEVEL: "trace"
+  #PHOTOPRISM_LOG_LEVEL: "trace"
