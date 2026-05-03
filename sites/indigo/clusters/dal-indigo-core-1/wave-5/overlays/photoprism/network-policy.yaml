@@ -16,7 +16,7 @@ spec:
             app.kubernetes.io/name: traefik
       toPorts:
         - ports:
-            - port: "80"
+            - port: "2342"
               protocol: TCP
 
   egress:

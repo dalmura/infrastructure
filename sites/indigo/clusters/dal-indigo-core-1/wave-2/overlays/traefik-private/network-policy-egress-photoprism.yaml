@@ -15,5 +15,5 @@ spec:
             app.kubernetes.io/name: photoprism
       toPorts:
         - ports:
-            - port: "80"
+            - port: "2342"
               protocol: TCP
