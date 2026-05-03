@@ -39,6 +39,7 @@ spec:
         - matchPattern: "**.plex.direct"
         - matchName: "proxy.plex.bz"
         - matchName: "meta.plex.bz"
+        - matchName: "plex.tv"
       toPorts:
         - ports:
             - port: "443"
