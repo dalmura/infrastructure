@@ -34,9 +34,9 @@ spec:
               - matchPattern: "*"
     # Allow egress to Plex Services
     - toFQDNs:
-        - matchPattern: "*.sin.plex.bz"
-        - matchPattern: "*.plex.tv"
-        - matchPattern: "*.plex.direct"
+        - matchPattern: "**.sin.plex.bz"
+        - matchPattern: "**.plex.tv"
+        - matchPattern: "**.plex.direct"
         - matchName: "proxy.plex.bz"
         - matchName: "meta.plex.bz"
       toPorts:
