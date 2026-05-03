@@ -6,3 +6,4 @@ namespace: obsidian-livesync
 resources:
   - ingress.yaml
   - ingress-admin.yaml
+  - maintenance-jobs.yaml

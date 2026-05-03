@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: maintenance-bot
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: maintenance-bot
+rules:
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: maintenance-bot
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: maintenance-bot
+subjects:
+  - kind: ServiceAccount
+    name: maintenance-bot
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: couchdb-shutdown
+spec:
+  schedule: "50 16 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: maintenance-bot
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:1.36.0
+              command:
+                - kubectl
+                - scale
+                - statefulset
+                - obsidian-livesync-couchdb
+                - --replicas=0
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: couchdb-startup
+spec:
+  schedule: "30 17 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: maintenance-bot
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:1.36.0
+              command:
+                - kubectl
+                - scale
+                - statefulset
+                - obsidian-livesync-couchdb
+                - --replicas=1
+          restartPolicy: OnFailure
