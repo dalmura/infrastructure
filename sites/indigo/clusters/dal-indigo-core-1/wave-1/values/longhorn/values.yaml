@@ -9,7 +9,10 @@ preUpgradeChecker:
 defaultSettings:
   allowCollectingLonghornUsageMetrics: false
   backupExecutionTimeout: "5"
+  concurrentReplicaRebuildPerNodeLimit: "2"
+  concurrentBackupRestorePerNodeLimit: "2"
   concurrentAutomaticEngineUpgradePerNodeLimit: "1"
+  replicaReplenishmentWaitInterval: "1200"
   upgradeChecker: false
   replicaAutoBalance: "best-effort"
 
