@@ -40,3 +40,13 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow connections to external services
+    - toFQDNs:
+        - matchName: "github.com"
+        - matchName: "api.github.com"
+        - matchName: "codeload.github.com"
+        - matchName: "www.gravatar.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
