@@ -68,6 +68,8 @@ spec:
     # Allow egress to Home Assistant Cloud/Visual assets
     - toFQDNs:
         - matchName: "brands.home-assistant.io"
+        - matchName: "version.home-assistant.io"
+        - matchName: "checkip.home-assistant.io"
       toPorts:
         - ports:
             - port: "443"
@@ -85,6 +87,7 @@ spec:
     - toFQDNs:
         - matchName: "api.github.com"
         - matchName: "raw.githubusercontent.com"
+        - matchName: "data-v2.hacs.xyz"
       toPorts:
         - ports:
             - port: "443"
