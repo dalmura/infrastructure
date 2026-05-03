@@ -65,3 +65,4 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+

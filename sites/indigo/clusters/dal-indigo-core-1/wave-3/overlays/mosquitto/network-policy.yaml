@@ -1,33 +1,48 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: frigate
-  namespace: frigate
+  name: mosquitto
+  namespace: mosquitto
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: frigate
-      app.kubernetes.io/instance: frigate
+      app.kubernetes.io/instance: mosquitto
+      app.kubernetes.io/name: mosquitto
   ingress:
-    # Allow traffic from Traefik Private
+    # Allow traffic from within the same namespace
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: mosquitto
+    # Allow traffic from Traefik Private (Websockets/MQTTX)
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: traefik-private
             app.kubernetes.io/name: traefik
       toPorts:
         - ports:
-            - port: "8971"
+            - port: "1883"
               protocol: TCP
-    # Allow traffic from Home Assistant (Integration)
+            - port: "9001"
+              protocol: TCP
+    # Allow traffic from Frigate
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: frigate
+            app.kubernetes.io/name: frigate
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP
+    # Allow traffic from Home Assistant
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: home-assistant
       toPorts:
         - ports:
-            - port: "5000"
+            - port: "1883"
               protocol: TCP
   egress:
-    # Allow DNS
+    # Allow DNS lookups
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
@@ -39,26 +54,7 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # Allow connections to cameras on the IOT VLANs
-    - toCIDR:
-        - 192.168.78.0/25   # IOT_INTERNET
-        - 192.168.78.128/25 # IOT_RESTRICTED
-      toPorts:
-        - ports:
-            - port: "554"
-              protocol: TCP
-            - port: "8554"
-              protocol: TCP
-            - port: "443"
-              protocol: TCP
-    # Allow egress to Mosquitto MQTT
+    # Allow intra-namespace egress
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: mosquitto
-            app.kubernetes.io/name: mosquitto
-      toPorts:
-        - ports:
-            - port: "1883"
-              protocol: TCP
-
-

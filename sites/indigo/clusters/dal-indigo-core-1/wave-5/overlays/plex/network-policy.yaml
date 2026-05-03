@@ -18,6 +18,7 @@ spec:
         - ports:
             - port: "32406"
               protocol: TCP
+
   egress:
     # Allow DNS
     - toEndpoints:
