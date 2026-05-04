@@ -19,6 +19,8 @@ authentik:
     password: file:///postgres-creds/password
 
 server:
+  podAnnotations:
+    reloader.stakater.com/auto: "true"
   deploymentStrategy:
     type: Recreate
 
@@ -59,6 +61,8 @@ server:
       mountPath: /data
 
 worker:
+  podAnnotations:
+    reloader.stakater.com/auto: "true"
   livenessProbe:
     # Raspberry Pi's take a little bit longer
     initialDelaySeconds: 10

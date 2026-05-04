@@ -6,6 +6,8 @@ metadata:
     app.kubernetes.io/instance: mosquitto
     app.kubernetes.io/name: mosquitto
   name: mosquitto
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   serviceName: mosquitto-headless
   replicas: 1

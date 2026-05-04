@@ -6,6 +6,8 @@ metadata:
     app.kubernetes.io/name: emojirades
   name: emojirades
   namespace: emojirades
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   revisionHistoryLimit: 0

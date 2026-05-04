@@ -1,6 +1,9 @@
 allowAdminParty: false
 createAdminSecret: false
 
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+
 extraSecretName: couchdb-secrets
 adminUsernameKey: ADMIN_USERNAME
 adminPasswordKey: ADMIN_PASSWORD

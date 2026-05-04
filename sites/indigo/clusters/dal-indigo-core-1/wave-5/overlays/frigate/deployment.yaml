@@ -6,6 +6,8 @@ metadata:
     app.kubernetes.io/name: frigate
   name: frigate
   namespace: frigate
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   revisionHistoryLimit: 0

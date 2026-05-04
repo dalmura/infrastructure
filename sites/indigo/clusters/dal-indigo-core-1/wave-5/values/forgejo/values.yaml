@@ -12,6 +12,8 @@ persistence:
   size: 50Gi
 
 gitea:
+  podAnnotations:
+    reloader.stakater.com/auto: "true"
   additionalConfigFromEnvs:
     - name: FORGEJO__DATABASE__USER
       valueFrom:
