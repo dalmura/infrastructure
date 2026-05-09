@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://pkgs.tailscale.com/helm-charts
+      chart: tailscale-operator
+      targetRevision: 1.96.5
+      helm:
+        valueFiles:
+        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-6/values/tailscale-operator/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-6/overlays/tailscale-operator
+      targetRevision: HEAD
+  destination:
+    namespace: tailscale
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 1

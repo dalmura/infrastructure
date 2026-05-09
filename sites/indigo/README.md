@@ -96,9 +96,9 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Emoji based guessing game
    * [Home Assistant](https://www.home-assistant.io/)
       * Home Automation
+   * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
+      * Personal Notes
    * Not Implemented Yet
-      * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
-         * Personal Notes
       * [Github Runner](https://github.com/actions/actions-runner-controller)
          * Github Actions runner management
       * [Tandoor](https://tandoor.dev/)
@@ -106,11 +106,17 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * [Reactive Resume](https://rxresu.me/)
          * Resume builder
       * [Matrix Comms](https://matrix.org/)
-         * Chat/comms
+         * Chat rooms
       * [PeerTube](https://joinpeertube.org/)
-         * Videos
-      * [Bookstack](https://www.bookstackapp.com/)
-         * Wiki Knowledge Base
+         * Video Hosting
+* ArgoCD - Wave 6
+   * [Tailscale Kubernetes Operator](https://tailscale.com/docs/features/kubernetes-operator)
+      * Private mesh networking and secure cluster access
+   * Not Implemented Yet
+      * [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
+         * Expose services via Cloudflare edge
+      * [CrowdSec](https://www.crowdsec.net/)
+         * Collaborative security automation and IP reputation
 
 ## Configuration
 
@@ -133,6 +139,7 @@ Follow this list in order:
    * [`dal-indigo-core-1` Observability](docs/INDIGO-OBSERVABILITY.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Home Assistant](docs/INDIGO-CORE-1-APPS-WAVE-5-HOME-ASSISTANT.md)
+* [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
 ## Ongoing Maintenance
 
