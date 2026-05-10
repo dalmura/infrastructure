@@ -5,13 +5,13 @@ global:
 deployment:
   revisionHistoryLimit: 0
   additionalVolumes:
-    - name: crowdsec-bouncer-key
+    - name: crowdsec-bouncer
       secret:
-        secretName: crowdsec-bouncer-key
+        secretName: crowdsec-bouncer
         optional: true
 
 additionalVolumeMounts:
-  - name: crowdsec-bouncer-key
+  - name: crowdsec-bouncer
     mountPath: /etc/crowdsec
     readOnly: true
 
