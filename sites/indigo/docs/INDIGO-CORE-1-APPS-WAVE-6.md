@@ -18,7 +18,7 @@ This will require:
 
 Use this to create the Crowdsec 'bouncer key':
 ```bash
-export BOUNCER_KEY=$(openssl rand -base64 32)
+openssl rand -base64 32
 ```
 
 ### Setup Vault Integration
