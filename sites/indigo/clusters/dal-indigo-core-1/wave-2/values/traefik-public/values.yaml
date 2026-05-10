@@ -66,4 +66,4 @@ experimental:
     bouncer:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: datasource=github-tags depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-      version: v1.3.5
+      version: v1.6.0
