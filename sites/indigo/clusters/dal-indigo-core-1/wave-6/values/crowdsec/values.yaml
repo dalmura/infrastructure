@@ -1,0 +1,80 @@
+# https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
+container_runtime: containerd
+
+image:
+  repository: crowdsecurity/crowdsec
+  pullPolicy: IfNotPresent
+  # tag: 
+
+# LAPI (Local API) configuration
+lapi:
+  # To be able to use the Traefik plugin bouncer
+  env:
+    # Disable the online API (CAPI) if you want to be completely offline, 
+    # but usually you want it for global reputation.
+    - name: DISABLE_ONLINE_API
+      value: "false"
+    - name: BOUNCER_KEY_traefik-bouncer
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-bouncer-key
+          key: key
+
+  # We'll use a Secret for the bouncer key
+  # The bouncer will be registered via an environment variable or cscli
+  # For now, let's keep it simple.
+
+  persistentVolume:
+    data:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+      storageClassName: longhorn-regular
+
+  service:
+    annotations: {}
+    type: ClusterIP
+    port: 8080
+
+# Agent configuration (DaemonSet)
+agent:
+  # To allow the agent to read logs from other pods
+  acquisition:
+    - namespace: traefik-public
+      podName: traefik-*
+      program: traefik
+    - namespace: traefik-private
+      podName: traefik-*
+      program: traefik
+
+  env:
+    - name: LEVEL
+      value: info
+
+  # To tail logs from the host
+  volumes:
+    - name: varlog
+      hostPath:
+        path: /var/log
+    - name: varlibdockercontainers
+      hostPath:
+        path: /var/lib/docker/containers
+
+  volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+      readOnly: true
+    - name: varlibdockercontainers
+      mountPath: /var/lib/docker/containers
+      readOnly: true
+
+# Configuration for the security engine
+config:
+  collections:
+    - crowdsecurity/traefik
+    - crowdsecurity/http-cve
+    - crowdsecurity/whitelist-good-actors
+    - crowdsecurity/base-http-scenarios
+    - crowdsecurity/appsec-virtual-patching
+    - crowdsecurity/appsec-generic-rules

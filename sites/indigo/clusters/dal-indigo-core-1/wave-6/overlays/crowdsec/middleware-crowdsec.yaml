@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: crowdsec-bouncer
+  namespace: traefik-public
+spec:
+  plugin:
+    bouncer:
+      enabled: true
+      crowdsecMode: stream
+      crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+      # Reference the file mounted by Traefik
+      crowdsecLapiKeyFile: "/etc/crowdsec/key"
+      updateIntervalSeconds: 60
+      defaultDecision: allow

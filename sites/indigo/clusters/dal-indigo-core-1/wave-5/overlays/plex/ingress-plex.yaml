@@ -13,3 +13,5 @@ spec:
       services:
         - name: plex-plex-media-server
           port: 32406
+  tls:
+    passthrough: true

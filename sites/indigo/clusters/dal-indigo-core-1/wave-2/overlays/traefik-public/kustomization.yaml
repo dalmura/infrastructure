@@ -7,4 +7,7 @@ resources:
   - ingress.yaml
   - middleware-geoblock.yaml
   - middleware-anubis.yaml
+  - middleware-ratelimit.yaml
+  - middleware-security-headers.yaml
+  - tls-option.yaml
   - network-policy-traefik.yaml

@@ -4,6 +4,16 @@ global:
 
 deployment:
   revisionHistoryLimit: 0
+  additionalVolumes:
+    - name: crowdsec-bouncer-key
+      secret:
+        secretName: crowdsec-bouncer-key
+        optional: true
+
+additionalVolumeMounts:
+  - name: crowdsec-bouncer-key
+    mountPath: /etc/crowdsec
+    readOnly: true
 
 ingressClass:
   name: ingress-public
@@ -53,3 +63,7 @@ experimental:
       moduleName: github.com/PascalMinder/geoblock
       # renovate: datasource=github-tags depName=PascalMinder/geoblock
       version: v0.3.7
+    bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      # renovate: datasource=github-tags depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: v1.3.5

@@ -14,5 +14,6 @@ resources:
   - network-policy-authentik-worker.yaml
   - ingress.yaml
   - traefik-middleware.yaml
+  - middleware-csp.yaml
   - pvc-media.yaml
   - pvc-data.yaml

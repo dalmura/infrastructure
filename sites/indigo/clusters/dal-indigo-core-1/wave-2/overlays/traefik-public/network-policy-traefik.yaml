@@ -46,6 +46,9 @@ spec:
               - matchPattern: "*.anubis.svc.cluster.local"
               - matchPattern: "anubis-service"
               - matchPattern: "anubis-service.anubis"
+              - matchPattern: "*.crowdsec.svc.cluster.local"
+              - matchPattern: "crowdsec-service"
+              - matchPattern: "crowdsec-service.crowdsec"
               - matchPattern: "*.authentik.svc.cluster.local"
               - matchPattern: "authentik-server"
               - matchPattern: "authentik-server.authentik"
@@ -58,6 +61,8 @@ spec:
             io.kubernetes.pod.namespace: plex
         - matchLabels:
             io.kubernetes.pod.namespace: anubis
+        - matchLabels:
+            io.kubernetes.pod.namespace: crowdsec
         - matchLabels:
             io.kubernetes.pod.namespace: authentik
     - toFQDNs:

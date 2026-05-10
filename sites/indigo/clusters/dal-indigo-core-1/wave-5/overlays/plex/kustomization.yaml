@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: plex
 
 resources:
-  #- ingress.yaml
   - ingress-plex.yaml
   - network-policy.yaml
   - secret-store-site.yaml

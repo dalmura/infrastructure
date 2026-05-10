@@ -2,6 +2,7 @@
 
 These are:
 * [Tailscale Kubernetes Operator](https://tailscale.com/docs/features/kubernetes-operator) exposing cluster networking to a Tailscale tailnet
+* [CrowdSec Hardening](INDIGO-CORE-1-APPS-WAVE-6-CROWDSEC.md) providing collaborative security automation
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 5](INDIGO-CORE-1-APPS-WAVE-5.md) and have a few applications you want to expose via Tailscale
