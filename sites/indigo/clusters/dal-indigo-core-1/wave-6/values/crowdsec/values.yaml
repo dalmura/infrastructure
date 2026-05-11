@@ -1,13 +1,15 @@
 container_runtime: containerd
 
 agent:
+  enabled: false
+
   # We run with AppSec enabled, so we don't need hostPath log collection
-  acquisition: []
-  volumes: []
-  volumeMounts: []
-  env:
-    - name: LEVEL
-      value: info
+  #acquisition: []
+  #volumes: []
+  #volumeMounts: []
+  #env:
+  #  - name: LEVEL
+  #    value: info
 
 appsec:
   enabled: true
