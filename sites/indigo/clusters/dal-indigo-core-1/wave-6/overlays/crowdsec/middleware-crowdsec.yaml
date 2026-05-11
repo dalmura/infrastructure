@@ -7,12 +7,15 @@ spec:
   plugin:
     bouncer:
       enabled: true
+      updateIntervalSeconds: 60
+      defaultDecision: allow
       crowdsecMode: stream
+      crowdsecLapiScheme: http
       crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+      # Reference the file mounted by Traefik
+      crowdsecLapiKeyFile: "/etc/crowdsec/key"
       # AppSec configuration
       crowdsecAppsecEnabled: true
       crowdsecAppsecHost: crowdsec-service.crowdsec.svc.cluster.local:7422
-      # Reference the file mounted by Traefik
-      crowdsecLapiKeyFile: "/etc/crowdsec/key"
-      updateIntervalSeconds: 60
-      defaultDecision: allow
+      crowdsecAppsecFailureBlock: true
+      crowdsecAppsecUnreachableBlock: true
