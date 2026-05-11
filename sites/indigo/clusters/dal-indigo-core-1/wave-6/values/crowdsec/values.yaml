@@ -40,7 +40,7 @@ lapi:
       accessModes:
         - ReadWriteOnce
       size: 1Gi
-      storageClassName: longhorn-regular
+      storageClassName: cluster-regular
 
 config:
   collections:
