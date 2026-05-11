@@ -9,6 +9,9 @@ spec:
       enabled: true
       crowdsecMode: stream
       crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+      # AppSec configuration
+      crowdsecAppsecEnabled: true
+      crowdsecAppsecHost: crowdsec-service.crowdsec.svc.cluster.local:7422
       # Reference the file mounted by Traefik
       crowdsecLapiKeyFile: "/etc/crowdsec/key"
       updateIntervalSeconds: 60
