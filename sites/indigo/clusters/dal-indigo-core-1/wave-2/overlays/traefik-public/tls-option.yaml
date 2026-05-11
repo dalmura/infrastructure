@@ -3,6 +3,8 @@ kind: TLSOption
 metadata:
   name: default
   namespace: traefik-public
+  annotations:
+    kubernetes.io/ingress.class: ingress-public
 spec:
   minVersion: VersionTLS12
   cipherSuites:
