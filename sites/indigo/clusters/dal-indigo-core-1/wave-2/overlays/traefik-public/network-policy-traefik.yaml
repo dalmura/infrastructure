@@ -49,6 +49,8 @@ spec:
               - matchPattern: "*.crowdsec.svc.cluster.local"
               - matchPattern: "crowdsec-service"
               - matchPattern: "crowdsec-service.crowdsec"
+              - matchPattern: "crowdsec-appsec-service"
+              - matchPattern: "crowdsec-appsec-service.crowdsec"
               - matchPattern: "*.authentik.svc.cluster.local"
               - matchPattern: "authentik-server"
               - matchPattern: "authentik-server.authentik"

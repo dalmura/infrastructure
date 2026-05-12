@@ -16,6 +16,6 @@ spec:
       crowdsecLapiKeyFile: "/etc/crowdsec/key"
       # AppSec configuration
       crowdsecAppsecEnabled: true
-      crowdsecAppsecHost: crowdsec-service.crowdsec.svc.cluster.local:7422
+      crowdsecAppsecHost: crowdsec-appsec-service.crowdsec.svc.cluster.local:7422
       crowdsecAppsecFailureBlock: true
       crowdsecAppsecUnreachableBlock: true
