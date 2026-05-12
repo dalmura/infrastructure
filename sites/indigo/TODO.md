@@ -2,6 +2,9 @@
 
 Stuff to eventually get around to.
 
+* CrowdSec integration
+  * Crowdsec lapi creds via Vault/ESO
+  * Crowdsec enrolment working
 * Cilium Network Policies
   * Keep going and isolate all waves/apps/etc
   * Eg. Web UIs should only interact via Traefik
@@ -12,7 +15,6 @@ Stuff to eventually get around to.
   * CNPG DB unhealthy/errors
   * Node Disk >90% over 5 minutes alert (via Node Exporter)
   * Node CPU >90% over 5 minutes alert (via Node Exporter)
-* CrowdSec integration
 * Investigate Authentik federation with other sites
   * Wait for another site to have Authentik running
 * Validate Backup & Restore Strategy

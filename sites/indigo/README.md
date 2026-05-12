@@ -110,13 +110,13 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * [PeerTube](https://joinpeertube.org/)
          * Video Hosting
 * ArgoCD - Wave 6
+   * [CrowdSec](https://www.crowdsec.net/)
+      * Collaborative security automation and IP reputation
    * [Tailscale Kubernetes Operator](https://tailscale.com/docs/features/kubernetes-operator)
       * Private mesh networking and secure cluster access
    * Not Implemented Yet
       * [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
          * Expose services via Cloudflare edge
-      * [CrowdSec](https://www.crowdsec.net/)
-         * Collaborative security automation and IP reputation
 
 ## Configuration
 
