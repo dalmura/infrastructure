@@ -6,3 +6,6 @@ resources:
   - secret-store-site.yaml
   - cluster-external-secret.yaml
   - middleware-crowdsec.yaml
+
+patches:
+  - path: patch-probes.yaml
