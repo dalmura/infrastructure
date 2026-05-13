@@ -9,6 +9,8 @@ rbac:
       verbs: ["get"]
 
 server:
+  annotations:
+    reloader.stakater.com/auto: "true"
   retentionPeriod: 6M
 
   extraArgs:
