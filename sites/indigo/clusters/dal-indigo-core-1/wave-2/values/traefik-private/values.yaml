@@ -40,6 +40,7 @@ ports:
 service:
   annotations:
     metallb.io/address-pool: servers-vlan
+    metallb.io/loadBalancerIPs: 192.168.77.10
   spec:
     externalTrafficPolicy: Local
 
