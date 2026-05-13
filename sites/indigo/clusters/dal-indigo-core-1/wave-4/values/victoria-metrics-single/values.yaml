@@ -47,6 +47,7 @@ server:
             regex: "9500"
             action: keep
       - job_name: crowdsec
+        scrape_interval: 1m
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
