@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - service-account.yaml
-  - secret-store-site.yaml
+  - cluster-secret-store-site.yaml
   - cluster-external-secret.yaml
+  - secret-store-site.yaml
   - middleware-crowdsec.yaml

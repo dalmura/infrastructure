@@ -13,17 +13,35 @@ We assume you've followed the steps at:
 We will need to setup crowdsec along with integration into the public Traefik ingress.
 
 This will require:
-* Creating a Secret in both the `traefik-public` and `crowdsec` namespaces
+* Creating a Secret in both the `traefik-public` and `crowdsec` namespaces for the bouncer key
+* Creating a Secret in the `crowdsec` namespace with other credentials
 * Restarting the `traefik-public` Deploymnet
 
-Use this to create the Crowdsec 'bouncer key':
-```bash
-openssl rand -base64 32
+First let's create the various secrets:
+```
+YOUR_BOUNCER_KEY=$(openssl rand -base64 32)
+
+# Must be greater than 64 chars
+YOUR_CS_LAPI_SECRET=$(openssl rand -base64 128)
+
+# Must be greater than 48 chars
+YOUR_REGISTRATION_TOKEN=$(openssl rand -base64 64)
 ```
 
+You can get the Enrollment Key from the [Crowdsec Website](https://app.crowdsec.net/security-engines?distribution=kubernetes) and clicking the 'Enroll command' and copying the key from the 'Kubernetes' tab.
+
 ### Setup Vault Integration
-Open up [Vault](https://vault.indigo.dalmura.cloud/) and create a secret at `site/wave-6/crowdsec/bouncer` with the following keys:
+Open up [Vault](https://vault.indigo.dalmura.cloud/) and create the following secrets:
+
+Shared bouncer secret at `site/wave-6/crowdsec/bouncer` with the following keys:
 * `key`: `<YOUR_BOUNCER_KEY>`
+
+Crowdsec creds secret at `site/wave-6/crowdsec/secrets` with the following keys:
+* `csLapiSecret`: `<YOUR_CS_LAPI_SECRET>`
+* `registrationToken`: `<YOUR_REGISTRATION_TOKEN>`
+* `enrollmentKey`: `<Copied from Crowdsec website>`
+* `enrollmentInstanceName`: `dal-indigo-core-1`
+* `enrollmentTags`: `dalmura indigo k8s`
 
 You need to allow the Crowdsec ServiceAccount to read these secrets. Execute the following in your Vault CLI:
 
@@ -44,7 +62,7 @@ vault write auth/kubernetes/role/workload-reader-crowdsec \
    ttl=24h
 ```
 
-We have already provisioned the `SecretStore` and `ExternalSecret` in the `wave-6` overlays to automatically sync these into a Kubernetes Secret named `crowdsec-bouncer-key`.
+We have already provisioned the `SecretStore` and `ExternalSecret` in the `wave-6` overlays to automatically sync these into the required Kubernetes Secrets.
 
 
 ## Tailscale Operator Setup

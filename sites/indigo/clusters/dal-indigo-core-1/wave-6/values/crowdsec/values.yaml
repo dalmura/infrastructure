@@ -32,6 +32,21 @@ lapi:
         secretKeyRef:
           name: crowdsec-bouncer
           key: key
+    - name: ENROLL_KEY
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-enrollment
+          key: ENROLL_KEY
+    - name: ENROLL_INSTANCE_NAME
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-enrollment
+          key: ENROLL_INSTANCE_NAME
+    - name: ENROLL_TAGS
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-enrollment
+          key: ENROLL_TAGS
 
   persistentVolume:
     data:
