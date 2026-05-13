@@ -6,4 +6,5 @@ resources:
   - cluster-secret-store-site.yaml
   - cluster-external-secret.yaml
   - secret-store-site.yaml
+  - external-secrets.yaml
   - middleware-crowdsec.yaml
