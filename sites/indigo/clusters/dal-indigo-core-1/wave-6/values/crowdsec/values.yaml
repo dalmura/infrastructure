@@ -11,6 +11,12 @@ agent:
   #  - name: LEVEL
   #    value: info
 
+secrets:
+  externalSecret:
+    name: crowdsec-secrets
+    csLapiSecretKey: csLapiSecret
+    registrationTokenKey: registrationToken
+
 appsec:
   enabled: true
   env:
