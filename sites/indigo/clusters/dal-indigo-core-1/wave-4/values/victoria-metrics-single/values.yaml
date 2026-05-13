@@ -44,6 +44,16 @@ server:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             regex: "9500"
             action: keep
+      - job_name: crowdsec
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_k8s_app]
+            regex: "crowdsec"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "6060"
+            action: keep
       - job_name: node-exporter
         scheme: https
         # Use the default token that Kubernetes automatically mounts into the vmagent pod
