@@ -141,9 +141,9 @@ Follow this list in order:
    * [`dal-indigo-core-1` Apps - Wave 5 - Home Assistant](docs/INDIGO-CORE-1-APPS-WAVE-5-HOME-ASSISTANT.md)
 * [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
-## Ongoing Maintenance
-
-Review [MAINTENANCE.md](MAINTENANCE.md) for maintenance schedule.
+## Extra Documentation
+* [Exposing Services Publicly](docs/INDIGO-NETWORKING-EXPOSURE.md)
+* Review [MAINTENANCE.md](MAINTENANCE.md) for maintenance schedule
 
 ## Kernel Modules
 
