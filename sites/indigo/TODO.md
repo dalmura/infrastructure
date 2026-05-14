@@ -2,9 +2,6 @@
 
 Stuff to eventually get around to.
 
-* CrowdSec integration
-  * Crowdsec lapi creds via Vault/ESO
-  * Crowdsec enrolment working
 * Cilium Network Policies
   * Keep going and isolate all waves/apps/etc
   * Eg. Web UIs should only interact via Traefik
