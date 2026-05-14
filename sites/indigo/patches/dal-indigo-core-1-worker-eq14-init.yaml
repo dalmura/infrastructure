@@ -18,14 +18,21 @@ machine:
           xmitHashPolicy: "layer3+4"
           miimon: 100
 
-        dhcp: true
+        dhcp: false
+        addresses:
+          - "<NODE_IP>/25"
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.77.129
         dhcpOptions:
           routeMetric: 2048
 
         vlans:
           - # SERVERS
             vlanId: 103
-            dhcp: true
+            dhcp: false
+            addresses:
+              - "<VLAN_IP>/25"
             dhcpOptions:
               routeMetric: 1024
 

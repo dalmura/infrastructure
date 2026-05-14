@@ -6,7 +6,12 @@ machine:
     interfaces:
       - interface: "enx<HW_ADDRESS>"
         mtu: 1500
-        dhcp: true
+        dhcp: false
+        addresses:
+          - "<NODE_IP>/25"
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 192.168.77.129
         dhcpOptions:
           routeMetric: 2048
       - interface: "enx<HW_ADDRESS>"
@@ -15,7 +20,9 @@ machine:
         vlans:
           - # SERVERS
             vlanId: 103
-            dhcp: true
+            dhcp: false
+            addresses:
+              - "<VLAN_IP>/25"
             dhcpOptions:
               routeMetric: 1024
             vip:

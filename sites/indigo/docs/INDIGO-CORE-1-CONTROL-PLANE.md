@@ -133,9 +133,20 @@ RPI4_2_HW_ADDR=''
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Control Plane configs with these overrides
-cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/controlplane.yaml | sed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/controlplane.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.192/g" | \
+    sed "s/<VLAN_IP>/192.168.77.67/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_1_HW_ADDR}.yaml"
+
+cat templates/dal-indigo-core-1/controlplane.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/<NEXT_NODE_IP>/g" | \
+    sed "s/<VLAN_IP>/<NEXT_VLAN_IP>/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_2_HW_ADDR}.yaml"
+
+cat templates/dal-indigo-core-1/controlplane.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/<NEXT_NODE_IP>/g" | \
+    sed "s/<VLAN_IP>/<NEXT_VLAN_IP>/g" > "nodes/dal-indigo-core-1/control-plane-${RPI4_3_HW_ADDR}.yaml"
 ```
 
 Now we will provision a single node and bootstrap it to form a cluster, after that we will add the other two Control Plane nodes.

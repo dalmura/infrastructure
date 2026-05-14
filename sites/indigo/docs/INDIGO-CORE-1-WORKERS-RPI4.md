@@ -73,9 +73,20 @@ RPI4_2_HW_ADDR='e45f019d4d95'
 RPI4_3_HW_ADDR=''
 
 # Create the per-device Worker configs with these overrides
-cat templates/dal-indigo-core-1/worker-rpi4.yaml | sed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-rpi4.yaml | sed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
-cat templates/dal-indigo-core-1/worker-rpi4.yaml | sed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_1_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.193/g" | \
+    sed "s/<VLAN_IP>/192.168.77.68/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_1_HW_ADDR}.yaml"
+
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_2_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.192/g" | \
+    sed "s/<VLAN_IP>/192.168.77.67/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_2_HW_ADDR}.yaml"
+
+cat templates/dal-indigo-core-1/worker-rpi4.yaml | \
+    sed "s/<HW_ADDRESS>/${RPI4_3_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/<NEXT_NODE_IP>/g" | \
+    sed "s/<VLAN_IP>/<NEXT_VLAN_IP>/g" > "nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-${RPI4_3_HW_ADDR}.yaml"
 
 sed -i 's/<NODE_INSTANCE_TYPE>/rpi4.8gb.arm64/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*
 sed -i 's/<K8S_NODE_GROUP>/rpi4-worker-pool/g' nodes/dal-indigo-core-1/worker-rpi4-8gb-arm64-*

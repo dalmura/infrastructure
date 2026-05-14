@@ -121,11 +121,20 @@ EQ14_3_HW_ADDR='e8ff1ed8884b'
 # Copy the configs
 
 # Create the per-device Worker configs with these overrides
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_1_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | \
+    sed "s/<HW_ADDRESS>/${EQ14_1_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.195/g" | \
+    sed "s/<VLAN_IP>/192.168.77.70/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_1_HW_ADDR}.yaml"
 
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_2_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | \
+    sed "s/<HW_ADDRESS>/${EQ14_2_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.193/g" | \
+    sed "s/<VLAN_IP>/192.168.77.68/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_2_HW_ADDR}.yaml"
 
-cat templates/dal-indigo-core-1/worker-eq14.yaml | sed "s/<HW_ADDRESS>/${EQ14_3_HW_ADDR}/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml"
+cat templates/dal-indigo-core-1/worker-eq14.yaml | \
+    sed "s/<HW_ADDRESS>/${EQ14_3_HW_ADDR}/g" | \
+    sed "s/<NODE_IP>/192.168.77.194/g" | \
+    sed "s/<VLAN_IP>/192.168.77.69/g" > "nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-${EQ14_3_HW_ADDR}.yaml"
 
 sed -i 's/<NODE_INSTANCE_TYPE>/eq14.16gb.amd64/g' nodes/dal-indigo-core-1/worker-eq14-16gb-amd64-*
 
