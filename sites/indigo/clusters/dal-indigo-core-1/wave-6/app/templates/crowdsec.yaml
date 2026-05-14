@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://crowdsecurity.github.io/helm-charts
       chart: crowdsec
-      targetRevision: 0.23.0
+      targetRevision: 0.24.0
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-6/values/crowdsec/values.yaml
