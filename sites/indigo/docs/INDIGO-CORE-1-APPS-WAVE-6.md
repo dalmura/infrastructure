@@ -99,8 +99,38 @@ WebFinger content at `site/wave-6/tailscale/webfinger` with a key `content`:
 }
 ```
 
-You need to allow the Tailscale ServiceAccount to read these secrets. Execute the following in your Vault CLI:
+#### Geoblock Bypass (Authentik)
+Tailscale needs to access a few different endpoints within Authentik from its global infra. This means we need to lift a few of our restrictions based on path.
 
+We have `wave-3/overlays/authentik/ingress-tailscale-bypass.yaml` which exposes the following paths:
+* `/application/o/tailscale/.well-known/openid-configuration`
+* `/application/o/tailscale/jwks/`
+* `/application/o/token/`
+* `/application/o/userinfo/`
+
+
+#### AWS Permissions
+Once the Webfinger ingress is provisioned, you'll need to perform the following 'hacks':
+* Log into AWS and create an `A` record with the sites Public IP address
+   * So Tailscale will resolve `dalmura.cloud` to your IP
+* The existing port forward for TCP/443 => Ingress Public should be fine
+* Update the IAM Policy attached to `dal-indigo-k8s-dns-updater` allowing changes to
+   * `*.dalmura.cloud`
+   * `dalmura.cloud`
+
+This should allow `cert-manager` to create the correct DNS challenge entries to provision a `dalmura.cloud` certificate.
+
+#### Webfinger Teardown
+Once you have a Tailscale account created you don't need the Webfinger setup anymore, so we can modify the `wave-6/overlays/tailscale-operator/kustomization.yaml` and comment out the relevant `*-webfinger.yaml` files.
+
+You must also roll back the above AWS permissions by removing the additional domains above, ensuring just `*.indigo.dalmura.cloud` is the only entry.
+
+You must also roll back the manual `A` record on `dalmura.cloud` pointing to the sites Public IP.
+
+You can reverse these steps if you ever need to set it up again.
+
+### Vault Permissions
+You need to allow the Tailscale ServiceAccount to read these secrets. Execute the following in your Vault CLI:
 ```bash
 # Create the Vault permissions policy
 vault policy write workload-reader-tailscale -<<EOF
