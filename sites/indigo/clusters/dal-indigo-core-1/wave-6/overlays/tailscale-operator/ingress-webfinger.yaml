@@ -3,9 +3,9 @@ kind: Ingress
 metadata:
   name: tailscale-webfinger
   annotations:
+    # NOTE: dalmura.cloud parent zone is manually managed
+    # An A record was manually created instead of an annotation here
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: dalmura.cloud
-    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
