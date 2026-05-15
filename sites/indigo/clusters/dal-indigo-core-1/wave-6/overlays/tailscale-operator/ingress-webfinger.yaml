@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tailscale-webfinger
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: dalmura.cloud
+    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: ingress-public
+  tls:
+    - hosts:
+      - dalmura.cloud
+      secretName: dalmura-cloud-cert
+  rules:
+  - host: dalmura.cloud
+    http:
+      paths:
+      - path: /.well-known/webfinger
+        pathType: Exact
+        backend:
+          service:
+            name: tailscale-webfinger
+            port:
+              number: 80

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-webfinger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale-webfinger
+  template:
+    metadata:
+      labels:
+        app: tailscale-webfinger
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/nginx/html/.well-known
+          readOnly: true
+      volumes:
+      - name: config
+        secret:
+          secretName: tailscale-webfinger
+          items:
+          - key: webfinger
+            path: webfinger
