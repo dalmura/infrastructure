@@ -67,12 +67,37 @@ We have already provisioned the `SecretStore` and `ExternalSecret` in the `wave-
 
 ## Tailscale Operator Setup
 
-Assuming you already have a Tailscale account and have created an OAuth Client in the Tailscale admin console with `devices` (write) and `operator` scopes. Note down the OAuth Client ID and Secret.
+To setup the Tailscale account you must deploy the WebFinger parts of this app first, and configure a `tailscale` application (w/OIDC provider) within Authentik, you can refer to [Authentik's guide](https://integrations.goauthentik.io/networking/tailscale/) on this along with the [Tailscale documentation on custom OIDC](https://tailscale.com/docs/integrations/identity/custom-oidc#webfinger-setup).
 
-### Setup Vault Integration
-Open up [Vault](https://vault.indigo.dalmura.cloud/) and create a secret at `site/wave-6/tailscale/operator` with the following keys:
+Once you have a Tailscale account you can proceed with deploying the operator itself by creating a OAuth Client in the Tailscale admin console with `devices` (write) and `operator` scopes. Note down the OAuth Client ID and Secret.
+
+### Custom OIDC / WebFinger Setup
+Tailscale requires WebFinger to discover your Authentik OIDC issuer when using a custom domain like `your-email@dalmura.cloud`.
+
+#### Setup Authentik
+*   Create an Application w/OAuth2/OpenID Provider
+*   Redirect URI: `https://login.tailscale.com/a/oauth_callback`
+*   Slug: `tailscale` (resulting in an issuer URL of `https://auth.indigo.dalmura.cloud/application/o/tailscale/`)
+
+#### Setup Vault Integration
+Open up [Vault](https://vault.indigo.dalmura.cloud/) and create the following secrets:
+
+Operator credentials at `site/wave-6/tailscale/operator`:
 * `client_id`: `<YOUR_CLIENT_ID>`
 * `client_secret`: `<YOUR_CLIENT_SECRET>`
+
+WebFinger content at `site/wave-6/tailscale/webfinger` with a key `content`:
+```json
+{
+  "subject": "acct:your-email@dalmura.cloud",
+  "links": [
+    {
+      "rel": "http://openid.net/specs/connect/1.0/issuer",
+      "href": "https://auth.indigo.dalmura.cloud/application/o/tailscale/"
+    }
+  ]
+}
+```
 
 You need to allow the Tailscale ServiceAccount to read these secrets. Execute the following in your Vault CLI:
 
@@ -86,14 +111,14 @@ EOF
 
 # Create the role that ESO will use to access Vault
 vault write auth/kubernetes/role/workload-reader-tailscale \
-   bound_service_account_names=tailscale-operator \
+   bound_service_account_names=operator \
    bound_service_account_namespaces=tailscale \
    token_policies=workload-reader-tailscale \
    audience='https://192.168.77.2:6443/' \
    ttl=24h
 ```
 
-We have already provisioned the `SecretStore` and `ExternalSecret` in the `wave-6` overlays to automatically sync these into a Kubernetes Secret named `operator-oauth`.
+We have already provisioned the required `SecretStore` and `ExternalSecret`(s) in the `wave-6` overlays to automatically sync these into a Kubernetes Secrets.
 
 ## Create the wave-6 parent app & deploy children
 ```bash
@@ -113,7 +138,7 @@ argocd app sync wave-6
 argocd app sync -l app.kubernetes.io/instance=wave-6
 ```
 
-## Tailsclae Validation
+## Tailscale Validation
 Check the status of the operator pods:
 ```bash
 kubectl get pods -n tailscale
