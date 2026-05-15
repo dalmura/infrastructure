@@ -32,3 +32,17 @@ spec:
             name: authentik-server
             port:
               number: 80
+      - path: /application/o/token/
+        pathType: Exact
+        backend:
+          service:
+            name: authentik-server
+            port:
+              number: 80
+      - path: /application/o/userinfo/
+        pathType: Exact
+        backend:
+          service:
+            name: authentik-server
+            port:
+              number: 80
