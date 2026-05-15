@@ -12,4 +12,5 @@ resources:
   - service-webfinger.yaml
   - ingress-webfinger.yaml
   - network-policy-webfinger.yaml
+  - ingress-authentik-tailscale.yaml
 
