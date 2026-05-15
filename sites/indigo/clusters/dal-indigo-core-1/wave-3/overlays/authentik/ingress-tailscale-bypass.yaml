@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: authentik-well-known-tailscale
-  namespace: authentik
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure

@@ -3,13 +3,6 @@ kind: Kustomization
 
 namespace: tailscale
 
-# Force specific resources into different namespaces
-namespaceConfiguration:
-  - namespace: authentik
-    resources:
-      - name: authentik-well-known-tailscale
-        kind: Ingress
-
 resources:
   - secret-store-site.yaml
   #- external-secret.yaml
@@ -19,5 +12,4 @@ resources:
   - service-webfinger.yaml
   - ingress-webfinger.yaml
   - network-policy-webfinger.yaml
-  - ingress-authentik-tailscale.yaml
 
