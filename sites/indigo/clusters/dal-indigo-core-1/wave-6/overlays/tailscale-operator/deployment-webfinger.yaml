@@ -12,6 +12,7 @@ spec:
       labels:
         app: tailscale-webfinger
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: nginx
         image: nginx:1.31-alpine-slim
