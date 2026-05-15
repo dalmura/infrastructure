@@ -1,0 +1,19 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tailscale-webfinger
+spec:
+  endpointSelector:
+    matchLabels:
+      app: tailscale-webfinger
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+  egress:
+    # No egress required for this static response pod
+    []

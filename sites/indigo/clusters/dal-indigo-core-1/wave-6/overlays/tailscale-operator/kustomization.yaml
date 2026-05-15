@@ -11,4 +11,5 @@ resources:
   - deployment-webfinger.yaml
   - service-webfinger.yaml
   - ingress-webfinger.yaml
+  - network-policy-webfinger.yaml
 

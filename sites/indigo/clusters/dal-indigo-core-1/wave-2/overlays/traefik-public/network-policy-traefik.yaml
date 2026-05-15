@@ -54,6 +54,9 @@ spec:
               - matchPattern: "*.authentik.svc.cluster.local"
               - matchPattern: "authentik-server"
               - matchPattern: "authentik-server.authentik"
+              - matchPattern: "*.tailscale.svc.cluster.local"
+              - matchPattern: "tailscale-webfinger"
+              - matchPattern: "tailscale-webfinger.tailscale"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -67,6 +70,8 @@ spec:
             io.kubernetes.pod.namespace: crowdsec
         - matchLabels:
             io.kubernetes.pod.namespace: authentik
+        - matchLabels:
+            io.kubernetes.pod.namespace: tailscale
     - toFQDNs:
         - matchName: "plugins.traefik.io"
         - matchName: "get.geojs.io"
