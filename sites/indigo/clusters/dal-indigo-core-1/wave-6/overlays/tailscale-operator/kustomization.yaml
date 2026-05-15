@@ -6,10 +6,12 @@ namespace: tailscale
 resources:
   - secret-store-site.yaml
   #- external-secret.yaml
+
   # Webfinger setup required for tailscale tailnet setup
-  - external-secret-webfinger.yaml
-  - deployment-webfinger.yaml
-  - service-webfinger.yaml
-  - ingress-webfinger.yaml
-  - network-policy-webfinger.yaml
+  # Commented out when not required
+  #- external-secret-webfinger.yaml
+  #- deployment-webfinger.yaml
+  #- service-webfinger.yaml
+  #- ingress-webfinger.yaml
+  #- network-policy-webfinger.yaml
 
