@@ -4,8 +4,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: frigate
     app.kubernetes.io/name: frigate
-  annotations:
-    tailscale.com/proxy-group: "ingress-proxies"
+  #annotations:
+    #tailscale.com/proxy-group: "ingress-proxies"
   name: frigate
   namespace: frigate
 spec:
