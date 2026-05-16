@@ -4,6 +4,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: frigate
     app.kubernetes.io/name: frigate
+  annotations:
+    tailscale.com/expose: "true"
   name: frigate
   namespace: frigate
 spec:
