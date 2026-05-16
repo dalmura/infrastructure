@@ -6,6 +6,7 @@ namespace: tailscale
 resources:
   - secret-store-site.yaml
   - external-secret.yaml
+  - proxygroup.yaml
 
   # Webfinger setup required for tailscale tailnet setup
   # Commented out when not required
