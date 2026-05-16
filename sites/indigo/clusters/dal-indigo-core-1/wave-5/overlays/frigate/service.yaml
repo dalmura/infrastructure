@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: frigate
   annotations:
     tailscale.com/expose: "true"
+    tailscale.com/proxy-group: "ingress-proxies"
   name: frigate
   namespace: frigate
 spec:
