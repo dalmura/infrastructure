@@ -3,6 +3,9 @@ ingress:
   enabled: false
 
 pms:
+  image:
+    # renovate: datasource=docker depName=plexinc/pms-docker
+    tag: "1.43.0.10492-121068a07"
   configStorage: 100Gi
   securityContext:
     # Required for hardware transcoding support
