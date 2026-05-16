@@ -42,7 +42,8 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "sites/*/clusters/*/wave-2/values/traefik-public/values.yaml"
+        "sites/*/clusters/*/wave-2/values/traefik-public/values.yaml",
+        "sites/*/clusters/*/wave-5/values/plex/values.yaml"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+version:\\s*(?<currentValue>.*)"
