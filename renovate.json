@@ -42,13 +42,22 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "sites/*/clusters/*/wave-2/values/traefik-public/values.yaml",
+        "sites/*/clusters/*/wave-2/values/traefik-public/values.yaml"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+version:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
+      ],
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "sites/*/clusters/*/wave-5/values/plex/values.yaml"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+version:\\s*(?<currentValue>.*)"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
       ],
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [
@@ -89,6 +98,15 @@
         "photoprism/photoprism"
       ],
       "versioning": "regex:^(?<major>\\d{2})(?<minor>\\d{2})(?<patch>\\d{2})$"
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "plexinc/pms-docker"
+      ],
+      "versioning": "loose"
     }
   ]
 }
