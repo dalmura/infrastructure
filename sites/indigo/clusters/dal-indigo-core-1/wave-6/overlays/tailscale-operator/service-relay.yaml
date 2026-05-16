@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tailscale-relay
+  namespace: tailscale
+  annotations:
+    metallb.io/address-pool: servers-vlan
+    metallb.io/loadBalancerIPs: 192.168.77.12
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    tailscale.com/parent-resource-type: proxygroup
+    tailscale.com/parent-resource: ingress-proxies
+  ports:
+    - name: peer-relay
+      protocol: UDP
+      port: 40000
+      targetPort: 40000
