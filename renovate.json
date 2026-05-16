@@ -106,7 +106,7 @@
       "matchPackageNames": [
         "plexinc/pms-docker"
       ],
-      "versioning": "loose"
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-(?<revision>[0-9a-f]{9})$"
     }
   ]
 }
