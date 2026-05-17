@@ -177,7 +177,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate delete pod pvc-fri
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n frigate scale deploy frigate --replicas=1
 ```
 
-For Frigate to work correctly, the kernel module version must match the library version bundled into the Friagte container. If not you will get `HAILO_INVALID_DRIVER_VERSION` errors in Frigate.
+For Frigate to work correctly, the kernel module version must match the library version bundled into the Frigate container. If not you will get `HAILO_INVALID_DRIVER_VERSION` errors in Frigate.
 
 If the above `HAILO_INVALID_DRIVER_VERSION` error happens, there are two choices:
 * Maintain a custom Talos image with the version Frigate uses
@@ -185,16 +185,18 @@ If the above `HAILO_INVALID_DRIVER_VERSION` error happens, there are two choices
 
 The slightly easier option is to maintain a custom Frigate image:
 * Ensure https://github.com/frigate-nvr/hailort/ has a release for the version Talos is using
-* Clone https://github.com/blakeblackshear/frigate/
-* Run `git tag` and checkout the latest stable version (eg v0.16.3)
-* Edit `docker/main/install_hailort.sh` and set `hailo_version` to what Talos has
+* `git clone https://github.com/blakeblackshear/frigate/`
+* Run `git tag`, locate the latest stable version
+* Run `git checkout <tag>` eg `git checkout v0.17.1`
+* Edit `docker/main/install_hailort.sh` and set `hailo_version` to what Talos has (eg 4.23.0)
 * Run `make local` for your local docker to have `frigate:latest` image built
-* Go to github and create a classic PAT with `write:packages` scope
+* Go to github and create a classic PAT with `write:packages` scope (just 7 days expiry)
 * Log into github container registry: `docker login ghcr.io -u <your github user>`
-* You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.16.3`
-* Push up the image `docker push ghcr.io/dalmura/frigate:v0.16.3`
-* Update the github package settings to public visibility
-* Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.16.3`
+* You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.17.1`
+* Push up the image `docker push ghcr.io/dalmura/frigate:v0.17.1`
+   * It'll be like ~5GB so it will take _some time_
+* Update the github package settings to public visibility (once off action)
+* Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.17.1`
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
 
