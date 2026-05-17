@@ -10,7 +10,7 @@ metadata:
     tailscale.com/expose: "true"
     tailscale.com/hostname: "frigate"
     tailscale.com/proxy-group: "ingress-proxies"
-    metallb.universe.tf/address-pool: "disabled"
+    metallb.io/address-pool: "disabled"
 spec:
   ipFamilyPolicy: SingleStack
   ports:
