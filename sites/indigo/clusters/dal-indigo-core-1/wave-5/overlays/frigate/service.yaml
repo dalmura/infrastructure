@@ -10,8 +10,8 @@ metadata:
     tailscale.com/expose: "true"
     tailscale.com/hostname: "frigate"
     tailscale.com/proxy-group: "ingress-proxies"
-    metallb.io/address-pool: "disabled"
 spec:
+  loadBalancerClass: tailscale
   ipFamilyPolicy: SingleStack
   ports:
     - name: http
