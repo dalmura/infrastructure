@@ -21,7 +21,7 @@ spec:
     # Allow traffic from Tailscale
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: tailscale
+            kubernetes.io/metadata.name: tailscale
       toPorts:
         - ports:
             - port: "8971"
