@@ -41,7 +41,7 @@ spec:
               protocol: TCP
             - port: "443"
               protocol: TCP
-    # Allow traffic specifically to the Frigate namespace
+    # Allow traffic specifically to the backend namespaces
     - toEndpoints:
         - matchLabels:
-            app.kubernetes.io/name: frigate
+            io.kubernetes.pod.namespace: frigate

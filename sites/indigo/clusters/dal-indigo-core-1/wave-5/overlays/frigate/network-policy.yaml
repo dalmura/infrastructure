@@ -21,7 +21,8 @@ spec:
     # Allow traffic from Tailscale
     - fromEndpoints:
         - matchLabels:
-            kubernetes.io/metadata.name: tailscale
+            io.kubernetes.pod.namespace: tailscale
+            tailscale.com/parent-resource: ingress-proxies
       toPorts:
         - ports:
             - port: "8971"
@@ -74,5 +75,4 @@ spec:
         - ports:
             - port: "1883"
               protocol: TCP
-
 
