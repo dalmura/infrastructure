@@ -10,6 +10,7 @@ metadata:
     tailscale.com/expose: "true"
     tailscale.com/hostname: "frigate"
     tailscale.com/proxy-group: "ingress-proxies"
+    metallb.universe.tf/address-pool: "disabled"
 spec:
   ipFamilyPolicy: SingleStack
   ports:
@@ -40,4 +41,4 @@ spec:
   selector:
     app.kubernetes.io/instance: frigate
     app.kubernetes.io/name: frigate
-  type: ClusterIP
+  type: LoadBalancer
