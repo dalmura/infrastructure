@@ -45,6 +45,3 @@ spec:
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: frigate
-      namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: frigate
