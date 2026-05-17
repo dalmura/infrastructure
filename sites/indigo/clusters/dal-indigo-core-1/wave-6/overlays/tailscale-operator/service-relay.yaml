@@ -15,5 +15,5 @@ spec:
   ports:
     - name: peer-relay
       protocol: UDP
-      port: 40000
-      targetPort: 40000
+      port: 41641
+      targetPort: 41641

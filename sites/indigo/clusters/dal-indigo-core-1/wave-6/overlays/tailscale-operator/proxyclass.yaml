@@ -8,4 +8,4 @@ spec:
       tailscaleContainer:
         env:
           - name: TS_RELAY_SERVER_PORT
-            value: "40000"
+            value: "41641"

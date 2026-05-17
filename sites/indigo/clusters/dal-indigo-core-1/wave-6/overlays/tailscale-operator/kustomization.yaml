@@ -9,6 +9,7 @@ resources:
   - proxygroup.yaml
   - proxyclass.yaml
   - service-relay.yaml
+  - network-policy-relay.yaml
 
   # Webfinger setup required for tailscale tailnet setup
   # Commented out when not required
