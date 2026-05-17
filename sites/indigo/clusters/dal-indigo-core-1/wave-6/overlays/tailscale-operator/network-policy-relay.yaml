@@ -15,8 +15,10 @@ spec:
             - port: "41641"
               protocol: UDP
   egress:
+    # Allow traffic to the internet (Tailscale control plane)
     - toEntities:
         - world
+    # Allow DNS
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
@@ -28,3 +30,16 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow traffic to the Kubernetes API server
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    # Allow traffic to services within the cluster
+    - toEndpoints:
+        - {}
