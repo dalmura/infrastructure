@@ -41,6 +41,10 @@ spec:
               protocol: TCP
             - port: "443"
               protocol: TCP
-    # Allow traffic to services within the cluster
+    # Allow traffic specifically to the Frigate namespace
     - toEndpoints:
-        - {}
+        - matchLabels:
+            app.kubernetes.io/name: frigate
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: frigate
