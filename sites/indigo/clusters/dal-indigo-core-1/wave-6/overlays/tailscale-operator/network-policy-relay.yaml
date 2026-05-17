@@ -18,6 +18,7 @@ spec:
     # Allow traffic to the internet (Tailscale control plane)
     - toEntities:
         - world
+        - host
     # Allow DNS
     - toEndpoints:
         - matchLabels:
