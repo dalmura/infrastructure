@@ -13,8 +13,7 @@ machine:
         routes:
           - network: 0.0.0.0/0
             gateway: 192.168.77.129
-        dhcpOptions:
-          routeMetric: 2048
+            metric: 2048
       - interface: "enx<HW_ADDRESS>"
         vlans:
           - # SERVERS
@@ -22,8 +21,10 @@ machine:
             dhcp: false
             addresses:
               - "<VLAN_IP>/25"
-            dhcpOptions:
-              routeMetric: 1024
+            routes:
+              - network: 0.0.0.0/0
+                gateway: 192.168.77.1
+                metric: 1024
 
     nameservers:
       - 192.168.77.1
