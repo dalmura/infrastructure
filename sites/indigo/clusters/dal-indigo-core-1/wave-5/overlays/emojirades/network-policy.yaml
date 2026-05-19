@@ -29,7 +29,7 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
-    # Allow connections to Slack API and AWS S3 (ap-southeast-2)
+    # Allow connections to Slack API and AWS S3/SQS (ap-southeast-2)
     - toFQDNs:
         - matchPattern: "*.slack.com"
         - matchName: "slack.com"
@@ -37,6 +37,8 @@ spec:
         - matchName: "s3.ap-southeast-2.amazonaws.com"
         - matchPattern: "*.s3.ap-southeast-2.amazonaws.com"
         - matchPattern: "*.s3-ap-southeast-2.amazonaws.com"
+        - matchName: "sqs.ap-southeast-2.amazonaws.com"
+        - matchPattern: "*.sqs.ap-southeast-2.amazonaws.com"
       toPorts:
         - ports:
             - port: "443"
