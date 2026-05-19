@@ -86,10 +86,10 @@ config:
           cert: 1h
           api_key: 1h
 
-    collections:
-      - crowdsecurity/traefik
-      - crowdsecurity/http-cve
-      - crowdsecurity/whitelist-good-actors
-      - crowdsecurity/base-http-scenarios
-      - crowdsecurity/appsec-virtual-patching
-      - crowdsecurity/appsec-generic-rules
+    #collections:
+    #  - crowdsecurity/traefik
+    #  - crowdsecurity/http-cve
+    #  - crowdsecurity/whitelist-good-actors
+    #  - crowdsecurity/base-http-scenarios
+    #  - crowdsecurity/appsec-virtual-patching
+    #  - crowdsecurity/appsec-generic-rules
