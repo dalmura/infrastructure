@@ -22,6 +22,8 @@ appsec:
   env:
     - name: COLLECTIONS
       value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
+    - name: DISABLE_COLLECTIONS
+      value: "crowdsecurity/sshd crowdsecurity/linux"
   acquisitions:
     - appsec_configs:
         - crowdsecurity/appsec-default
@@ -33,6 +35,10 @@ appsec:
 
 lapi:
   env:
+    - name: COLLECTIONS
+      value: "crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
+    - name: DISABLE_COLLECTIONS
+      value: "crowdsecurity/sshd crowdsecurity/linux"
     - name: BOUNCER_KEY_traefik_bouncer
       valueFrom:
         secretKeyRef:
