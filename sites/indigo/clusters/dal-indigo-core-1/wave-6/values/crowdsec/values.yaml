@@ -20,6 +20,9 @@ appsec:
         - "crowdsecurity/crs"
       labels:
         type: appsec
+      on_match:
+        - apply:
+          - SetRemediation("ban")
   env:
     - name: COLLECTIONS
       value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios"
