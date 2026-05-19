@@ -3,14 +3,6 @@ container_runtime: containerd
 agent:
   enabled: false
 
-  # We run with AppSec enabled, so we don't need hostPath log collection
-  #acquisition: []
-  #volumes: []
-  #volumeMounts: []
-  #env:
-  #  - name: LEVEL
-  #    value: info
-
 secrets:
   externalSecret:
     name: crowdsec-secrets
@@ -19,26 +11,21 @@ secrets:
 
 appsec:
   enabled: true
-  env:
-    - name: COLLECTIONS
-      value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
-    - name: DISABLE_COLLECTIONS
-      value: "crowdsecurity/sshd crowdsecurity/linux"
   acquisitions:
-    - appsec_configs:
-        - crowdsecurity/appsec-default
-      labels:
-        type: appsec
+    - source: appsec
       listen_addr: 0.0.0.0:7422
       path: /
-      source: appsec
+      appsec_config: "crowdsecurity/virtual-patching"
+      labels:
+        type: appsec
+  env:
+    - name: COLLECTIONS
+      value: "crowdsecurity/appsec-virtual-patching"
 
 lapi:
   env:
     - name: COLLECTIONS
       value: "crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
-    - name: DISABLE_COLLECTIONS
-      value: "crowdsecurity/sshd crowdsecurity/linux"
     - name: BOUNCER_KEY_traefik_bouncer
       valueFrom:
         secretKeyRef:
