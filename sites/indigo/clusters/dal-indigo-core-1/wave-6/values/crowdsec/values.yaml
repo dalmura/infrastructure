@@ -72,6 +72,9 @@ config:
         bouncers_autodelete:
           cert: 1h
           api_key: 1h
+        agents_autodelete:
+          cert: 6h
+          api_key: 6h
 
     #collections:
     #  - crowdsecurity/traefik
