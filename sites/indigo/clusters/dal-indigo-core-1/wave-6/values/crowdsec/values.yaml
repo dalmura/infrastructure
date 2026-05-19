@@ -69,16 +69,17 @@ lapi:
       storageClassName: cluster-regular
 
 config:
-  db_config:
-    flush:
-      bouncers_autodelete:
-        cert: 1h
-        api_key: 1h
+  config.yaml.local: |
+    db_config:
+      flush:
+        bouncers_autodelete:
+          cert: 1h
+          api_key: 1h
 
-  collections:
-    - crowdsecurity/traefik
-    - crowdsecurity/http-cve
-    - crowdsecurity/whitelist-good-actors
-    - crowdsecurity/base-http-scenarios
-    - crowdsecurity/appsec-virtual-patching
+    collections:
+      - crowdsecurity/traefik
+      - crowdsecurity/http-cve
+      - crowdsecurity/whitelist-good-actors
+      - crowdsecurity/base-http-scenarios
+      - crowdsecurity/appsec-virtual-patching
     - crowdsecurity/appsec-generic-rules
