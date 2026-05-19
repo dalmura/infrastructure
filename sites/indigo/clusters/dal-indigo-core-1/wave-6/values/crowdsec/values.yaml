@@ -12,20 +12,18 @@ secrets:
 appsec:
   enabled: true
   configs:
-    remediation.yaml: |
-      name: custom/remediation
-      on_match:
-        - filter: "IsOutBand == true"
-          apply:
-            - SetRemediation("ban")
+    crs-blocking.yaml: |
+      name: custom/crs-blocking
+      default_remediation: ban
+      inband_rules:
+        - crowdsecurity/crs
   acquisitions:
     - source: appsec
       listen_addr: 0.0.0.0:7422
       path: /
       appsec_configs:
         - "crowdsecurity/appsec-default"
-        - "crowdsecurity/crs"
-        - "custom/remediation"
+        - "custom/crs-blocking"
       labels:
         type: appsec
   env:
