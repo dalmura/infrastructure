@@ -174,7 +174,7 @@ argocd app sync -l app.kubernetes.io/instance=wave-6
 ## Tailscale Validation
 Check the status of the operator pods:
 ```bash
-kubectl get pods -n tailscale
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n tailscale
 ```
 
 Once running, you can expose services to your tailnet using the `tailscale.com/expose: "true"` annotation or by creating `TailnetDevice` resources.
@@ -182,7 +182,17 @@ Once running, you can expose services to your tailnet using the `tailscale.com/e
 
 ## Crowdsec Validation
 ```bash
-kubectl exec -n crowdsec deployment/crowdsec -- cscli bouncers list
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -n crowdsec deployment/crowdsec -- cscli bouncers list
 ```
 
 You should see `traefik-bouncer` listed as "Valid".
+
+### Collection Synchronization
+Because the `lapi` pod has a PV setup, the entrypoint script skips the automatic download of any newly defined COLLECTIONS defined in `values.yaml`. If you add new collections you will need to manually sync them in the `lapi` pod with:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -n crowdsec deployment/crowdsec-lapi -- cscli collections install <collection-name>
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -n crowdsec deployment/crowdsec-lapi -- cscli collections upgrade --all
+```
+
+The `appsec` pod doesn't have a PV, so that will 'just work' when the pod restarts after a change.
