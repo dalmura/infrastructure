@@ -75,11 +75,3 @@ config:
         agents_autodelete:
           cert: 6h
           api_key: 6h
-
-    #collections:
-    #  - crowdsecurity/traefik
-    #  - crowdsecurity/http-cve
-    #  - crowdsecurity/whitelist-good-actors
-    #  - crowdsecurity/base-http-scenarios
-    #  - crowdsecurity/appsec-virtual-patching
-    #  - crowdsecurity/appsec-generic-rules
