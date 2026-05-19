@@ -11,6 +11,13 @@ secrets:
 
 appsec:
   enabled: true
+  configs:
+    remediation.yaml: |
+      name: custom/remediation
+      on_match:
+        - filter: "IsOutBand == true"
+          apply:
+            - SetRemediation("ban")
   acquisitions:
     - source: appsec
       listen_addr: 0.0.0.0:7422
@@ -18,11 +25,9 @@ appsec:
       appsec_configs:
         - "crowdsecurity/appsec-default"
         - "crowdsecurity/crs"
+        - "custom/remediation"
       labels:
         type: appsec
-      on_match:
-        - apply:
-          - SetRemediation("ban")
   env:
     - name: COLLECTIONS
       value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios"
