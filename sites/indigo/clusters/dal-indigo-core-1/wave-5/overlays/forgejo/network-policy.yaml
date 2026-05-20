@@ -6,7 +6,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: gitea
+      app.kubernetes.io/name: forgejo
       app.kubernetes.io/instance: forgejo
   ingress:
     # Allow HTTP traffic from Traefik Private
@@ -40,6 +40,18 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow connections to Postgres (CNPG)
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: forgejo-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow connections to Valkey / internal caching in same namespace
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo
     # Allow connections to external services
     - toFQDNs:
         - matchName: "github.com"
@@ -47,6 +59,67 @@ spec:
         - matchName: "codeload.github.com"
         - matchName: "www.gravatar.com"
         - matchName: "auth.indigo.dalmura.cloud"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: forgejo-db
+  namespace: forgejo
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: forgejo-db
+  ingress:
+    # Allow traffic from Forgejo app
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: forgejo
+            app.kubernetes.io/instance: forgejo
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-cluster DB communication
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: forgejo-db
+    # Allow traffic from CloudNativePG operator for health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "5432"
+              protocol: TCP
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow intra-cluster DB communication
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: forgejo-db
+    # Allow access to K8s API
+    - toEntities:
+        - kube-apiserver
+    # Allow egress to S3 for Barman backups
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "443"
