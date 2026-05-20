@@ -62,6 +62,15 @@ spec:
         - ports:
             - port: "9000"
               protocol: TCP
+    # Allow egress to Traefik Public (Internal Ingress for SSO/OIDC)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     # Allow connections to external services
     - toFQDNs:
         - matchName: "github.com"
