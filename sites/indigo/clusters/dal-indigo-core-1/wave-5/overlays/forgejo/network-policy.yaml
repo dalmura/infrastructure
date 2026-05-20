@@ -52,17 +52,27 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: forgejo
+    # Allow connections to internal Authentik service
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
+            app.kubernetes.io/name: authentik
+            app.kubernetes.io/component: server
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
     # Allow connections to external services
     - toFQDNs:
         - matchName: "github.com"
         - matchName: "api.github.com"
         - matchName: "codeload.github.com"
         - matchName: "www.gravatar.com"
-        - matchName: "auth.indigo.dalmura.cloud"
       toPorts:
         - ports:
             - port: "443"
               protocol: TCP
+
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
