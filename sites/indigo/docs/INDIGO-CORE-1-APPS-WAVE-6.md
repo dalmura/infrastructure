@@ -196,3 +196,19 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -n crowdsec deployment/c
 ```
 
 The `appsec` pod doesn't have a PV, so that will 'just work' when the pod restarts after a change.
+
+### Remediation Behavior (In-Band vs Out-of-Band)
+The AppSec container operates in two modes depending on the collection/rule configuration:
+* In-Band (Blocking): The request is scanned *before* it reaches the application. If an attack is detected, Traefik returns a `403 Forbidden` immediately
+* Out-of-Band (Detection): The request is allowed to pass to the application immediately to minimize latency. AppSec scans it in the background and will trigger a ban for subsequent requests if an attack is found.
+
+#### Verification Examples
+Trigger a 403 (In-Band):
+Most patterns are configured for immediate blocking:
+```bash
+# XSS test
+curl -I "https://anubis.indigo.dalmura.cloud/?q=<script>alert(1)</script>"
+
+# Wordpress PHP upload test
+curl -I "https://anubis.indigo.dalmura.cloud/wp-content/uploads/malicious.php"
+```
