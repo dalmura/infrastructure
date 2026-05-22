@@ -41,7 +41,7 @@ spec:
           serviceAccountName: maintenance-bot
           containers:
             - name: kubectl
-              image: bitnami/kubectl:1.36.0
+              image: alpine/kubectl:1.36.1
               command:
                 - kubectl
                 - scale
