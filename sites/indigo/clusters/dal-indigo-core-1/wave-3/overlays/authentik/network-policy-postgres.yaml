@@ -26,3 +26,12 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
+
+    # Allow VictoriaMetrics to scrape metrics
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9187"
+              protocol: TCP

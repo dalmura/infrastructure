@@ -23,4 +23,5 @@ resources:
   - network-policy-egress-vault.yaml
   - network-policy-egress-victoria-logs.yaml
   - network-policy-egress-victoria-metrics.yaml
+  - network-policy-ingress-victoria-metrics.yaml
   - network-policy-egress-whoami.yaml
