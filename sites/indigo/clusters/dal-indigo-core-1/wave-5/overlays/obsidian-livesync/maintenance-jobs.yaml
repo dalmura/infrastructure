@@ -9,7 +9,7 @@ metadata:
   name: maintenance-bot
 rules:
   - apiGroups: ["apps"]
-    resources: ["statefulsets"]
+    resources: ["statefulsets", "statefulsets/scale"]
     verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
