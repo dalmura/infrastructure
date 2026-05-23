@@ -84,6 +84,14 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Allow egress to PyPI for package installation (e.g. emerald-hws)
+    - toFQDNs:
+        - matchName: "pypi.org"
+        - matchPattern: "*.pythonhosted.org"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     # Allow egress to GitHub API
     - toFQDNs:
         - matchName: "github.com"
