@@ -13,11 +13,19 @@ rules:
       - "get"
       - "list"
       - "watch"
+  # Allow VictoriaMetrics to scrape pods secured by kube-rbac-proxy (like MetalLB)
+  - apiGroups:
+      - ""
+    resources:
+      - "pods"
+    verbs:
+      - "get"
   # A common fallback requirement for kube-rbac-proxy metrics endpoints
   - nonResourceURLs:
       - "/metrics"
     verbs:
       - "get"
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

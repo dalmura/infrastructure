@@ -7,6 +7,10 @@ rbac:
     - apiGroups: [""]
       resources: ["services/node-exporter-prometheus-node-exporter"]
       verbs: ["get"]
+    # MetalLB pods read permissions (required by kube-rbac-proxy)
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get"]
 
 server:
   annotations:
