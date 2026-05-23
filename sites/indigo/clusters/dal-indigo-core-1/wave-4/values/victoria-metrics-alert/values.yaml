@@ -59,7 +59,10 @@ server:
         - name: postgresql-cnpg
           rules:
             - alert: PostgresWALArchivingStalled
-              expr: "time() - cnpg_pg_stat_archiver_last_archived_time > 3600"
+              expr: |
+                (time() - cnpg_pg_stat_archiver_last_archived_time > 3600)
+                and
+                (cnpg_collector_pg_wal_archive_status{value="ready"} > 0)
               labels:
                 severity: critical
               annotations:
