@@ -77,6 +77,53 @@ server:
             action: replace
             target_label: instance
 
+      - job_name: cloudnativepg
+        scrape_interval: 30s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_cnpg_io_cluster]
+            action: keep
+            regex: (.+)
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: "9187"
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: instance
+            action: replace
+          - source_labels: [__meta_kubernetes_pod_label_cnpg_io_cluster]
+            target_label: cnpg_cluster
+            action: replace
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+            action: replace
+
+      - job_name: traefik
+        scrape_interval: 30s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: "traefik"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            regex: "8080"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: instance
+            action: replace
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+            action: replace
+
+      - job_name: victoria-metrics-self
+        static_configs:
+          - targets:
+              - victoria-metrics-single-vms-server.victoria-metrics.svc.cluster.local:8428
+              - victoria-metrics-alert-vma-server.victoria-metrics.svc.cluster.local:8880
+              - victoria-metrics-alert-vma-alertmanager.victoria-metrics.svc.cluster.local:9093
+
+
     action: keep
 
   persistentVolume:

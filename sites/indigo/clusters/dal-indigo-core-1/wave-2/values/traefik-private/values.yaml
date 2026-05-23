@@ -47,3 +47,4 @@ service:
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
   - "--api.insecure=true"
+  - "--metrics.prometheus=true"
