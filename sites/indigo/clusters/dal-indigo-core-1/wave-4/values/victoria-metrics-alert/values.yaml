@@ -56,6 +56,58 @@ server:
                 summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full"
                 description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full, either reclaim space or expand volume."
 
+        - name: postgresql-cnpg
+          rules:
+            - alert: PostgresWALArchivingStalled
+              expr: "time() - cnpg_pg_stat_archiver_last_archived_time > 3600"
+              labels:
+                severity: critical
+              annotations:
+                summary: "Postgres continuous WAL archiving stalled on cluster {{ $labels.cnpg_cluster }}"
+                description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has not successfully archived a WAL segment to S3/Barman for over 1 hour. Immediate action is required to ensure backup recoverability."
+
+            - alert: PostgresNoSuccessfulBackup
+              expr: "time() - (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp or cnpg_collector_last_available_backup_timestamp) > 90000"
+              labels:
+                severity: critical
+              annotations:
+                summary: "Postgres cluster {{ $labels.cnpg_cluster }} has no successful full backup"
+                description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has not had a successful full backup in the last 25 hours. Nightly backup jobs may have failed."
+
+            - alert: PostgresBackupRetentionFailing
+              expr: |
+                (time() - (barman_cloud_cloudnative_pg_io_first_recoverability_point{cnpg_cluster="authentik-db"} or cnpg_collector_first_recoverability_point{cnpg_cluster="authentik-db"}) > 86400 * 14)
+                or
+                (time() - (barman_cloud_cloudnative_pg_io_first_recoverability_point{cnpg_cluster="forgejo-db"} or cnpg_collector_first_recoverability_point{cnpg_cluster="forgejo-db"}) > 86400 * 10)
+                or
+                (time() - (barman_cloud_cloudnative_pg_io_first_recoverability_point{cnpg_cluster="emojirades-db"} or cnpg_collector_first_recoverability_point{cnpg_cluster="emojirades-db"}) > 86400 * 5)
+              labels:
+                severity: warning
+              annotations:
+                summary: "Postgres cluster {{ $labels.cnpg_cluster }} backup retention is failing"
+                description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} is retaining backups older than its retention policy window. First recoverability point is older than expected, indicating that older backups are not being successfully pruned/deleted from S3."
+
+
+            - alert: PostgresClusterDegraded
+              expr: "cnpg_cluster_instances < cnpg_cluster_instances_target"
+              labels:
+                severity: critical
+              annotations:
+                summary: "Postgres cluster {{ $labels.cnpg_cluster }} is degraded"
+                description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has {{ $value }} ready instances, but targets {{ $labels.cnpg_cluster_instances_target }}. Redundancy is reduced."
+
+            - alert: PostgresConnectionsFillingUp
+              expr: |
+                (sum by (cnpg_cluster, namespace) (cnpg_backends_total{cnpg_cluster="authentik-db"}) > 240)
+                or
+                (sum by (cnpg_cluster, namespace) (cnpg_backends_total{cnpg_cluster!~"authentik-db"}) > 80)
+              labels:
+                severity: critical
+              annotations:
+                summary: "Postgres cluster {{ $labels.cnpg_cluster }} connections are filling up"
+                description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has {{ $value }} active connections, approaching maximum connection limits. Immediate action is required to avoid query rejection."
+
+
 alertmanager:
   enabled: true
 
