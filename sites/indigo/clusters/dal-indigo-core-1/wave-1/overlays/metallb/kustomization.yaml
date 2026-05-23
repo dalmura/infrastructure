@@ -7,6 +7,7 @@ resources:
   - github.com/metallb/metallb/config/native?ref=v0.16.0&timeout=120s
   - pools.yaml
   - advertisements.yaml
+  - rbac-monitoring.yaml
 
 patches:
   - path: patches-monitoring.yaml
