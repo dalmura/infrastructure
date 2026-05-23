@@ -111,7 +111,7 @@ server:
             regex: "traefik"
             action: keep
           - source_labels: [__meta_kubernetes_pod_container_port_number]
-            regex: "8080"
+            regex: "9100"
             action: keep
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: instance

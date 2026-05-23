@@ -14,5 +14,7 @@ spec:
             io.kubernetes.pod.namespace: victoria-metrics
       toPorts:
         - ports:
+            - port: "9100"
+              protocol: TCP
             - port: "8080"
               protocol: TCP
