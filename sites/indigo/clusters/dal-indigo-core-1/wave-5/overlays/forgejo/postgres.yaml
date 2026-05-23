@@ -26,6 +26,10 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: forgejo-postgres
+
+  postgresql:
+    parameters:
+      archive_timeout: "30min"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
