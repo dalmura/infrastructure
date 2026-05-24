@@ -110,6 +110,44 @@ server:
                 summary: "Postgres cluster {{ $labels.cnpg_cluster }} connections are filling up"
                 description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has {{ $value }} active connections, approaching maximum connection limits. Immediate action is required to avoid query rejection."
 
+        - name: node-health
+          rules:
+            - alert: HostDown
+              expr: up{job="node-exporter"} == 0
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Host {{ $labels.instance }} is down"
+                description: "Node exporter on {{ $labels.instance }} has been unreachable for more than 5 minutes."
+
+            - alert: HostHighCpuLoad
+              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Host {{ $labels.instance }} high CPU load"
+                description: "CPU load on {{ $labels.instance }} is {{ $value | printf \"%.2f\" }}% (above 90%) for the last 10 minutes."
+
+            - alert: HostOutOfMemory
+              expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Host {{ $labels.instance }} low memory"
+                description: "Available memory on {{ $labels.instance }} is low ({{ $value | printf \"%.2f\" }}% used) for the last 5 minutes."
+
+            - alert: HostOutOfDiskSpace
+              expr: (1 - (node_filesystem_free_bytes{fstype!~"tmpfs"} / node_filesystem_size_bytes{fstype!~"tmpfs"})) * 100 > 90
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Host {{ $labels.instance }} disk space almost full"
+                description: "Disk usage on {{ $labels.instance }} mount {{ $labels.mountpoint }} is {{ $value | printf \"%.2f\" }}% (above 90%) for the last 5 minutes."
+
 
 alertmanager:
   enabled: true

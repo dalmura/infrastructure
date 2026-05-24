@@ -2,10 +2,6 @@
 
 Stuff to eventually get around to.
 
-* Alertmanager
-  * CNPG DB unhealthy/errors
-  * Node Disk >90% over 5 minutes alert (via Node Exporter)
-  * Node CPU >90% over 5 minutes alert (via Node Exporter)
 * Validate Backup & Restore Strategy
   * Longhorn
   * CloudNativePG
