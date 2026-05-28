@@ -125,4 +125,10 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
-
+    # Allow egress to Solis Cloud
+    - toFQDNs:
+        - matchName: "www.soliscloud.com"
+      toPorts:
+        - ports:
+            - port: "13333"
+              protocol: TCP
