@@ -96,6 +96,7 @@ spec:
     - toFQDNs:
         - matchName: "github.com"
         - matchName: "api.github.com"
+        - matchName: "codeload.github.com"
         - matchName: "raw.githubusercontent.com"
         - matchName: "objects.githubusercontent.com"
         - matchName: "data-v2.hacs.xyz"
