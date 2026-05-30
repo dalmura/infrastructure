@@ -24,6 +24,9 @@ appsec:
         - filter: IsInBand == true && req.Host == "auth.indigo.dalmura.cloud" && req.URL.Path startsWith "/if/flow/default-authentication-flow/"
           apply:
             - SetRemediation("allow")
+        - filter: IsInBand == true && req.Host == "auth.indigo.dalmura.cloud" && req.URL.Path startsWith "/if/flow/default-provider-authorization-implicit-consent/"
+          apply:
+            - SetRemediation("allow")
         - filter: IsInBand == true && req.Host == "anubis.indigo.dalmura.cloud" && req.URL.Path startsWith "/.within.website/"
           apply:
             - SetRemediation("allow")
