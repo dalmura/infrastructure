@@ -17,6 +17,10 @@ appsec:
       default_remediation: ban
       inband_rules:
         - crowdsecurity/crs
+      pre_eval:
+        - filter: IsInBand == true && req.Host == "auth.indigo.dalmura.cloud" && req.URL.Path startsWith "/api/v3/flows/executor/"
+          apply:
+            - SetRemediation("allow")
   acquisitions:
     - source: appsec
       listen_addr: 0.0.0.0:7422
