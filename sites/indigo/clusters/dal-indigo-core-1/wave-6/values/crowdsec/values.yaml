@@ -21,6 +21,9 @@ appsec:
         - filter: IsInBand == true && req.Host == "auth.indigo.dalmura.cloud" && req.URL.Path startsWith "/api/v3/flows/executor/"
           apply:
             - SetRemediation("allow")
+        - filter: IsInBand == true && req.Host == "anubis.indigo.dalmura.cloud" && req.URL.Path startsWith "/.within.website/"
+          apply:
+            - SetRemediation("allow")
   acquisitions:
     - source: appsec
       listen_addr: 0.0.0.0:7422
