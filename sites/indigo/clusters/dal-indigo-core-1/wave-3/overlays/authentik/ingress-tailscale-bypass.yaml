@@ -46,3 +46,10 @@ spec:
             name: authentik-server
             port:
               number: 80
+      - path: /application/o/authorize/
+        pathType: Exact
+        backend:
+          service:
+            name: authentik-server
+            port:
+              number: 80
