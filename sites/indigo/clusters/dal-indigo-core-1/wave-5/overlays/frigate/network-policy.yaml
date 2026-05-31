@@ -18,21 +18,7 @@ spec:
         - ports:
             - port: "8971"
               protocol: TCP
-    # Allow traffic from Tailscale
-    - fromEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: tailscale
-            tailscale.com/parent-resource: ingress-proxies
-      toPorts:
-        - ports:
-            - port: "8971"
-              protocol: TCP
-            - port: "8554"
-              protocol: TCP
-            - port: "8555"
-              protocol: TCP
-            - port: "8555"
-              protocol: UDP
+
     # Allow traffic from Home Assistant (Integration)
     - fromEndpoints:
         - matchLabels:

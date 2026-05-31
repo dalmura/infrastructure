@@ -6,13 +6,8 @@ metadata:
     app.kubernetes.io/name: frigate
   name: frigate
   namespace: frigate
-  annotations:
-    tailscale.com/expose: "true"
-    tailscale.com/hostname: "frigate"
-    tailscale.com/proxy-group: "ingress-proxies"
-    tailscale.com/tags: "tag:k8s,tag:k8s-indigo"
+
 spec:
-  loadBalancerClass: tailscale
   ipFamilyPolicy: SingleStack
   ports:
     - name: http
@@ -42,4 +37,4 @@ spec:
   selector:
     app.kubernetes.io/instance: frigate
     app.kubernetes.io/name: frigate
-  type: LoadBalancer
+  type: ClusterIP
