@@ -114,9 +114,7 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Collaborative security automation and IP reputation
    * [Tailscale Kubernetes Operator](https://tailscale.com/docs/features/kubernetes-operator)
       * Private mesh networking and secure cluster access
-   * Not Implemented Yet
-      * [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
-         * Expose services via Cloudflare edge
+      * Implemented at the sites Router currently, not used
 
 ## Configuration
 
