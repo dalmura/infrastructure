@@ -3,7 +3,7 @@
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 5](INDIGO-CORE-1-APPS-WAVE-5.md) and have Home Assistant already running
 
-At the moment we have Authentik Proxy Auth infront of HA until it [natively supports OIDC auth](https://github.com/orgs/home-assistant/discussions/48) this means the HA Mobile App remains broken due to not supporting this auth mechanism.
+Previously, Authentik Proxy Auth was enabled in front of HA, which broke the HA Mobile App login process. We have removed Authentik Proxy Auth from the main HA ingress (`ha.indigo.dalmura.cloud`) so users connect directly to Home Assistant and authenticate via its built-in authentication layer. Note that the code-server helper (`ha-code.indigo.dalmura.cloud`) remains Authentik-protected for security.
 
 ## Setup HACS
 
