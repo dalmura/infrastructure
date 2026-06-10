@@ -48,6 +48,7 @@ spec:
         - matchName: "proxy.plex.bz"
         - matchName: "meta.plex.bz"
         - matchName: "plex.tv"
+        - matchName: "image.tmdb.org"
       toPorts:
         - ports:
             - port: "443"
