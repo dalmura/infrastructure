@@ -49,6 +49,7 @@ spec:
         - matchName: "meta.plex.bz"
         - matchName: "plex.tv"
         - matchName: "image.tmdb.org"
+        - matchName: "secure.gravatar.com"
       toPorts:
         - ports:
             - port: "443"
