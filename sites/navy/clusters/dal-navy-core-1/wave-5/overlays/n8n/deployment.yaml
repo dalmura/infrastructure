@@ -7,6 +7,7 @@ metadata:
   name: n8n
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app.kubernetes.io/instance: n8n
@@ -17,21 +18,58 @@ spec:
         app.kubernetes.io/instance: n8n
         app.kubernetes.io/name: n8n
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: n8n
-          image: n8nio/n8n:latest
+          image: n8nio/n8n:1.43.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
               name: http
+              protocol: TCP
           env:
             - name: DB_POSTGRESDB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: n8n-db-app
                   key: password
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: encryption-key
           envFrom:
             - configMapRef:
                 name: n8n-config
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
           volumeMounts:
             - name: n8n-data
               mountPath: /home/node/.n8n

@@ -10,3 +10,5 @@ resources:
   - service.yaml
   - ingress.yaml
   - pvc.yaml
+  - n8n-db-backup-secret.sealed.yaml
+  - n8n-secret.sealed.yaml
