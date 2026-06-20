@@ -1,0 +1,71 @@
+config:
+  inCluster: false
+  extraArgs:
+    - "-kubeconfig=/home/headlamp/.config/Headlamp/kubeconfigs/config"
+
+  # Bypasses: https://github.com/kubernetes-sigs/headlamp/issues/4883
+  sessionTTL: null
+
+initContainers:
+  - name: init-kubeconfig
+    image: busybox:latest
+
+    command:
+      - /bin/sh
+      - -c
+      - |
+        KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+        KUBE_CA=$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | base64 | tr -d '\n')
+        NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+        cat <<EOF > /home/headlamp/.config/Headlamp/kubeconfigs/config
+        apiVersion: v1
+        kind: Config
+        clusters:
+          - name: default-cluster
+            cluster:
+              certificate-authority-data: ${KUBE_CA}
+              server: https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}
+        contexts:
+          - name: default-context
+            context:
+              cluster: default-cluster
+              user: headlamp
+              namespace: ${NAMESPACE}
+        current-context: default-context
+        users:
+          - name: headlamp
+            user:
+              token: ${KUBE_TOKEN}
+        EOF
+
+    volumeMounts:
+      - name: shared-config
+        mountPath: /home/headlamp/.config/Headlamp/kubeconfigs
+
+volumeMounts:
+  - name: shared-config
+    mountPath: /home/headlamp/.config/Headlamp/kubeconfigs
+
+volumes:
+  - name: shared-config
+    emptyDir: {}
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: headlamp.navy.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+  ingressClassName: ingress-private
+  hosts:
+    - host: headlamp.navy.dalmura.cloud
+      paths:
+        - path: /
+          type: Prefix
+  tls:
+    - secretName: headlamp-cert
+      hosts:
+        - headlamp.navy.dalmura.cloud
