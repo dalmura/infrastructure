@@ -1,0 +1,52 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: evolution-api-security
+  namespace: whatsapp
+spec:
+  endpointSelector:
+    matchLabels:
+      app: evolution-api
+  ingress:
+    # 1. ONLY allow n8n to connect to the Evolution REST API
+    - fromEndpoints:
+        - matchLabels:
+            "io.kubernetes.pod.namespace": "n8n"
+            "app.kubernetes.io/name": "n8n"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress:
+    # 1. ONLY allow sending incoming message webhooks to n8n
+    - toEndpoints:
+        - matchLabels:
+            "io.kubernetes.pod.namespace": "n8n"
+            "app.kubernetes.io/name": "n8n"
+      toPorts:
+        - ports:
+            - port: "5678"
+              protocol: TCP
+    
+    # 2. Allow DNS lookup for connecting to WhatsApp domains
+    - toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": "kube-system"
+            "k8s-app": "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+              
+    # 3. Allow outbound connections ONLY to WhatsApp and Meta domains
+    - toFQDNs:
+        - matchPattern: "*.whatsapp.com"
+        - matchPattern: "*.whatsapp.net"
+        - matchPattern: "*.fbcdn.net"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
