@@ -15,8 +15,13 @@ spec:
     spec:
       containers:
         - name: evolution-api
-          image: atendare/evolution-api:v2.1.1
+          image: atendai/evolution-api:v2.1.1
           imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - "npx prisma generate --schema ./prisma/postgresql-schema.prisma && npm run start:prod"
           ports:
             - containerPort: 8080
               name: http
@@ -34,13 +39,11 @@ spec:
                   name: whatsapp-secrets
                   key: api-key
             
-            # SQLite Database settings (stored on our PVC)
+            # Database disabled, local files only
             - name: DATABASE_ENABLED
-              value: "true"
+              value: "false"
             - name: DATABASE_PROVIDER
-              value: "sqlite"
-            - name: DATABASE_CONNECTION_URI
-              value: "file:///evolution/instances/database.sqlite"
+              value: "postgresql"
             - name: DATABASE_SAVE_DATA_INSTANCE
               value: "true"
 
