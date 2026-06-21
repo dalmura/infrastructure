@@ -69,9 +69,9 @@ spec:
 
             # Logging Configurations
             - name: LOG_LEVEL
-              value: "ERROR,WARN,DEBUG,INFO,LOG,VERBOSE"
+              value: "ERROR,WARN"
             - name: LOG_BAILEYS
-              value: "debug"
+              value: "error"
 
             # WhatsApp Client Version (resolves Noise handshake failure)
             - name: CONFIG_SESSION_PHONE_VERSION

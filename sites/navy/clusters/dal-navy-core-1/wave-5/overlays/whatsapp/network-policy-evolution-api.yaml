@@ -41,11 +41,17 @@ spec:
               protocol: TCP
           rules:
             dns:
-              - matchPattern: "*"
+              - matchPattern: "*.whatsapp.net"
+              - matchPattern: "*.whatsapp.com"
+              - matchPattern: "*.svc.cluster.local"
               
-    # 3. Allow outbound connections to the internet (for WhatsApp Web server connections)
+    # 3. Allow outbound connections to the internet (for WhatsApp Web server connections, limited to port 443)
     - toEntities:
         - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 
               
     # 4. Allow connecting to the local Postgres database
