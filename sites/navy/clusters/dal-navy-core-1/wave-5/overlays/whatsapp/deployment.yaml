@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: evolution-api
-          image: atendare/evolution-api:v2.1.1
+          image: atendai/evolution-api:v2.1.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
