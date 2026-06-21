@@ -57,7 +57,7 @@ spec:
             - name: WEBHOOK_GLOBAL_ENABLED
               value: "true"
             - name: WEBHOOK_GLOBAL_URL
-              value: "http://n8n.n8n.svc.cluster.local:5678/webhook-test/whatsapp-messages"
+              value: "http://n8n.n8n.svc.cluster.local:5678/webhook/whatsapp-messages"
             - name: WEBHOOK_GLOBAL_HEADERS
               value: '{"Content-Type": "application/json"}'
             
