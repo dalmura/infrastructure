@@ -1,0 +1,18 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: whatsapp-db
+  namespace: whatsapp
+spec:
+  description: "WhatsApp Gateway Database"
+  instances: 1
+  enableSuperuserAccess: true
+  primaryUpdateStrategy: unsupervised
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+  storage:
+    storageClass: cluster-nobackup
+    size: 2Gi

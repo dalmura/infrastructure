@@ -1,0 +1,36 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: postgres-security
+  namespace: whatsapp
+spec:
+  endpointSelector:
+    matchLabels:
+      "cnpg.io/cluster": "whatsapp-db"
+  ingress:
+    # 1. Allow the CNPG Operator in cnpg-system namespace to manage the DB
+    - fromEndpoints:
+        - matchLabels:
+            "io.kubernetes.pod.namespace": "cnpg-system"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    # 2. Allow Evolution API to connect to the database
+    - fromEndpoints:
+        - matchLabels:
+            "app": "evolution-api"
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # 3. Allow internal replication/clustering traffic between PG nodes
+    - fromEndpoints:
+        - matchLabels:
+            "cnpg.io/cluster": "whatsapp-db"
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP

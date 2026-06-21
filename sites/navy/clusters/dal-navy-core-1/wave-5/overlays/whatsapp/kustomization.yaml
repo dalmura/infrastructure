@@ -5,5 +5,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - pvc.yaml
-  - network-policy.yaml
+  - postgres.yaml
+  - network-policy-evolution-api.yaml
+  - network-policy-postgres.yaml
   - secret.sealed.yaml

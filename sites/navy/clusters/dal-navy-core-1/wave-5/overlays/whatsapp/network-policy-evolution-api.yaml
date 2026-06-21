@@ -50,3 +50,12 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+              
+    # 4. Allow connecting to the local Postgres database
+    - toEndpoints:
+        - matchLabels:
+            "cnpg.io/cluster": "whatsapp-db"
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
