@@ -15,3 +15,5 @@ resources:
   - ingress.yaml
   - traefik-middleware.yaml
   - pvc-media.yaml
+  - pvc-data.yaml
+  - middleware-csp.yaml

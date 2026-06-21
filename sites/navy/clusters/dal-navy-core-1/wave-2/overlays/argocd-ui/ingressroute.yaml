@@ -5,8 +5,8 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: argocd.navy.dalmura.cloud
-    kubernetes.io/ingress.class: ingress-private
 spec:
+  ingressClassName: ingress-private
   entryPoints:
     - websecure
   routes:

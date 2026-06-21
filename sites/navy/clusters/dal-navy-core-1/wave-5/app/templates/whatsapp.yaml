@@ -1,23 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: whatsapp
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   sources:
-    - repoURL: https://argoproj.github.io/argo-helm
-      chart: argo-cd
-      targetRevision: 9.6.0
-      helm:
-        valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-0/values/argocd/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/navy/clusters/dal-navy-core-1/wave-5/overlays/whatsapp
       targetRevision: HEAD
-      ref: values
   destination:
+    namespace: whatsapp
     server: {{ .Values.spec.destination.server }}
-    namespace: argocd
-  revisionHistoryLimit: 0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 1

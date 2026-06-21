@@ -6,6 +6,8 @@ metadata:
     app.kubernetes.io/name: photoprism
   name: photoprism
   namespace: photoprism
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   revisionHistoryLimit: 3

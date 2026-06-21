@@ -2,6 +2,9 @@
 
 Stuff to eventually get around to.
 
+* Update Authentik to deny superuser login not on private IP range
+  * https://docs.goauthentik.io/add-secure-apps/flows-stages/stages/deny/
+  * Must be in like 192.168.0.0/16
 * Validate Backup & Restore Strategy
   * Longhorn
   * CloudNativePG

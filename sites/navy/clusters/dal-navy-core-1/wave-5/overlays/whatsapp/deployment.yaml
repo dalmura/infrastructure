@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evolution-api
+  namespace: whatsapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evolution-api
+  template:
+    metadata:
+      labels:
+        app: evolution-api
+    spec:
+      containers:
+        - name: evolution-api
+          image: atendai/evolution-api:v2.1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            # Server Settings
+            - name: SERVER_PORT
+              value: "8080"
+            - name: SERVER_URL
+              value: "http://evolution-api:8080"
+            
+            # API Key Authentication from Secret
+            - name: AUTHENTICATION_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: whatsapp-secrets
+                  key: api-key
+            
+            # SQLite Database settings (stored on our PVC)
+            - name: DATABASE_ENABLED
+              value: "true"
+            - name: DATABASE_PROVIDER
+              value: "sqlite"
+            - name: DATABASE_CONNECTION_URI
+              value: "file:///evolution/instances/database.sqlite"
+            - name: DATABASE_SAVE_DATA_INSTANCE
+              value: "true"
+
+            # Global Webhook configuration (calls n8n internally)
+            - name: WEBHOOK_GLOBAL_ENABLED
+              value: "true"
+            - name: WEBHOOK_GLOBAL_URL
+              value: "http://n8n.n8n.svc.cluster.local:5678/webhook/whatsapp-messages"
+            - name: WEBHOOK_GLOBAL_HEADERS
+              value: '{"Content-Type": "application/json"}'
+            
+            # Enable specific events
+            - name: WEBHOOK_EVENTS_MESSAGES_UPSERT
+              value: "true"
+            - name: WEBHOOK_EVENTS_QRCODE_UPDATED
+              value: "true"
+
+          volumeMounts:
+            - name: data
+              mountPath: /evolution/instances
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: evolution-api-pvc
