@@ -17,11 +17,6 @@ spec:
         - name: evolution-api
           image: atendai/evolution-api:v2.1.1
           imagePullPolicy: IfNotPresent
-          command:
-            - /bin/bash
-            - -c
-          args:
-            - "npx prisma generate --schema ./prisma/postgresql-schema.prisma && npm run start:prod"
           ports:
             - containerPort: 8080
               name: http
@@ -39,11 +34,16 @@ spec:
                   name: whatsapp-secrets
                   key: api-key
             
-            # Database disabled, local files only
+            # Database Configuration (connected to local Postgres cluster)
             - name: DATABASE_ENABLED
-              value: "false"
+              value: "true"
             - name: DATABASE_PROVIDER
               value: "postgresql"
+            - name: DATABASE_CONNECTION_URI
+              valueFrom:
+                secretKeyRef:
+                  name: whatsapp-db-app
+                  key: uri
             - name: DATABASE_SAVE_DATA_INSTANCE
               value: "true"
 
