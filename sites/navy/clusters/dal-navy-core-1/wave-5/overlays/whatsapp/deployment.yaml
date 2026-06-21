@@ -73,6 +73,11 @@ spec:
             - name: LOG_BAILEYS
               value: "debug"
 
+            # WhatsApp Client Version (resolves Noise handshake failure)
+            - name: CONFIG_SESSION_PHONE_VERSION
+              value: "2.3000.1023204200"
+
+
 
           volumeMounts:
             - name: data
