@@ -47,6 +47,12 @@ spec:
             - name: DATABASE_SAVE_DATA_INSTANCE
               value: "true"
 
+            # Cache Configuration (disable Redis, enable local cache)
+            - name: CACHE_REDIS_ENABLED
+              value: "false"
+            - name: CACHE_LOCAL_ENABLED
+              value: "true"
+
             # Global Webhook configuration (calls n8n internally)
             - name: WEBHOOK_GLOBAL_ENABLED
               value: "true"
