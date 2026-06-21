@@ -37,21 +37,15 @@ spec:
         - ports:
             - port: "53"
               protocol: UDP
+            - port: "53"
+              protocol: TCP
           rules:
             dns:
               - matchPattern: "*"
               
-    # 3. Allow outbound connections to the internet (for WhatsApp Web server WebSocket connections)
+    # 3. Allow outbound connections to the internet (for WhatsApp Web server connections)
     - toEntities:
         - world
-      toPorts:
-        - ports:
-            - port: "443"
-              protocol: TCP
-            - port: "80"
-              protocol: TCP
-            - port: "5222"
-              protocol: TCP
 
               
     # 4. Allow connecting to the local Postgres database
