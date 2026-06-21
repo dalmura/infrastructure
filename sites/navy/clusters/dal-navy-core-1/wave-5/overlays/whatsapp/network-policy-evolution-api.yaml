@@ -45,9 +45,10 @@ spec:
               - matchPattern: "*.whatsapp.com"
               - matchPattern: "*.svc.cluster.local"
               
-    # 3. Allow outbound connections to the internet (for WhatsApp Web server connections, limited to port 443)
-    - toEntities:
-        - world
+    # 3. Allow outbound connections to WhatsApp servers (limited to port 443 over HTTPS/WSS)
+    - toFQDNs:
+        - matchPattern: "*.whatsapp.net"
+        - matchPattern: "*.whatsapp.com"
       toPorts:
         - ports:
             - port: "443"
