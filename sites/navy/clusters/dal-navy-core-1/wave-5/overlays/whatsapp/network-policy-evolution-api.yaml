@@ -41,15 +41,18 @@ spec:
             dns:
               - matchPattern: "*"
               
-    # 3. Allow outbound connections ONLY to WhatsApp and Meta domains
-    - toFQDNs:
-        - matchPattern: "*.whatsapp.com"
-        - matchPattern: "*.whatsapp.net"
-        - matchPattern: "*.fbcdn.net"
+    # 3. Allow outbound connections to the internet (for WhatsApp Web server WebSocket connections)
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "443"
               protocol: TCP
+            - port: "80"
+              protocol: TCP
+            - port: "5222"
+              protocol: TCP
+
               
     # 4. Allow connecting to the local Postgres database
     - toEndpoints:
