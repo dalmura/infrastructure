@@ -17,6 +17,11 @@ spec:
         - name: evolution-api
           image: atendai/evolution-api:v2.1.1
           imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - "npx prisma generate --schema ./prisma/postgresql-schema.prisma && npm run start:prod"
           ports:
             - containerPort: 8080
               name: http
