@@ -50,6 +50,12 @@ spec:
         - matchName: "challenges.cloudflare.com"
         # Required for user avatars
         - matchName: "www.gravatar.com"
+        # Required for version check
+        - matchName: "version.goauthentik.io"
+        # Required for password pwnd check
+        - matchName: "api.pwnedpasswords.com"
+        # Required for federated login
+        - matchName: "auth.indigo.dalmura.cloud"
       toPorts:
         - ports:
           - port: "443"
