@@ -54,6 +54,8 @@ spec:
         - matchName: "version.goauthentik.io"
         # Required for password pwnd check
         - matchName: "api.pwnedpasswords.com"
+        # Required for federated login
+        - matchName: "auth.navy.dalmura.cloud"
       toPorts:
         - ports:
           - port: "443"
