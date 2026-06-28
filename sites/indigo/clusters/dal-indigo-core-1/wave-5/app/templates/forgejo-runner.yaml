@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: dl.gitea.com/charts
+    - repoURL: https://dl.gitea.com/charts
       chart: actions
       targetRevision: 0.1.1
       helm:
