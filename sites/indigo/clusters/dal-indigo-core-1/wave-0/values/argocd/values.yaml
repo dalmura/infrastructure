@@ -12,3 +12,6 @@ configs:
     policy.csv: |
       g, Admin, role:admin
       g, Viewer, role:readonly
+
+controller:
+  revisionHistoryLimit: 0
