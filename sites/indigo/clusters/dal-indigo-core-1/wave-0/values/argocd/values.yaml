@@ -5,6 +5,7 @@ global:
   logging:
     format: json
     level: warn
+  revisionHistoryLimit: 0
 
 configs:
   rbac:

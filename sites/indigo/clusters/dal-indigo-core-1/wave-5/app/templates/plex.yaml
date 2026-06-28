@@ -33,5 +33,5 @@ spec:
         pod-security.kubernetes.io/warn: privileged
         pod-security.kubernetes.io/warn-version: latest
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   revisionHistoryLimit: 2

@@ -25,7 +25,7 @@ spec:
     server: {{ .Values.spec.destination.server }}
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   revisionHistoryLimit: 0
 
   ignoreDifferences:

@@ -1,0 +1,21 @@
+enabled: true
+
+existingSecret: runner-secret
+existingSecretKey: runner-token
+
+statefulset:
+  persistence:
+    size: 5Gi
+
+  runner:
+    registry: code.forgejo.org
+    repository: forgejo/runner
+    tag: "3.4.1"
+
+  securityContext:
+    privileged: true
+
+giteaRootURL: "http://forgejo-http.forgejo.svc.cluster.local:3000"
+    
+global:
+  storageClass: cluster-nobackup
