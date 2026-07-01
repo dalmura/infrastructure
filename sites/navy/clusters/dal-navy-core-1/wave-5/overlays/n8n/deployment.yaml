@@ -25,7 +25,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: n8n
-          image: n8nio/n8n:2.27.0
+          image: n8nio/n8n:2.28.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
