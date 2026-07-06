@@ -17,3 +17,7 @@ data:
   # Additional JWT issuers (format: issuer_url|client_id, comma-separated)
   # notes-mobile: mobile app, dolores: personal assistant JWT passthrough
   OIDC_JWT_ISSUERS: "https://auth.navy.dalmura.cloud/application/o/notes-mobile/|XbwAGVuDLaMU7ylhu7VGhw7zXNRMRzhlrVdicW6E,https://auth.navy.dalmura.cloud/application/o/dolores/|mj86Z9NSMxKDxWf2kfyBOX0PqNxHW313IAmRrhW5"
+  DOLORES_SERVICE_TOKEN: "ef0342b5a1cf398c8c279c7821034c56e098877bc12d345eefab78cd12345eab"
+  DOLORES_DEFAULT_USER_ID: "816f87de435d08c120e65149f4d9640e4dd3a126ceb31f7ef632d9a0560664c3"
+  DOLORES_DEFAULT_USER_EMAIL: "anchavesb@hotmail.com"
+  DOLORES_DEFAULT_USER_NAME: "Andy"
