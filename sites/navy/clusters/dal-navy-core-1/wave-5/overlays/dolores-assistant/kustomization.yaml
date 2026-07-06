@@ -5,6 +5,7 @@ namespace: dolores-assistant
 
 resources:
   - config.yaml
+  - secret.sealed.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
