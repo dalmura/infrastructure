@@ -33,6 +33,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: dolores-assistant-config
+            - secretRef:
+                name: dolores-assistant-secret
           ports:
             - containerPort: 8000
               name: http
