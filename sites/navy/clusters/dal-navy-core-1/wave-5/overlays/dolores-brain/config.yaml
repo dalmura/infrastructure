@@ -13,3 +13,4 @@ data:
   BRAIN_DB_PATH: "/data/conversations.db"
   LOG_LEVEL: "INFO"
   LOG_FORMAT: "json"
+  TZ: "Australia/Sydney"
