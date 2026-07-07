@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: review-bot-config
 data:
-  REVIEW_BOT_POLL_INTERVAL_SECONDS: "900"
+  REVIEW_BOT_POLL_INTERVAL_SECONDS: "60"
   REVIEW_BOT_STATE_DB_PATH: "/data/state.db"
   GEMINI_API_VERSION: "v1beta"
   REVIEW_BOT_MAX_CONCURRENT: "3"
