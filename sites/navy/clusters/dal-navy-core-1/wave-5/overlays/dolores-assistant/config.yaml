@@ -18,3 +18,4 @@ data:
   LOG_FORMAT: "json"
   MEMORY_DB_PATH: "/tmp/memory.db"
   DOLORES_INTEGRATIONS: '[{"name":"todo","url":"http://todo.todo.svc.cluster.local:5000"}]'
+  TZ: "Australia/Sydney"
