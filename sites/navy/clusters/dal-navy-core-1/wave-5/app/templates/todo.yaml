@@ -15,6 +15,9 @@ spec:
     namespace: todo
     server: {{ .Values.spec.destination.server }}
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
     - CreateNamespace=true
   revisionHistoryLimit: 1
