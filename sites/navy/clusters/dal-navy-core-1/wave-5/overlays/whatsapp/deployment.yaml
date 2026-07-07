@@ -62,6 +62,8 @@ spec:
               value: '{"Content-Type": "application/json"}'
             
             # Enable specific events
+            - name: WEBHOOK_EVENTS_ALL
+              value: "false"
             - name: WEBHOOK_EVENTS_MESSAGES_UPSERT
               value: "true"
             - name: WEBHOOK_EVENTS_QRCODE_UPDATED
