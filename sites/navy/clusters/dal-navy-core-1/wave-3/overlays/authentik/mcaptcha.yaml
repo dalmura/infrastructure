@@ -86,12 +86,43 @@ metadata:
   namespace: authentik
 data:
   config.toml: |
+    debug = false
+    source_code = "https://github.com/mCaptcha/mCaptcha"
+    commercial = false
     allow_demo = false
     allow_registration = true
-    debug = false
 
     [server]
+    cookie_secret = "placeholder-replaced-by-env"
     port = 7000
     ip = "0.0.0.0"
     domain = "auth.navy.dalmura.cloud"
     proxy_has_tls = true
+
+    [captcha]
+    salt = "placeholder-replaced-by-env"
+    gc = 30
+    runners = 4
+    queue_length = 2000
+    enable_stats = true
+
+    [captcha.default_difficulty_strategy]
+    avg_traffic_difficulty =  50000
+    avg_traffic_time =  1
+    peak_sustainable_traffic_difficulty = 3000000
+    peak_sustainable_traffic_time = 3
+    broke_my_site_traffic_difficulty = 5000000
+    broke_my_site_traffic_time = 5
+    duration = 30
+
+    [database]
+    url = "postgres://placeholder-replaced-by-env"
+    pool = 4
+
+    [smtp]
+    from = "admin@localhost"
+    reply = "admin@localhost"
+    url = "127.0.0.1"
+    port = 10025
+    username = "admin"
+    password = "password"
