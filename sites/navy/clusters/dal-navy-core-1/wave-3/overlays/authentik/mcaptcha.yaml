@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcaptcha
+  namespace: authentik
+  labels:
+    app: mcaptcha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcaptcha
+  template:
+    metadata:
+      labels:
+        app: mcaptcha
+    spec:
+      containers:
+        - name: mcaptcha
+          image: mcaptcha/mcaptcha:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7000
+              name: http
+          env:
+            - name: MCAPTCHA_CONFIG
+              value: "/etc/mcaptcha/config.toml"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-db-app
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-db-app
+                  key: password
+            - name: DATABASE_URL
+              value: "postgres://$(DB_USER):$(DB_PASSWORD)@mcaptcha-db-rw:5432/app"
+            - name: MCAPTCHA_server_cookie_secret
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-secrets
+                  key: cookie-secret
+            - name: MCAPTCHA_SERVER_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-secrets
+                  key: cookie-secret
+            - name: MCAPTCHA_captcha_salt
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-secrets
+                  key: salt
+            - name: MCAPTCHA_CAPTCHA_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: mcaptcha-secrets
+                  key: salt
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/mcaptcha
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mcaptcha-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcaptcha
+  namespace: authentik
+spec:
+  ports:
+    - port: 7000
+      targetPort: 7000
+      name: http
+  selector:
+    app: mcaptcha
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcaptcha-config
+  namespace: authentik
+data:
+  config.toml: |
+    allow_demo = false
+    allow_registration = true
+    debug = false
+
+    [server]
+    port = 7000
+    ip = "0.0.0.0"
+    domain = "auth.navy.dalmura.cloud"
+    proxy_has_tls = true

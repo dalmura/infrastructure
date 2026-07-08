@@ -1,0 +1,27 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: mcaptcha-db
+  namespace: authentik
+spec:
+  description: "mCaptcha Database"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 2Gi
+
+  postgresql:
+    parameters:
+      archive_timeout: "30min"
+      max_connections: "100"

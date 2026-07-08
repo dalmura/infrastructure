@@ -20,6 +20,13 @@ spec:
   - host: auth.navy.dalmura.cloud
     http:
       paths:
+      - path: /captcha
+        pathType: Prefix
+        backend:
+          service:
+            name: mcaptcha
+            port:
+              number: 7000
       - path: /
         pathType: Prefix
         backend:

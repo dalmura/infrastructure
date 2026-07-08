@@ -17,3 +17,6 @@ resources:
   - pvc-media.yaml
   - pvc-data.yaml
   - middleware-csp.yaml
+  - mcaptcha-secrets.sealed.yaml
+  - mcaptcha-postgres.yaml
+  - mcaptcha.yaml
