@@ -15,11 +15,11 @@ spec:
         valueFiles:
         - $values/sites/navy/clusters/dal-navy-core-1/wave-3/values/authentik/values.yaml
     - repoURL: https://github.com/dalmura/infrastructure.git
-      targetRevision: HEAD
+      targetRevision: feat/mcaptcha-integration
       ref: values
     - repoURL: https://github.com/dalmura/infrastructure.git
       path: sites/navy/clusters/dal-navy-core-1/wave-3/overlays/authentik
-      targetRevision: HEAD
+      targetRevision: feat/mcaptcha-integration
   destination:
     namespace: authentik
     server: {{ .Values.spec.destination.server }}
