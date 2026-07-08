@@ -20,3 +20,5 @@ resources:
   - mcaptcha-secrets.sealed.yaml
   - mcaptcha-postgres.yaml
   - mcaptcha.yaml
+  - mcaptcha-ingress.yaml
+

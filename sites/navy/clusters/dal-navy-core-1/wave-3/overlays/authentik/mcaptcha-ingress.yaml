@@ -1,0 +1,38 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: mcaptcha-stripprefix
+  namespace: authentik
+spec:
+  stripPrefix:
+    prefixes:
+      - /captcha
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcaptcha
+  namespace: authentik
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: auth.navy.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-public-geoblock@kubernetescrd,traefik-public-ratelimit@kubernetescrd,traefik-public-anubis@kubernetescrd,traefik-public-security-headers@kubernetescrd,authentik-mcaptcha-stripprefix@kubernetescrd
+spec:
+  ingressClassName: ingress-public
+  tls:
+    - hosts:
+      - auth.navy.dalmura.cloud
+      secretName: authentik-cert
+  rules:
+  - host: auth.navy.dalmura.cloud
+    http:
+      paths:
+      - path: /captcha
+        pathType: Prefix
+        backend:
+          service:
+            name: mcaptcha
+            port:
+              number: 7000
