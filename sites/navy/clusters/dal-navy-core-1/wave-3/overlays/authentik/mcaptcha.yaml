@@ -98,6 +98,7 @@ data:
     ip = "0.0.0.0"
     domain = "auth.navy.dalmura.cloud"
     proxy_has_tls = true
+    url_prefix = "/captcha"
 
     [captcha]
     salt = "placeholder-replaced-by-env"
