@@ -1,7 +1,7 @@
 enabled: true
 
-existingSecret: runner-secret
-existingSecretKey: runner-token
+existingSecret: forgejo-runner-secrets
+existingSecretKey: token
 
 statefulset:
   persistence:
