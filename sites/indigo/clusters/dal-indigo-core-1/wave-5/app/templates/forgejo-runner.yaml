@@ -1,37 +1,37 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: forgejo-runner
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  sources:
-    - repoURL: https://dl.gitea.com/charts
-      chart: actions
-      targetRevision: 0.1.1
-      helm:
-        valueFiles:
-        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/forgejo-runner/values.yaml
-    - repoURL: https://github.com/dalmura/infrastructure.git
-      targetRevision: HEAD
-      ref: values
-    - repoURL: https://github.com/dalmura/infrastructure.git
-      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/forgejo-runner
-      targetRevision: HEAD
-  destination:
-    namespace: forgejo-runner
-    server: {{ .Values.spec.destination.server }}
-  syncPolicy:
-    managedNamespaceMetadata:
-      labels:
-        pod-security.kubernetes.io/enforce: privileged
-        pod-security.kubernetes.io/enforce-version: latest
-        pod-security.kubernetes.io/audit: privileged
-        pod-security.kubernetes.io/audit-version: latest
-        pod-security.kubernetes.io/warn: privileged
-        pod-security.kubernetes.io/warn-version: latest
-    syncOptions:
-      - CreateNamespace=true
-  revisionHistoryLimit: 1
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: forgejo-runner
+#  namespace: argocd
+#  finalizers:
+#    - resources-finalizer.argocd.argoproj.io
+#spec:
+#  project: default
+#  sources:
+#    - repoURL: https://dl.gitea.com/charts
+#      chart: actions
+#      targetRevision: 0.1.1
+#      helm:
+#        valueFiles:
+#        - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/forgejo-runner/values.yaml
+#    - repoURL: https://github.com/dalmura/infrastructure.git
+#      targetRevision: HEAD
+#      ref: values
+#    - repoURL: https://github.com/dalmura/infrastructure.git
+#      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/forgejo-runner
+#      targetRevision: HEAD
+#  destination:
+#    namespace: forgejo-runner
+#    server: {{ .Values.spec.destination.server }}
+#  syncPolicy:
+#    managedNamespaceMetadata:
+#      labels:
+#        pod-security.kubernetes.io/enforce: privileged
+#        pod-security.kubernetes.io/enforce-version: latest
+#        pod-security.kubernetes.io/audit: privileged
+#        pod-security.kubernetes.io/audit-version: latest
+#        pod-security.kubernetes.io/warn: privileged
+#        pod-security.kubernetes.io/warn-version: latest
+#    syncOptions:
+#      - CreateNamespace=true
+#  revisionHistoryLimit: 1
