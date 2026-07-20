@@ -360,6 +360,18 @@ After setting the above you can go back to Settings => Remote Access and click R
 
 Plex should then be accessible publically via `https://plex.indigo.dalmura.cloud:32406/`
 
+If you want to poke around the Plex container filesystem:
+```
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 get pods -n plex
+NAME                       READY   STATUS    RESTARTS   AGE
+plex-plex-media-server-0   1/1     Running   0          24m
+
+$ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 exec -it -n plex plex-plex-media-server-0 -- /bin/bash
+```
+
+Interesting directories:
+* `/config/Library/Application\ Support/Plex\ Media\ Server/`
+
 ## Emojirades Setup
 
 Assuming you've setup all the normal vault/etc settings, ensure the ttl is set to 31d and not 24h due to IAM user DB vending.

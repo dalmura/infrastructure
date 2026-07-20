@@ -50,6 +50,7 @@ spec:
         - matchName: "plex.tv"
         - matchName: "image.tmdb.org"
         - matchName: "secure.gravatar.com"
+        - matchName: "i0.wp.com" # Thumbnail scraping
       toPorts:
         - ports:
             - port: "443"
