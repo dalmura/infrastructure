@@ -135,3 +135,10 @@ spec:
         - ports:
             - port: "13333"
               protocol: TCP
+    # Allow egress to Meross Smart Plugs
+    - toFQDNs:
+        - matchName: "iotx-ap.meross.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
