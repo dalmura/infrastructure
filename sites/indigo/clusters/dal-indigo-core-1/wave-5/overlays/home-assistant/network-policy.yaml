@@ -138,6 +138,7 @@ spec:
     # Allow egress to Meross Smart Plugs
     - toFQDNs:
         - matchName: "iotx-ap.meross.com"
+        - matchName: "mqtt-ap-v2.meross.com"
       toPorts:
         - ports:
             - port: "443"
