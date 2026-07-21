@@ -57,6 +57,8 @@ spec:
         - ports:
             - port: "9005"
               protocol: TCP
+            - port: "80"
+              protocol: TCP
     # Allow egress to ESPHome devices
     - toCIDR:
         - 192.168.78.0/25   # IOT_INTERNET
