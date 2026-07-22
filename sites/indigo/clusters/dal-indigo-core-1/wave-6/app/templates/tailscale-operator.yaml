@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://pkgs.tailscale.com/helmcharts
       chart: tailscale-operator
-      targetRevision: 1.98.4
+      targetRevision: 1.98.9
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-6/values/tailscale-operator/values.yaml
