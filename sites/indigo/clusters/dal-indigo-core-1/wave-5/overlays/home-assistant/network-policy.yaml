@@ -124,6 +124,7 @@ spec:
     - toFQDNs:
         - matchName: "fcm.googleapis.com"
         - matchName: "api.push.apple.com"
+        - matchName: "mobile-apps.home-assistant.io"
       toPorts:
         - ports:
             - port: "443"
