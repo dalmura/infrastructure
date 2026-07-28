@@ -19,6 +19,14 @@ spec:
               protocol: TCP
             - port: "8080"
               protocol: TCP
+    # Allow traffic to Matter Server WebSocket from within home-assistant namespace
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
+      toPorts:
+        - ports:
+            - port: "5580"
+              protocol: TCP
   egress:
     # Allow DNS
     - toEndpoints:
@@ -32,6 +40,15 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow egress to Matter Server (matterjs-server)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
+            app.kubernetes.io/name: matter-server
+      toPorts:
+        - ports:
+            - port: "5580"
+              protocol: TCP
     # Allow egress to Frigate API
     - toEndpoints:
         - matchLabels:
@@ -67,6 +84,15 @@ spec:
         - ports:
             - port: "6053"
               protocol: TCP
+    # Allow egress to Matter devices
+    - toCIDR:
+        - 192.168.78.0/25   # IOT_INTERNET
+        - 192.168.78.128/25 # IOT_RESTRICTED
+      toPorts:
+        - ports:
+            - port: "5540"
+              protocol: TCP
+
     # Allow egress to Home Assistant Cloud/Visual assets
     - toFQDNs:
         - matchName: "brands.home-assistant.io"

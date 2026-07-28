@@ -32,3 +32,9 @@ You should now have a HACS menu item on the left!
 A list of other integrations:
 * [Airtouch 5](https://www.home-assistant.io/integrations/airtouch5/)
 * [Emerald HWS (via HACS)](https://github.com/ross-w/emerald-hws-ha)
+
+## Matter Server (matterjs-server)
+
+Required [`matterjs-server`](https://github.com/matter-js/matterjs-server) deployed in the `home-assistant` namespace to allow for HA to reach matter devices natively.
+
+WebSocket Endpoint URL is `ws://matter-server.home-assistant.svc.cluster.local:5580/ws` (configure this in Home Assistant 'Matter' integration).

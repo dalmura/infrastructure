@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matter-server
+  namespace: home-assistant
+  labels:
+    app.kubernetes.io/name: matter-server
+    app.kubernetes.io/instance: matter-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: matter-server
+      app.kubernetes.io/instance: matter-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: matter-server
+        app.kubernetes.io/instance: matter-server
+    spec:
+      containers:
+        - name: matter-server
+          image: ghcr.io/matter-js/matterjs-server:1.3.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5580
+              name: websocket
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5580
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5580
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: matter-server-data
