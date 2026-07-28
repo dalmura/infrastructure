@@ -1,0 +1,45 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: tandoor-db
+spec:
+  description: "Tandoor DB"
+  instances: 1
+
+  enableSuperuserAccess: true
+
+  primaryUpdateStrategy: unsupervised
+
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 18
+
+  storage:
+    storageClass: cluster-nobackup
+    size: 10Gi
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: tandoor-postgres
+
+  postgresql:
+    parameters:
+      archive_timeout: "30min"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: tandoor-db-backup
+spec:
+  cluster:
+    name: tandoor-db
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

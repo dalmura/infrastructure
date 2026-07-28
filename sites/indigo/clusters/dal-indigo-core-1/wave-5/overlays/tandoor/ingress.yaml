@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app.kubernetes.io/name: tandoor
+    app.kubernetes.io/instance: tandoor
+  name: tandoor
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: tandoor.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+      - tandoor.indigo.dalmura.cloud
+      secretName: tandoor-cert
+  rules:
+  - host: tandoor.indigo.dalmura.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: tandoor
+            port:
+              number: 80

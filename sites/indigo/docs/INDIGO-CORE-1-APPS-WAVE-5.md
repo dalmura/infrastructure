@@ -6,6 +6,7 @@ These are:
 * [Forgejo](https://forgejo.org/) as a Github replacement
 * [Photoprism](https://github.com/photoprism/photoprism) for Photo management
 * [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
+* [Tandoor](https://tandoor.dev/) for Recipe management
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -419,3 +420,54 @@ vault write auth/kubernetes/role/workload-reader-obsidian-livesync-secrets \
    ttl=24h
 
 ```
+
+## Tandoor Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md](INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md)
+
+### Vault Configuration
+
+1. Create the Vault AWS Role (AKA IAM User Template) for Tandoor CNPG backups:
+```bash
+vault write aws/roles/tandoor-db-backup \
+    credential_type=iam_user \
+    policy_arns='<iam_vended_permissions.id>' \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=tandoor" \
+    iam_tags="role=postgres"
+```
+
+2. Create the Vault policy and Kubernetes auth role:
+```bash
+vault policy write workload-reader-tandoor-secrets -<<EOF
+path "aws/creds/tandoor-db-backup" {
+    capabilities = ["read"]
+}
+path "site/data/wave-5/tandoor/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-tandoor-secrets \
+   bound_service_account_names=tandoor-sa \
+   bound_service_account_namespaces=tandoor \
+   token_policies=workload-reader-tandoor-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=31d
+```
+
+3. Create the application secret in Vault (`site/data/wave-5/tandoor/config`):
+   - `secret_key`: `<random_django_secret_key>`
+
+### Deploy & Verify
+
+Sync the application via ArgoCD:
+```bash
+argocd app sync wave-5
+argocd app sync tandoor
+```
+
+Tandoor will be accessible privately via:
+`https://tandoor.indigo.dalmura.cloud/`
+

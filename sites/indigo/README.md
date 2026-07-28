@@ -98,11 +98,9 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Home Automation
    * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
       * Personal Notes
+   * [Tandoor](https://tandoor.dev/)
+      * Recipe management
    * Not Implemented Yet
-      * [Github Runner](https://github.com/actions/actions-runner-controller)
-         * Github Actions runner management
-      * [Tandoor](https://tandoor.dev/)
-         * Recipe management
       * [Reactive Resume](https://rxresu.me/)
          * Resume builder
       * [Matrix Comms](https://matrix.org/)

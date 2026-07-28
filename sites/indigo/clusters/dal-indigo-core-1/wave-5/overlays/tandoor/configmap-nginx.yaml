@@ -1,0 +1,37 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: tandoor
+    app.kubernetes.io/instance: tandoor
+  name: recipes-nginx-config
+data:
+  nginx-config: |-
+    events {
+      worker_connections 1024;
+    }
+    http {
+      include mime.types;
+      server {
+        listen 80;
+        server_name _;
+
+        client_max_body_size 16M;
+
+        # serve static files
+        location /static/ {
+          alias /static/;
+        }
+        # serve media files
+        location /media/ {
+          alias /media/;
+        }
+        # proxy all other requests to Gunicorn
+        location / {
+          proxy_pass http://127.0.0.1:8080;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+    }
