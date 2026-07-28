@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/name: matter-server
         app.kubernetes.io/instance: matter-server
     spec:
+      securityContext:
+        # Ensures the storage volume permissions match
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: matter-server
           image: ghcr.io/matter-js/matterjs-server:1.3.1
