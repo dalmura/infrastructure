@@ -29,9 +29,13 @@ You should now have a HACS menu item on the left!
 
 ## Other Integrations
 
-A list of other integrations:
+A list of other integrations via HACS:
 * [Airtouch 5](https://www.home-assistant.io/integrations/airtouch5/)
 * [Emerald HWS (via HACS)](https://github.com/ross-w/emerald-hws-ha)
+* [IKEA Dirigera Platform](https://github.com/sanjoyg/dirigera_platform)
+* [Meross Lan](https://github.com/krahabb/meross_lan)
+* [Solis Cloud Control](https://github.com/mkuthan/solis-cloud-control)
+* [Solis Sensor](https://github.com/hultenvp/solis-sensor)
 
 ## Matter Server (matterjs-server)
 
