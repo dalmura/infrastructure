@@ -2,11 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: anubis
+  namespace: anubis
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: anubis.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.middlewares: traefik-public-geoblock@kubernetescrd,traefik-public-ratelimit@kubernetescrd,traefik-public-security-headers@kubernetescrd
 spec:
   ingressClassName: ingress-public
