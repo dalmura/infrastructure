@@ -20,6 +20,7 @@ spec:
       countries:
         - AU
         - NZ
+        - CO
 
       # Don't log happy path
       logAllowedRequests: false

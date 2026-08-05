@@ -2,13 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: authentik
+  namespace: authentik
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: auth.navy.dalmura.cloud
     # Uncomment when we want to CNAME to public interface
     #external-dns.alpha.kubernetes.io/target: navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.middlewares: traefik-public-geoblock@kubernetescrd,traefik-public-ratelimit@kubernetescrd,traefik-public-anubis@kubernetescrd,traefik-public-security-headers@kubernetescrd,authentik-authentik-csp@kubernetescrd
 spec:
   ingressClassName: ingress-public
