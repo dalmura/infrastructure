@@ -51,6 +51,7 @@ spec:
         - matchName: "image.tmdb.org"
         - matchName: "secure.gravatar.com"
         - matchName: "i0.wp.com" # Thumbnail scraping
+        - matchName: "artworks.thetvdb.com" # Media poster downloading
       toPorts:
         - ports:
             - port: "443"
