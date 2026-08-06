@@ -45,13 +45,15 @@ spec:
         - matchPattern: "**.sin.plex.bz"
         - matchPattern: "**.plex.tv"
         - matchPattern: "**.plex.direct"
+        - matchPattern: "**.plexapp.com"
         - matchName: "proxy.plex.bz"
         - matchName: "meta.plex.bz"
         - matchName: "plex.tv"
         - matchName: "image.tmdb.org"
         - matchName: "secure.gravatar.com"
         - matchName: "i0.wp.com" # Thumbnail scraping
-        - matchName: "artworks.thetvdb.com" # Media poster downloading
+        - matchName: "artworks.thetvdb.com"
+        - matchName: "assets.fanart.tv"
       toPorts:
         - ports:
             - port: "443"
