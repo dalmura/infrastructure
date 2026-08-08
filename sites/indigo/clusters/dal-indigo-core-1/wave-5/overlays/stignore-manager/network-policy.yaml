@@ -1,0 +1,41 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: stignore-manager
+  namespace: stignore-manager
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: stignore-manager
+      app.kubernetes.io/instance: manager
+  ingress:
+    # Allow traffic from Traefik Private
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow connections to agents at the various sites
+    - toCIDR:
+        - 192.168.0.0/16   # Private sites egress
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
