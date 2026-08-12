@@ -41,10 +41,8 @@ spec:
             dns:
               - matchPattern: "*"
     # Allow egress to Matter Server (matterjs-server)
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: home-assistant
-            app.kubernetes.io/name: matter-server
+    - toCIDR:
+        - 192.168.78.88/32
       toPorts:
         - ports:
             - port: "5580"
