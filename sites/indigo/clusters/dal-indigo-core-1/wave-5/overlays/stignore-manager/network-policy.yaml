@@ -37,5 +37,7 @@ spec:
         - 192.168.0.0/16   # Private sites egress
       toPorts:
         - ports:
+            - port: "80"
+              protocol: TCP
             - port: "443"
               protocol: TCP

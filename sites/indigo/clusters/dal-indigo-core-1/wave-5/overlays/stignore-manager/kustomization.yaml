@@ -4,6 +4,9 @@ kind: Kustomization
 namespace: stignore-manager
 
 resources:
+  - service-account.yaml
+  - secret-store-site.yaml
+  - external-secret.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

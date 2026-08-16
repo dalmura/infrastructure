@@ -20,17 +20,16 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/instance: stignore-manager
-        app.kubernetes.io/name: manager
+        app.kubernetes.io/instance: manager
+        app.kubernetes.io/name: stignore-manager
     spec:
       containers:
-        -
-          image: ghcr.io/dalmura/stignore-manager:v0.0.1
+        - image: ghcr.io/dalmura/stignore-manager:v0.0.1
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 5
             httpGet:
-              path: /
+              path: /health
               port: http
               scheme: HTTP
             initialDelaySeconds: 20
@@ -44,16 +43,19 @@ spec:
           readinessProbe:
             failureThreshold: 5
             httpGet:
-              path: /
+              path: /health
               port: http
               scheme: HTTP
             initialDelaySeconds: 30
             timeoutSeconds: 10
           volumeMounts:
-            - mountPath: /config.toml
+            - mountPath: /app/config.toml
               name: config
               subPath: config.toml
       volumes:
-        - configMap:
-            name: manager-config
-          name: config
+        - name: config
+          secret:
+            secretName: stignore-manager-config
+            items:
+              - key: config.toml
+                path: config.toml
