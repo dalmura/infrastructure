@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: manager
+    app.kubernetes.io/name: stignore-manager
+  name: stignore-manager
+  namespace: stignore-manager
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: manager
+      app.kubernetes.io/name: stignore-manager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: manager
+        app.kubernetes.io/name: stignore-manager
+    spec:
+      containers:
+        - image: ghcr.io/dalmura/stignore-manager:v1.4.2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: stignore-manager
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          volumeMounts:
+            - mountPath: /app/config.toml
+              name: config
+              subPath: config.toml
+      volumes:
+        - name: config
+          secret:
+            secretName: stignore-manager-config
+            items:
+              - key: config.toml
+                path: config.toml
