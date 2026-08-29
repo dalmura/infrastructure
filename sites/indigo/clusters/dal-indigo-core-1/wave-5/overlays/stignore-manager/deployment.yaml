@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/name: stignore-manager
     spec:
       containers:
-        - image: ghcr.io/dalmura/stignore-manager:v1.9.2
+        - image: ghcr.io/dalmura/stignore-manager:v1.10.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 5
