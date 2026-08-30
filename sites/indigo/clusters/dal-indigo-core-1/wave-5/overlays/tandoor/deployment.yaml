@@ -24,88 +24,12 @@ spec:
     spec:
       restartPolicy: Always
       serviceAccountName: tandoor-sa
-      initContainers:
-        - name: init-chmod-data
-          image: vabene1111/recipes:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: TZ
-              value: "Australia/Melbourne"
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: tandoor-secrets
-                  key: SECRET_KEY
-            - name: DB_ENGINE
-              value: django.db.backends.postgresql
-            - name: POSTGRES_HOST
-              value: tandoor-db-rw
-            - name: POSTGRES_PORT
-              value: "5432"
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: tandoor-db-app
-                  key: username
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: tandoor-db-app
-                  key: dbname
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: tandoor-db-app
-                  key: password
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-          command:
-            - sh
-            - -c
-            - |
-              set -e
-              source venv/bin/activate
-              echo "Updating database"
-              python manage.py migrate
-              echo "Collecting static files"
-              python manage.py collectstatic --noinput
-              echo "Setting file attributes"
-              mkdir -p /opt/recipes/mediafiles
-              chown -R 65534:65534 /opt/recipes/mediafiles
-              find /opt/recipes/mediafiles -type d | xargs -r chmod 755
-              find /opt/recipes/mediafiles -type f | xargs -r chmod 644
-              chown -R 65534:65534 /opt/recipes/staticfiles
-              chmod -R 755 /opt/recipes/staticfiles
-              echo "Done"
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /opt/recipes/mediafiles
-              name: media
-              subPath: files
-            - mountPath: /opt/recipes/staticfiles
-              name: static
       containers:
         - name: recipes
-          image: vabene1111/recipes:latest
+          image: ghcr.io/tandoorrecipes/recipes:latest
           imagePullPolicy: IfNotPresent
-          command:
-            - /opt/recipes/venv/bin/gunicorn
-            - -b
-            - :8080
-            - -w
-            - "4"
-            - --access-logfile
-            - "-"
-            - --error-logfile
-            - "-"
-            - --log-level
-            - INFO
-            - recipes.wsgi
           ports:
-            - containerPort: 8080
+            - containerPort: 80
               name: http
               protocol: TCP
           livenessProbe:
@@ -132,8 +56,6 @@ spec:
             - mountPath: /opt/recipes/mediafiles
               name: media
               subPath: files
-            - mountPath: /opt/recipes/staticfiles
-              name: static
           env:
             - name: DEBUG
               value: "0"
@@ -143,13 +65,17 @@ spec:
               value: "https://tandoor.indigo.dalmura.cloud"
             - name: TZ
               value: "Australia/Melbourne"
+            - name: TANDOOR_PORT
+              value: "80"
+            - name: GUNICORN_WORKERS
+              value: "4"
+            - name: GUNICORN_THREADS
+              value: "2"
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: tandoor-secrets
                   key: SECRET_KEY
-            - name: GUNICORN_MEDIA
-              value: "1"
             - name: DB_ENGINE
               value: django.db.backends.postgresql
             - name: POSTGRES_HOST
@@ -171,11 +97,7 @@ spec:
                 secretKeyRef:
                   name: tandoor-db-app
                   key: password
-          securityContext:
-            runAsUser: 65534
       volumes:
         - name: media
           persistentVolumeClaim:
             claimName: recipes-media
-        - name: static
-          emptyDir: {}
