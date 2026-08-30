@@ -11,10 +11,6 @@ spec:
     app.kubernetes.io/instance: tandoor
   ports:
   - port: 80
-    targetPort: http
-    name: http
-    protocol: TCP
-  - port: 8080
     targetPort: 8080
-    name: gunicorn
+    name: http
     protocol: TCP
