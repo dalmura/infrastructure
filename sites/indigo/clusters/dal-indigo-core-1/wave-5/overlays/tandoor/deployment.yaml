@@ -76,6 +76,19 @@ spec:
                 secretKeyRef:
                   name: tandoor-secrets
                   key: SECRET_KEY
+            - name: SOCIAL_PROVIDERS
+              value: "allauth.socialaccount.providers.openid_connect"
+            - name: SOCIALACCOUNT_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-secrets
+                  key: SOCIALACCOUNT_PROVIDERS
+            - name: SOCIAL_DEFAULT_ACCESS
+              value: "1"
+            - name: SOCIAL_DEFAULT_GROUP
+              value: "user"
+            - name: SOCIAL_AUTO_SIGNUP
+              value: "1"
             - name: DB_ENGINE
               value: django.db.backends.postgresql
             - name: POSTGRES_HOST

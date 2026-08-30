@@ -459,6 +459,8 @@ vault write auth/kubernetes/role/workload-reader-tandoor-secrets \
 
 3. Create the application secret in Vault (`site/data/wave-5/tandoor/config`):
    - `secret_key`: `<random_django_secret_key>`
+   - `oidc_client_id`: `<authentik_client_id>`
+   - `oidc_client_secret`: `<authentik_client_secret>`
 
 ### Deploy & Verify
 
