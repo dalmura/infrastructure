@@ -39,15 +39,7 @@ spec:
               port: http
               scheme: HTTP
             initialDelaySeconds: 30
-            periodSeconds: 30
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /accounts/login/
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 30
-            periodSeconds: 30
+            periodSeconds: 120
           resources:
             requests:
               cpu: 300m
