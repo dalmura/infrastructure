@@ -89,6 +89,10 @@ spec:
               value: "user"
             - name: SOCIAL_AUTO_SIGNUP
               value: "1"
+            - name: SOCIALACCOUNT_LOGIN_ON_GET
+              value: "1"
+            - name: HIDE_LOGIN_FORM
+              value: "1"
             - name: DB_ENGINE
               value: django.db.backends.postgresql
             - name: POSTGRES_HOST
