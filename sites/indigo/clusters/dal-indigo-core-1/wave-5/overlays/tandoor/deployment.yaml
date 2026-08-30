@@ -68,6 +68,7 @@ spec:
               echo "Updating database"
               python manage.py migrate
               echo "Setting media file attributes"
+              mkdir -p /opt/recipes/mediafiles
               chown -R 65534:65534 /opt/recipes/mediafiles
               find /opt/recipes/mediafiles -type d | xargs -r chmod 755
               find /opt/recipes/mediafiles -type f | xargs -r chmod 644
@@ -86,6 +87,8 @@ spec:
             - /opt/recipes/venv/bin/gunicorn
             - -b
             - :8080
+            - -w
+            - "4"
             - --access-logfile
             - "-"
             - --error-logfile
@@ -115,8 +118,8 @@ spec:
             periodSeconds: 30
           resources:
             requests:
-              cpu: 200m
-              memory: 256Mi
+              cpu: 300m
+              memory: 512Mi
           volumeMounts:
             - mountPath: /opt/recipes/mediafiles
               name: media
@@ -126,6 +129,12 @@ spec:
               value: "0"
             - name: ALLOWED_HOSTS
               value: '*'
+            - name: CSRF_TRUSTED_ORIGINS
+              value: "https://tandoor.indigo.dalmura.cloud"
+            - name: TIMEZONE
+              value: "Australia/Melbourne"
+            - name: TZ
+              value: "Australia/Melbourne"
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
