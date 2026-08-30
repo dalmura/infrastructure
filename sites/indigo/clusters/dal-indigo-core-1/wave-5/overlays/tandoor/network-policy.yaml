@@ -52,6 +52,15 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: tandoor
+    # Allow outbound HTTP/HTTPS for recipe scraping and media download
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

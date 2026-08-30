@@ -9,6 +9,7 @@ metadata:
     reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
+  revisionHistoryLimit: 0
   strategy:
     type: Recreate
   selector:
@@ -71,6 +72,7 @@ spec:
           chown -R 65534:65534 /opt/recipes/mediafiles
           find /opt/recipes/mediafiles -type d | xargs -r chmod 755
           find /opt/recipes/mediafiles -type f | xargs -r chmod 644
+          chmod -R 755 /opt/recipes/staticfiles
           echo "Done"
         securityContext:
           runAsUser: 0
@@ -124,12 +126,15 @@ spec:
             path: /
             port: 8080
             scheme: HTTP
+          initialDelaySeconds: 30
           periodSeconds: 30
         readinessProbe:
+          failureThreshold: 3
           httpGet:
             path: /
             port: 8080
             scheme: HTTP
+          initialDelaySeconds: 30
           periodSeconds: 30
         resources:
           requests:

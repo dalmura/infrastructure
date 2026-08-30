@@ -8,6 +8,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: cluster-regular
   resources:
     requests:
       storage: 5Gi
@@ -22,6 +23,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: cluster-nobackup
   resources:
     requests:
       storage: 1Gi

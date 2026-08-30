@@ -9,6 +9,7 @@ resources:
   - vault-dynamic-secret.yaml
   - external-secret-db-backup.yaml
   - external-secret.yaml
+  - object-store.yaml
   - postgres.yaml
   - configmap-nginx.yaml
   - pvc.yaml
