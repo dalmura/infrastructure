@@ -110,3 +110,8 @@ argocd app sync tandoor
    ```
 2. **Access Web Application & Test SSO**:
    Navigate to [https://tandoor.indigo.dalmura.cloud/](https://tandoor.indigo.dalmura.cloud/). You should see an **Authentik** login button. Clicking it will redirect to Authentik for single sign-on and automatically create and link your user space in Tandoor.
+
+
+There is a break-glass setup by navigating to: https://tandoor.indigo.dalmura.cloud/accounts/login/?form=1
+
+You will be able to log in as the initially configured admin account.
