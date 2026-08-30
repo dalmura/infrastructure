@@ -29,6 +29,8 @@ spec:
           image: vabene1111/recipes:latest
           imagePullPolicy: IfNotPresent
           env:
+            - name: TZ
+              value: "Australia/Melbourne"
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -67,11 +69,15 @@ spec:
               source venv/bin/activate
               echo "Updating database"
               python manage.py migrate
-              echo "Setting media file attributes"
+              echo "Collecting static files"
+              python manage.py collectstatic --noinput
+              echo "Setting file attributes"
               mkdir -p /opt/recipes/mediafiles
               chown -R 65534:65534 /opt/recipes/mediafiles
               find /opt/recipes/mediafiles -type d | xargs -r chmod 755
               find /opt/recipes/mediafiles -type f | xargs -r chmod 644
+              chown -R 65534:65534 /opt/recipes/staticfiles
+              chmod -R 755 /opt/recipes/staticfiles
               echo "Done"
           securityContext:
             runAsUser: 0
@@ -79,6 +85,8 @@ spec:
             - mountPath: /opt/recipes/mediafiles
               name: media
               subPath: files
+            - mountPath: /opt/recipes/staticfiles
+              name: static
       containers:
         - name: recipes
           image: vabene1111/recipes:latest
@@ -124,6 +132,8 @@ spec:
             - mountPath: /opt/recipes/mediafiles
               name: media
               subPath: files
+            - mountPath: /opt/recipes/staticfiles
+              name: static
           env:
             - name: DEBUG
               value: "0"
@@ -131,8 +141,6 @@ spec:
               value: '*'
             - name: CSRF_TRUSTED_ORIGINS
               value: "https://tandoor.indigo.dalmura.cloud"
-            - name: TIMEZONE
-              value: "Australia/Melbourne"
             - name: TZ
               value: "Australia/Melbourne"
             - name: SECRET_KEY
@@ -169,3 +177,5 @@ spec:
         - name: media
           persistentVolumeClaim:
             claimName: recipes-media
+        - name: static
+          emptyDir: {}
