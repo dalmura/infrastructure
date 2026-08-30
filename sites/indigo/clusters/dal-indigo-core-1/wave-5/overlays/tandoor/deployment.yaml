@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tandoor
+  labels:
+    app.kubernetes.io/name: tandoor
+    app.kubernetes.io/instance: tandoor
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tandoor
+      app.kubernetes.io/instance: tandoor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tandoor
+        app.kubernetes.io/instance: tandoor
+    spec:
+      restartPolicy: Always
+      serviceAccountName: tandoor-sa
+      initContainers:
+        - name: init-chmod-data
+          image: vabene1111/recipes:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-secrets
+                  key: SECRET_KEY
+            - name: DB_ENGINE
+              value: django.db.backends.postgresql
+            - name: POSTGRES_HOST
+              value: tandoor-db-rw
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: username
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: dbname
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              source venv/bin/activate
+              echo "Updating database"
+              python manage.py migrate
+              echo "Setting media file attributes"
+              mkdir -p /opt/recipes/mediafiles
+              chown -R 65534:65534 /opt/recipes/mediafiles
+              find /opt/recipes/mediafiles -type d | xargs -r chmod 755
+              find /opt/recipes/mediafiles -type f | xargs -r chmod 644
+              echo "Done"
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /opt/recipes/mediafiles
+              name: media
+              subPath: files
+      containers:
+        - name: recipes
+          image: vabene1111/recipes:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /opt/recipes/venv/bin/gunicorn
+            - -b
+            - :8080
+            - -w
+            - "4"
+            - --access-logfile
+            - "-"
+            - --error-logfile
+            - "-"
+            - --log-level
+            - INFO
+            - recipes.wsgi
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /opt/recipes/mediafiles
+              name: media
+              subPath: files
+          env:
+            - name: DEBUG
+              value: "0"
+            - name: ALLOWED_HOSTS
+              value: '*'
+            - name: CSRF_TRUSTED_ORIGINS
+              value: "https://tandoor.indigo.dalmura.cloud"
+            - name: TIMEZONE
+              value: "Australia/Melbourne"
+            - name: TZ
+              value: "Australia/Melbourne"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-secrets
+                  key: SECRET_KEY
+            - name: GUNICORN_MEDIA
+              value: "1"
+            - name: DB_ENGINE
+              value: django.db.backends.postgresql
+            - name: POSTGRES_HOST
+              value: tandoor-db-rw
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: username
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: dbname
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tandoor-db-app
+                  key: password
+          securityContext:
+            runAsUser: 65534
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: recipes-media

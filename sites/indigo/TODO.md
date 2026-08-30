@@ -18,3 +18,6 @@ Stuff to eventually get around to.
   * Cut over to Gateway API (when ListenerSets are supported and stable) instead of Ingress
 * Switchboard
   * Deprecate when Gateway API is being used
+* Forgejo Runner
+  * Waiting for native k8s support
+  * https://codeberg.org/forgejo/discussions/issues/66
