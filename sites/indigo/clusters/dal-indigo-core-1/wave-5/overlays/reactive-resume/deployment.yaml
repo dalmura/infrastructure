@@ -90,7 +90,7 @@ spec:
             - name: OAUTH_DISCOVERY_URL
               value: "https://auth.indigo.dalmura.cloud/application/o/reactive-resume/.well-known/openid-configuration"
             - name: OAUTH_SCOPES
-              value: "openid profile email entitlements"
+              value: "openid profile email"
             - name: FLAG_DISABLE_SIGNUPS
               value: "false"
             - name: FLAG_DISABLE_EMAIL_AUTH

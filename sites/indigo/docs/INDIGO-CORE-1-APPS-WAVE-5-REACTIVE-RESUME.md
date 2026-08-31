@@ -20,7 +20,7 @@ Navigate to **Applications** => **Providers** => **Create**:
   ```text
   https://resume.indigo.dalmura.cloud/api/auth/callback/custom
   ```
-* **Scopes**: Ensure `openid`, `email`, `profile`, and `Application Entitlements` are selected.
+* **Scopes**: Ensure `openid`, `email`, and `profile` are selected.
 * **Subject mode**: `Based on the User's hashed ID` (default)
 * Note down the generated **Client ID** and **Client Secret**.
 
