@@ -7,6 +7,7 @@ These are:
 * [Photoprism](https://github.com/photoprism/photoprism) for Photo management
 * [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
 * [Tandoor](https://tandoor.dev/) for Recipe management
+* [Reactive Resume](https://rxresu.me/) for Resume management
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -473,3 +474,55 @@ argocd app sync tandoor
 Tandoor will be accessible privately via:
 `https://tandoor.indigo.dalmura.cloud/`
 
+
+## Reactive Resume Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-REACTIVE-RESUME.md](INDIGO-CORE-1-APPS-WAVE-5-REACTIVE-RESUME.md)
+
+### Vault Configuration
+
+1. Create the Vault AWS Role (AKA IAM User Template) for Reactive Resume CNPG backups:
+```bash
+vault write aws/roles/reactive-resume-db-backup \
+    credential_type=iam_user \
+    policy_arns='<iam_vended_permissions.id>' \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=reactive-resume" \
+    iam_tags="role=postgres"
+```
+
+2. Create the Vault policy and Kubernetes auth role:
+```bash
+vault policy write workload-reader-reactive-resume-secrets -<<EOF
+path "aws/creds/reactive-resume-db-backup" {
+    capabilities = ["read"]
+}
+path "site/data/wave-5/reactive-resume/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-reactive-resume-secrets \
+   bound_service_account_names=reactive-resume-sa \
+   bound_service_account_namespaces=reactive-resume \
+   token_policies=workload-reader-reactive-resume-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=31d
+```
+
+3. Create the application secret in Vault (`site/data/wave-5/reactive-resume/config`):
+   - `auth_secret`: `<random_32byte_hex>`
+   - `oidc_client_id`: `<authentik_client_id>`
+   - `oidc_client_secret`: `<authentik_client_secret>`
+
+### Deploy & Verify
+
+Sync the application via ArgoCD:
+```bash
+argocd app sync wave-5
+argocd app sync reactive-resume
+```
+
+Reactive Resume will be accessible privately via:
+`https://resume.indigo.dalmura.cloud/`

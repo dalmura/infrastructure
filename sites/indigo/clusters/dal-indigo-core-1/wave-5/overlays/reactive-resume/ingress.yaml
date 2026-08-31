@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app.kubernetes.io/name: reactive-resume
+    app.kubernetes.io/instance: reactive-resume
+  name: reactive-resume
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: resume.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+      - resume.indigo.dalmura.cloud
+      secretName: reactive-resume-cert
+  rules:
+  - host: resume.indigo.dalmura.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: reactive-resume
+            port:
+              number: 3000

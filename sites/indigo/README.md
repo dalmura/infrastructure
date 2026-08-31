@@ -100,9 +100,9 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Personal Notes
    * [Tandoor](https://tandoor.dev/)
       * Recipe management
+   * [Reactive Resume](https://rxresu.me/)
+      * Resume builder
    * Not Implemented Yet
-      * [Reactive Resume](https://rxresu.me/)
-         * Resume builder
       * [Matrix Comms](https://matrix.org/)
          * Chat rooms
       * [PeerTube](https://joinpeertube.org/)
