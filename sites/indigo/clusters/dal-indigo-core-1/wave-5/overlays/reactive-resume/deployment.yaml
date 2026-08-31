@@ -24,6 +24,9 @@ spec:
     spec:
       restartPolicy: Always
       serviceAccountName: reactive-resume-sa
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: reactive-resume
           image: ghcr.io/amruthpillai/reactive-resume:v5.2.9
