@@ -1,0 +1,23 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: reactive-resume-postgres
+spec:
+  configuration:
+    destinationPath: "s3://dal-site-backups/indigo/reactive-resume/postgres/"
+    s3Credentials:
+      accessKeyId:
+        name: reactive-resume-db-backup
+        key: access_key
+      secretAccessKey:
+        name: reactive-resume-db-backup
+        key: secret_key
+    data:
+      compression: gzip
+    wal:
+      compression: gzip
+    tags:
+      site: indigo
+      service: reactive-resume
+      db: reactive-resume-db
+  retentionPolicy: "3d"

@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reactive-resume
+  labels:
+    app.kubernetes.io/name: reactive-resume
+    app.kubernetes.io/instance: reactive-resume
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: reactive-resume
+      app.kubernetes.io/instance: reactive-resume
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: reactive-resume
+        app.kubernetes.io/instance: reactive-resume
+    spec:
+      restartPolicy: Always
+      serviceAccountName: reactive-resume-sa
+      containers:
+        - name: reactive-resume
+          image: ghcr.io/amruthpillai/reactive-resume:v5.2.9
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /app/data
+              name: data
+          env:
+            - name: PORT
+              value: "3000"
+            - name: TZ
+              value: "Australia/Melbourne"
+            - name: APP_URL
+              value: "https://resume.indigo.dalmura.cloud"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: reactive-resume-db-app
+                  key: uri
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: reactive-resume-secrets
+                  key: AUTH_SECRET
+            - name: OAUTH_PROVIDER_NAME
+              value: "Authentik"
+            - name: OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: reactive-resume-secrets
+                  key: OAUTH_CLIENT_ID
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: reactive-resume-secrets
+                  key: OAUTH_CLIENT_SECRET
+            - name: OAUTH_DISCOVERY_URL
+              value: "https://auth.indigo.dalmura.cloud/application/o/reactive-resume/.well-known/openid-configuration"
+            - name: OAUTH_SCOPES
+              value: "openid profile email"
+            - name: FLAG_DISABLE_SIGNUPS
+              value: "false"
+            - name: FLAG_DISABLE_EMAIL_AUTH
+              value: "false"
+            - name: FLAG_DISABLE_IMAGE_PROCESSING
+              value: "false"
+            - name: FLAG_DISABLE_API_RATE_LIMIT
+              value: "false"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: reactive-resume-data

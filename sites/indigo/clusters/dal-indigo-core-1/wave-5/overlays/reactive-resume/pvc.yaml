@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reactive-resume-data
+  labels:
+    app.kubernetes.io/name: reactive-resume
+    app.kubernetes.io/instance: reactive-resume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: cluster-regular
+  resources:
+    requests:
+      storage: 5Gi
