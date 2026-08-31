@@ -91,14 +91,10 @@ spec:
               value: "https://auth.indigo.dalmura.cloud/application/o/reactive-resume/.well-known/openid-configuration"
             - name: OAUTH_SCOPES
               value: "openid profile email"
-            - name: FLAG_DISABLE_SIGNUPS
-              value: "false"
             - name: FLAG_DISABLE_EMAIL_AUTH
-              value: "false"
-            - name: FLAG_DISABLE_IMAGE_PROCESSING
-              value: "false"
+              value: "true"
             - name: FLAG_DISABLE_API_RATE_LIMIT
-              value: "false"
+              value: "true"
       volumes:
         - name: data
           persistentVolumeClaim:
