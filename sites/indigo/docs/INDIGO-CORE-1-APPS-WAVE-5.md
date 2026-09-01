@@ -8,6 +8,7 @@ These are:
 * [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
 * [Tandoor](https://tandoor.dev/) for Recipe management
 * [Reactive Resume](https://rxresu.me/) for Resume management
+* [Matrix Synapse](https://matrix.org/) for Chat and Messaging
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -526,3 +527,59 @@ argocd app sync reactive-resume
 
 Reactive Resume will be accessible privately via:
 `https://resume.indigo.dalmura.cloud/`
+
+
+## Matrix Synapse Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-MATRIX.md](INDIGO-CORE-1-APPS-WAVE-5-MATRIX.md)
+
+### Vault Configuration
+
+1. Create the Vault AWS Role (AKA IAM User Template) for Matrix Synapse CNPG backups:
+```bash
+vault write aws/roles/matrix-db-backup \
+    credential_type=iam_user \
+    policy_arns='<iam_vended_permissions.id>' \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=matrix" \
+    iam_tags="role=postgres"
+```
+
+2. Create the Vault policy and Kubernetes auth role:
+```bash
+vault policy write workload-reader-matrix-secrets -<<EOF
+path "aws/creds/matrix-db-backup" {
+    capabilities = ["read"]
+}
+path "site/data/wave-5/matrix/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-matrix-secrets \
+   bound_service_account_names=matrix-sa \
+   bound_service_account_namespaces=matrix \
+   token_policies=workload-reader-matrix-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=31d
+```
+
+3. Create the application secret in Vault (`site/data/wave-5/matrix/config`):
+   - `registration_shared_secret`: `<random_32byte_hex>`
+   - `macaroon_secret_key`: `<random_32byte_hex>`
+   - `form_secret`: `<random_32byte_hex>`
+   - `db_password`: `<random_24byte_hex>`
+   - `oidc_client_id`: `<authentik_client_id>`
+   - `oidc_client_secret`: `<authentik_client_secret>`
+
+### Deploy & Verify
+
+Sync the application via ArgoCD:
+```bash
+argocd app sync wave-5
+argocd app sync matrix
+```
+
+Matrix Synapse will be accessible publicly via:
+`https://matrix.indigo.dalmura.cloud/`

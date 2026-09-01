@@ -1,0 +1,84 @@
+serverName: "indigo.dalmura.cloud"
+
+# Disable subchart built-in PostgreSQL in favor of CloudNativePG
+postgres:
+  enabled: false
+
+# Disable optional suite components (can be enabled later if needed)
+matrixAuthenticationService:
+  enabled: false
+matrixRTC:
+  enabled: false
+elementAdmin:
+  enabled: false
+elementWeb:
+  enabled: false
+hookshot:
+  enabled: false
+wellKnownDelegation:
+  enabled: false
+deploymentMarkers:
+  enabled: false
+
+# initSecrets generates any missing secrets (e.g. signing key) if not provided explicitly
+initSecrets:
+  enabled: true
+
+synapse:
+  checkConfigHook:
+    enabled: false
+
+  # Ingress configuration
+  ingress:
+    host: "matrix.indigo.dalmura.cloud"
+    className: "ingress-public"
+    tlsEnabled: true
+    tlsSecret: "matrix-cert"
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: matrix.indigo.dalmura.cloud
+      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        traefik-public-geoblock@kubernetescrd,
+        traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
+        traefik-public-security-headers@kubernetescrd
+
+  # External CloudNativePG Database
+  postgres:
+    host: "matrix-db-rw"
+    port: 5432
+    user: "app"
+    database: "app"
+    sslMode: "prefer"
+    password:
+      secret: "matrix-secrets"
+      secretKey: "db_password"
+
+  # Secrets loaded from ExternalSecret (matrix-secrets)
+  macaroon:
+    secret: "matrix-secrets"
+    secretKey: "macaroon_secret_key"
+  registrationSharedSecret:
+    secret: "matrix-secrets"
+    secretKey: "registration_shared_secret"
+
+  # Media Storage PVC
+  media:
+    maxUploadSize: 50M
+    storage:
+      existingClaim: "matrix-media"
+
+  # Additional Synapse configurations (OIDC & MSCs)
+  additional:
+    oidc:
+      configSecret: "matrix-secrets"
+      configSecretKey: "oidc.yaml"
+    extra:
+      config: |
+        federation:
+          enabled: false
+        experimental_features:
+          msc3575_enabled: true

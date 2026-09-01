@@ -102,9 +102,9 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Recipe management
    * [Reactive Resume](https://rxresu.me/)
       * Resume builder
+   * [Matrix Synapse](https://matrix.org/)
+      * Decentralized chat & messaging
    * Not Implemented Yet
-      * [Matrix Comms](https://matrix.org/)
-         * Chat rooms
       * [PeerTube](https://joinpeertube.org/)
          * Video Hosting
 * ArgoCD - Wave 6
@@ -135,6 +135,9 @@ Follow this list in order:
    * [`dal-indigo-core-1` Observability](docs/INDIGO-OBSERVABILITY.md)
 * [`dal-indigo-core-1` Apps - Wave 5](docs/INDIGO-CORE-1-APPS-WAVE-5.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Home Assistant](docs/INDIGO-CORE-1-APPS-WAVE-5-HOME-ASSISTANT.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Tandoor](docs/INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Reactive Resume](docs/INDIGO-CORE-1-APPS-WAVE-5-REACTIVE-RESUME.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Matrix](docs/INDIGO-CORE-1-APPS-WAVE-5-MATRIX.md)
 * [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
 ## Extra Documentation
