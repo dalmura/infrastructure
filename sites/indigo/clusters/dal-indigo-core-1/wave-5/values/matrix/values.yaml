@@ -4,9 +4,40 @@ serverName: "indigo.dalmura.au"
 postgres:
   enabled: false
 
-# Disable optional suite components (can be enabled later if needed)
 matrixAuthenticationService:
-  enabled: false
+  enabled: true
+  ingress:
+    className: "ingress-public"
+    tlsEnabled: true
+    tlsSecret: "auth-matrix-cert"
+    host: "auth-matrix.indigo.dalmura.cloud"
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: auth-matrix.indigo.dalmura.cloud
+      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        traefik-public-geoblock@kubernetescrd,
+        traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
+        traefik-public-security-headers@kubernetescrd
+
+  postgres:
+    host: "matrix-db-rw"
+    port: 5432
+    user: "app"
+    database: "mas"
+    sslMode: "prefer"
+    password:
+      secret: "matrix-db-app"
+      secretKey: "password"
+
+  additional:
+    upstream:
+      configSecret: "matrix-secrets"
+      configSecretKey: "mas-upstream.yaml"
+
 matrixRTC:
   enabled: false
 elementAdmin:
@@ -36,6 +67,8 @@ wellKnownDelegation:
         traefik-public-security-headers@kubernetescrd
   baseDomainRedirect:
     enabled: false
+  additional:
+    client: '{"org.matrix.msc2965.authentication":{"issuer":"https://auth-matrix.indigo.dalmura.cloud/","account":"https://auth-matrix.indigo.dalmura.cloud/account"}}'
 
 deploymentMarkers:
   enabled: false
@@ -93,9 +126,6 @@ synapse:
 
   # Additional Synapse configurations (OIDC & MSCs)
   additional:
-    oidc:
-      configSecret: "matrix-secrets"
-      configSecretKey: "oidc.yaml"
     extra:
       config: |
         federation:

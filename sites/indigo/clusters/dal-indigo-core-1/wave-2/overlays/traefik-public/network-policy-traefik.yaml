@@ -63,6 +63,8 @@ spec:
               - matchPattern: "matrix-synapse.matrix"
               - matchPattern: "matrix-well-known"
               - matchPattern: "matrix-well-known.matrix"
+              - matchPattern: "matrix-matrix-authentication-service"
+              - matchPattern: "matrix-matrix-authentication-service.matrix"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
