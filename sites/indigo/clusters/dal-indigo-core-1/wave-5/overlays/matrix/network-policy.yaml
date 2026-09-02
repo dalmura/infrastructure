@@ -24,6 +24,8 @@ spec:
               protocol: TCP
             - port: "8080"
               protocol: TCP
+            - port: "7880"
+              protocol: TCP
     # Allow VictoriaMetrics to scrape metrics
     - fromEndpoints:
         - matchLabels:
@@ -36,6 +38,18 @@ spec:
               protocol: TCP
             - port: "9090"
               protocol: TCP
+            - port: "6789"
+              protocol: TCP
+    # Allow WebRTC media traffic (LiveKit SFU)
+    - fromEntities:
+        - world
+        - cluster
+      toPorts:
+        - ports:
+            - port: "30001"
+              protocol: TCP
+            - port: "30002"
+              protocol: UDP
     # Allow intra-stack communication (HAProxy <-> Synapse)
     - fromEndpoints:
         - matchLabels:
@@ -96,7 +110,7 @@ spec:
     # Allow access to K8s API (for initSecrets job)
     - toEntities:
         - kube-apiserver
-    # Allow outbound HTTP/HTTPS for push notifications, identity verification, and federation
+    # Allow outbound HTTP/HTTPS for push notifications, identity verification, federation, and STUN for LiveKit
     - toEntities:
         - world
       toPorts:
@@ -105,6 +119,8 @@ spec:
               protocol: TCP
             - port: "443"
               protocol: TCP
+            - port: "3478"
+              protocol: UDP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

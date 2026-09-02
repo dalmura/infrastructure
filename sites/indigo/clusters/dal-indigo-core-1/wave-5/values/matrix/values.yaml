@@ -19,6 +19,7 @@ matrixAuthenticationService:
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
         traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
 
   postgres:
@@ -37,7 +38,40 @@ matrixAuthenticationService:
       configSecretKey: "mas-upstream.yaml"
 
 matrixRTC:
-  enabled: false
+  enabled: true
+  ingress:
+    className: "ingress-public"
+    tlsEnabled: true
+    tlsSecret: "rtc-matrix-cert"
+    host: "rtc-matrix.indigo.dalmura.cloud"
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: rtc-matrix.indigo.dalmura.cloud
+      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
+        traefik-public-security-headers@kubernetescrd
+  sfu:
+    exposedServices:
+      rtcTcp:
+        enabled: true
+        portType: LoadBalancer
+        annotations:
+          metallb.io/address-pool: servers-vlan
+          metallb.io/allow-shared-ip: matrix-rtc
+          metallb.io/loadBalancerIPs: 192.168.77.12
+        port: 30001
+      rtcMuxedUdp:
+        enabled: true
+        portType: LoadBalancer
+        annotations:
+          metallb.io/address-pool: servers-vlan
+          metallb.io/allow-shared-ip: matrix-rtc
+          metallb.io/loadBalancerIPs: 192.168.77.12
+        port: 30002
 elementAdmin:
   enabled: false
 elementWeb:
@@ -60,6 +94,7 @@ wellKnownDelegation:
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
         traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
   baseDomainRedirect:
     enabled: false
@@ -91,6 +126,7 @@ synapse:
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
         traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
 
   # External CloudNativePG Database

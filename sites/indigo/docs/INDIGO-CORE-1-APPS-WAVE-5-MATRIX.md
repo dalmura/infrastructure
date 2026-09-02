@@ -145,3 +145,25 @@ elementWeb:
     host: "chat.indigo.dalmura.cloud"
     className: "ingress-public"
 ```
+
+---
+
+## 7. Element Call & MatrixRTC (VoIP / Video Calling)
+
+MatrixRTC native calling for Element X and modern Matrix clients is powered by the bundled LiveKit SFU and `lk-jwt-service` authorization backend:
+
+* **Signaling & Tokens**: Exposed via `https://rtc-matrix.indigo.dalmura.cloud` through the `ingress-public` Traefik ingress (routing `/` to LiveKit SFU on port 7880, and `/get_token`, `/sfu/get`, `/delegate_delayed_leave` to authorization service on port 8080).
+* **Media Traffic (WebRTC)**: Direct audio/video streams use MetalLB LoadBalancer services pinned to `192.168.77.12` on `servers-vlan`:
+  * `rtcMuxedUdp`: UDP port `30002`
+  * `rtcTcp`: TCP port `30001` (fallback)
+* **Router Port Forwarding**:
+  For calls to connect over external networks (e.g. mobile cellular), forward the following ports on your router:
+  * `UDP 30002` ➔ `192.168.77.12`
+  * `TCP 30001` ➔ `192.168.77.12`
+* **Split-Brain DNS (Router)**:
+  ```bash
+  /ip dns static add name=rtc-matrix.indigo.dalmura.cloud address=192.168.77.11
+  ```
+  *(Signaling runs via Traefik on port 443 at `192.168.77.11`)*
+* **Client Configuration**:
+  Element X caches `.well-known/matrix/client` on initial login. After deploying MatrixRTC, restart the mobile app (or log out and log back in) so that Element X discovers the `org.matrix.msc4143.rtc_foci` configuration.

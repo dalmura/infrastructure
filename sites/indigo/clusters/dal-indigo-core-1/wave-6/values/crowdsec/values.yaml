@@ -33,6 +33,18 @@ appsec:
         - filter: IsInBand == true && req.Host == "anubis.indigo.dalmura.cloud" && req.URL.Path startsWith "/.within.website/"
           apply:
             - SetRemediation("allow")
+        - filter: IsInBand == true && (req.Host == "matrix.indigo.dalmura.cloud" || req.Host == "indigo.dalmura.au") && req.URL.Path startsWith "/_matrix/"
+          apply:
+            - SetRemediation("allow")
+        - filter: IsInBand == true && req.Host == "indigo.dalmura.au" && req.URL.Path startsWith "/.well-known/matrix/"
+          apply:
+            - SetRemediation("allow")
+        - filter: IsInBand == true && req.Host == "auth-matrix.indigo.dalmura.cloud"
+          apply:
+            - SetRemediation("allow")
+        - filter: IsInBand == true && req.Host == "rtc-matrix.indigo.dalmura.cloud"
+          apply:
+            - SetRemediation("allow")
   acquisitions:
     - source: appsec
       listen_addr: 0.0.0.0:7422
