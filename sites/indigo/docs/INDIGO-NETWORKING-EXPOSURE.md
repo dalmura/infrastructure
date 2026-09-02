@@ -90,3 +90,43 @@ By default anything that interacts with the publically exposed services *must* h
 * Network Policies attached to all workloads
 * k8s Service Accounts must be least privileged
 * All AWS credentials used must be via the IAM Vendor and least privileged
+
+### Traefik Public Cilium Egress Policy Requirement
+
+Traefik Public enforces strict default-deny egress filtering via Cilium Network Policy:
+[`clusters/dal-indigo-core-1/wave-2/overlays/traefik-public/network-policy-traefik.yaml`](../clusters/dal-indigo-core-1/wave-2/overlays/traefik-public/network-policy-traefik.yaml)
+
+Whenever exposing a **new** application namespace through `ingress-public`:
+1. **Allow Egress in `traefik-public`**:
+   Add the destination namespace under `spec.egress.toEndpoints` in `network-policy-traefik.yaml`:
+   ```yaml
+       - toEndpoints:
+           - matchLabels:
+               io.kubernetes.pod.namespace: <app-namespace>
+   ```
+2. **Allow Internal DNS (if needed)**:
+   Add any internal service DNS patterns under `spec.egress.toEndpoints[kube-dns].rules.dns`:
+   ```yaml
+         - matchPattern: "*.<app-namespace>.svc.cluster.local"
+         - matchPattern: "<service-name>"
+         - matchPattern: "<service-name>.<app-namespace>"
+   ```
+3. **Allow Ingress in App Policy**:
+   Ensure the destination app's `CiliumNetworkPolicy` allows ingress from `traefik-public`:
+   ```yaml
+     ingress:
+       - fromEndpoints:
+           - matchLabels:
+               io.kubernetes.pod.namespace: traefik-public
+               app.kubernetes.io/name: traefik
+         toPorts:
+           - ports:
+               - port: "<service-port>"
+                 protocol: TCP
+   ```
+
+> [!WARNING]
+> **Symptom if missing**: External requests to the ingress will return `504 Gateway Timeout`.
+> In the Traefik node's Cilium monitor (`cilium monitor --type drop`), you will observe dropped TCP SYN packets:
+> `xx drop (Policy denied) ... identity <traefik-id> -> <app-id>: <traefik-ip> -> <pod-ip>:<port> tcp SYN`
+
