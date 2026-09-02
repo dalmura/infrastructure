@@ -54,7 +54,7 @@ synapse:
     database: "app"
     sslMode: "prefer"
     password:
-      secret: "matrix-secrets"
+      secret: "matrix-db-app"
       secretKey: "password"
 
   # Secrets loaded from ExternalSecret (matrix-secrets)
