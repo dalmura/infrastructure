@@ -58,6 +58,9 @@ spec:
               - matchPattern: "*.tailscale.svc.cluster.local"
               - matchPattern: "tailscale-webfinger"
               - matchPattern: "tailscale-webfinger.tailscale"
+              - matchPattern: "*.matrix.svc.cluster.local"
+              - matchPattern: "matrix-synapse"
+              - matchPattern: "matrix-synapse.matrix"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -73,6 +76,8 @@ spec:
             io.kubernetes.pod.namespace: authentik
         - matchLabels:
             io.kubernetes.pod.namespace: tailscale
+        - matchLabels:
+            io.kubernetes.pod.namespace: matrix
     - toFQDNs:
         - matchName: "plugins.traefik.io"
         - matchName: "get.geojs.io"
