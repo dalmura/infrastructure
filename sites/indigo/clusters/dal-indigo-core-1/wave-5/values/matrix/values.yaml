@@ -18,9 +18,7 @@ matrixAuthenticationService:
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
-        traefik-public-geoblock@kubernetescrd,
         traefik-public-ratelimit@kubernetescrd,
-        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
 
   postgres:
@@ -61,9 +59,7 @@ wellKnownDelegation:
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
-        traefik-public-geoblock@kubernetescrd,
         traefik-public-ratelimit@kubernetescrd,
-        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
   baseDomainRedirect:
     enabled: false
@@ -94,9 +90,7 @@ synapse:
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
-        traefik-public-geoblock@kubernetescrd,
         traefik-public-ratelimit@kubernetescrd,
-        traefik-public-crowdsec-bouncer@kubernetescrd,
         traefik-public-security-headers@kubernetescrd
 
   # External CloudNativePG Database
