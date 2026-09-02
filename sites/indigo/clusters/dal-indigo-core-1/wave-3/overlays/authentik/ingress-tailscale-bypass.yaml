@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: authentik-well-known-tailscale
   annotations:
+    external-dns.alpha.kubernetes.io/exclude: "true"
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
