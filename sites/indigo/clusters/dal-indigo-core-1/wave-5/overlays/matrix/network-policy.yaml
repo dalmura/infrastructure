@@ -1,0 +1,171 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: matrix
+  namespace: matrix
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: matrix-stack
+  ingress:
+    # Allow traffic from Traefik Public and Private to HAProxy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8008"
+              protocol: TCP
+    # Allow VictoriaMetrics to scrape metrics
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9001"
+              protocol: TCP
+            - port: "8405"
+              protocol: TCP
+            - port: "9090"
+              protocol: TCP
+    # Allow intra-stack communication (HAProxy <-> Synapse)
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/part-of: matrix-stack
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow connections to Vault
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: vault
+            app.kubernetes.io/name: vault
+      toPorts:
+        - ports:
+            - port: "8200"
+              protocol: TCP
+    # Allow connections to Postgres (CNPG)
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: matrix-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-namespace & intra-stack communication
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: matrix
+    # Allow connections to internal Authentik service
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
+            app.kubernetes.io/name: authentik
+            app.kubernetes.io/component: server
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    # Allow egress to Traefik Public (Internal Ingress for SSO/OIDC discovery)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow access to K8s API (for initSecrets job)
+    - toEntities:
+        - kube-apiserver
+    # Allow outbound HTTP/HTTPS for push notifications, identity verification, and federation
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: matrix-db
+  namespace: matrix
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: matrix-db
+  ingress:
+    # Allow traffic from Matrix stack
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/part-of: matrix-stack
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-cluster DB communication
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: matrix-db
+    # Allow traffic from CloudNativePG operator for health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "5432"
+              protocol: TCP
+    # Allow VictoriaMetrics to scrape metrics
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9187"
+              protocol: TCP
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow intra-cluster DB communication
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: matrix-db
+    # Allow access to K8s API
+    - toEntities:
+        - kube-apiserver
+    # Allow egress to S3 for Barman backups
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

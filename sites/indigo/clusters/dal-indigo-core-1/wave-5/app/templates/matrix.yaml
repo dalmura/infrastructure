@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: matrix
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: ghcr.io/element-hq/ess-helm
+      chart: matrix-stack
+      targetRevision: 26.8.1
+      helm:
+        valueFiles:
+          - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/matrix/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/matrix
+      targetRevision: HEAD
+  destination:
+    namespace: matrix
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 1
