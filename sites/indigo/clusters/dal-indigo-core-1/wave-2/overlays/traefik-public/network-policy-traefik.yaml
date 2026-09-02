@@ -61,6 +61,8 @@ spec:
               - matchPattern: "*.matrix.svc.cluster.local"
               - matchPattern: "matrix-synapse"
               - matchPattern: "matrix-synapse.matrix"
+              - matchPattern: "matrix-well-known"
+              - matchPattern: "matrix-well-known.matrix"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:

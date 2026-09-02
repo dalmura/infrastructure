@@ -20,6 +20,8 @@ spec:
         - ports:
             - port: "8008"
               protocol: TCP
+            - port: "8010"
+              protocol: TCP
     # Allow VictoriaMetrics to scrape metrics
     - fromEndpoints:
         - matchLabels:

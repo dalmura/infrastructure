@@ -1,4 +1,4 @@
-serverName: "indigo.dalmura.cloud"
+serverName: "dalmura.au"
 
 # Disable subchart built-in PostgreSQL in favor of CloudNativePG
 postgres:
@@ -15,8 +15,28 @@ elementWeb:
   enabled: false
 hookshot:
   enabled: false
+
+# Well-known delegation for dalmura.au
 wellKnownDelegation:
-  enabled: false
+  enabled: true
+  ingress:
+    className: "ingress-public"
+    tlsEnabled: true
+    tlsSecret: "dalmura-au-cert"
+    annotations:
+      cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: dalmura.au
+      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.middlewares: >-
+        traefik-public-geoblock@kubernetescrd,
+        traefik-public-ratelimit@kubernetescrd,
+        traefik-public-crowdsec-bouncer@kubernetescrd,
+        traefik-public-security-headers@kubernetescrd
+  baseDomainRedirect:
+    enabled: false
+
 deploymentMarkers:
   enabled: false
 
