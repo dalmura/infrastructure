@@ -55,7 +55,7 @@ synapse:
     sslMode: "prefer"
     password:
       secret: "matrix-secrets"
-      secretKey: "db_password"
+      secretKey: "password"
 
   # Secrets loaded from ExternalSecret (matrix-secrets)
   macaroon:
