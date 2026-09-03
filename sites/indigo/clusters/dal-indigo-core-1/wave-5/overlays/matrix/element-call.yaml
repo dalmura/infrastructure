@@ -32,7 +32,7 @@ metadata:
     app.kubernetes.io/part-of: matrix-stack
 spec:
   replicas: 1
-  revisionHistoryLimit: 1
+  revisionHistoryLimit: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: element-call
