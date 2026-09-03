@@ -167,3 +167,19 @@ MatrixRTC native calling for Element X and modern Matrix clients is powered by t
   *(Signaling runs via Traefik on port 443 at `192.168.77.11`)*
 * **Client Configuration**:
   Element X caches `.well-known/matrix/client` on initial login. After deploying MatrixRTC, restart the mobile app (or log out and log back in) so that Element X discovers the `org.matrix.msc4143.rtc_foci` configuration.
+
+---
+
+## 8. Element Call Standalone Web Application
+
+For a dedicated Zoom / Google Meet replacement experience where users can join video meetings via URL without installing an app:
+
+* **Domain**: `https://call.indigo.dalmura.cloud`
+* **Image**: `ghcr.io/element-hq/element-call:v0.25.0`
+* **Manifest**: [`clusters/dal-indigo-core-1/wave-5/overlays/matrix/element-call.yaml`](file:///home/michael/dev/infrastructure/sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/matrix/element-call.yaml)
+* **Configuration**: Mounted `config.json` defaulting to `m.homeserver: https://matrix.indigo.dalmura.cloud` (`indigo.dalmura.au`) and `livekit: https://rtc-matrix.indigo.dalmura.cloud`.
+* **Split-Brain DNS (Router)**:
+  ```bash
+  /ip dns static add name=call.indigo.dalmura.cloud address=192.168.77.11
+  ```
+

@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: element-call-config
+  namespace: matrix
+  labels:
+    app.kubernetes.io/name: element-call
+    app.kubernetes.io/instance: element-call
+    app.kubernetes.io/part-of: matrix-stack
+data:
+  config.json: |
+    {
+      "default_server_config": {
+        "m.homeserver": {
+          "base_url": "https://matrix.indigo.dalmura.cloud",
+          "server_name": "indigo.dalmura.au"
+        }
+      },
+      "livekit": {
+        "livekit_service_url": "https://rtc-matrix.indigo.dalmura.cloud"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: element-call
+  namespace: matrix
+  labels:
+    app.kubernetes.io/name: element-call
+    app.kubernetes.io/instance: element-call
+    app.kubernetes.io/part-of: matrix-stack
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: element-call
+      app.kubernetes.io/instance: element-call
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: element-call
+        app.kubernetes.io/instance: element-call
+        app.kubernetes.io/part-of: matrix-stack
+    spec:
+      containers:
+        - name: element-call
+          image: "ghcr.io/element-hq/element-call:v0.25.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.json
+              subPath: config.json
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: element-call-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: element-call
+  namespace: matrix
+  labels:
+    app.kubernetes.io/name: element-call
+    app.kubernetes.io/instance: element-call
+    app.kubernetes.io/part-of: matrix-stack
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: element-call
+    app.kubernetes.io/instance: element-call
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: element-call
+  namespace: matrix
+  labels:
+    app.kubernetes.io/name: element-call
+    app.kubernetes.io/instance: element-call
+    app.kubernetes.io/part-of: matrix-stack
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: call.indigo.dalmura.cloud
+    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      traefik-public-ratelimit@kubernetescrd,
+      traefik-public-crowdsec-bouncer@kubernetescrd,
+      traefik-public-security-headers@kubernetescrd
+spec:
+  ingressClassName: ingress-public
+  tls:
+    - hosts:
+        - call.indigo.dalmura.cloud
+      secretName: call-matrix-cert
+  rules:
+    - host: call.indigo.dalmura.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: element-call
+                port:
+                  name: http

@@ -65,6 +65,12 @@ spec:
               - matchPattern: "matrix-well-known.matrix"
               - matchPattern: "matrix-matrix-authentication-service"
               - matchPattern: "matrix-matrix-authentication-service.matrix"
+              - matchPattern: "matrix-matrix-rtc-sfu"
+              - matchPattern: "matrix-matrix-rtc-sfu.matrix"
+              - matchPattern: "matrix-matrix-rtc-authorisation-service"
+              - matchPattern: "matrix-matrix-rtc-authorisation-service.matrix"
+              - matchPattern: "element-call"
+              - matchPattern: "element-call.matrix"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
