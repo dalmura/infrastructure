@@ -13,4 +13,3 @@ resources:
   - postgres.yaml
   - pvc.yaml
   - network-policy.yaml
-  - element-call.yaml

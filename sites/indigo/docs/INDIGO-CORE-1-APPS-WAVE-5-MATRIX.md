@@ -168,18 +168,11 @@ MatrixRTC native calling for Element X and modern Matrix clients is powered by t
 * **Client Configuration**:
   Element X caches `.well-known/matrix/client` on initial login. After deploying MatrixRTC, restart the mobile app (or log out and log back in) so that Element X discovers the `org.matrix.msc4143.rtc_foci` configuration.
 
----
-
-## 8. Element Call Standalone Web Application
-
-For a dedicated Zoom / Google Meet replacement experience where users can join video meetings via URL without installing an app:
-
-* **Domain**: `https://call.indigo.dalmura.cloud`
-* **Image**: `ghcr.io/element-hq/element-call:v0.25.0`
-* **Manifest**: [`clusters/dal-indigo-core-1/wave-5/overlays/matrix/element-call.yaml`](file:///home/michael/dev/infrastructure/sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/matrix/element-call.yaml)
-* **Configuration**: Mounted `config.json` defaulting to `m.homeserver: https://matrix.indigo.dalmura.cloud` (`indigo.dalmura.au`) and `livekit: https://rtc-matrix.indigo.dalmura.cloud`.
-* **Split-Brain DNS (Router)**:
-  ```bash
-  /ip dns static add name=call.indigo.dalmura.cloud address=192.168.77.11
-  ```
+> [!NOTE]
+> **Standalone Element Call & Public Guest Links**:
+> Hosting a standalone web frontend (e.g. `call.indigo.dalmura.cloud`) for public "Zoom-style" links is not supported with this architecture:
+> 1. **No OIDC / SSO Support in Web UI**: Standalone Element Call hardcodes legacy `m.login.password` and does not yet implement the OIDC redirect dance required by Matrix Authentication Service (MAS) and Authentik ([element-call#3699](https://github.com/element-hq/element-call/issues/3699)).
+> 2. **No Anonymous Guest Access in Matrix 2.0**: In modern MAS-based setups, legacy anonymous guest registrations (`kind=guest`) have been removed in favor of strict OIDC authentication. Unregistered external participants cannot join without an Authentik account.
+> 
+> Native VoIP/video calling is therefore intended for use directly within **Element X** (mobile) and **Element Web** (desktop), where authenticated sessions handle the calls seamlessly.
 
