@@ -33,6 +33,10 @@ matrixAuthenticationService:
       secretKey: "password"
 
   additional:
+    passwords:
+      config: |
+        passwords:
+          enabled: false
     upstream:
       configSecret: "matrix-secrets"
       configSecretKey: "mas-upstream.yaml"
@@ -72,6 +76,7 @@ matrixRTC:
           metallb.io/allow-shared-ip: matrix-rtc
           metallb.io/loadBalancerIPs: 192.168.77.12
         port: 30002
+
 elementAdmin:
   enabled: false
 elementWeb:
@@ -144,6 +149,7 @@ synapse:
   macaroon:
     secret: "matrix-secrets"
     secretKey: "macaroon_secret_key"
+
   registrationSharedSecret:
     secret: "matrix-secrets"
     secretKey: "registration_shared_secret"
