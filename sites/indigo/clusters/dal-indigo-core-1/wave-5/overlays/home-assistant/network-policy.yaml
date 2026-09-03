@@ -170,3 +170,10 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Allow egress to Public Transport Victoria
+    - toFQDNs:
+        - matchName: "timetableapi.ptv.vic.gov.au"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
