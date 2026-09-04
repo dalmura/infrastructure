@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: ghcr.io/element-hq/ess-helm
       chart: matrix-stack
-      targetRevision: 26.8.1
+      targetRevision: 26.9.1
       helm:
         valueFiles:
           - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/matrix/values.yaml
