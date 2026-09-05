@@ -21,3 +21,9 @@ Stuff to eventually get around to.
 * Forgejo Runner
   * Waiting for native k8s support
   * https://codeberg.org/forgejo/discussions/issues/66
+* Post-maintenance Workload Rebalancing
+  * Rolling node drains leave the last upgraded node mostly empty (`kube-scheduler` doesn't rebalance running pods)
+  * Solutions:
+    * Deploy [Kubernetes Descheduler](https://github.com/kubernetes-sigs/descheduler) (runs periodically with `LowNodeUtilization`)
+    * Run post-upgrade rolling restarts: `kubectl rollout restart deployment -A`
+

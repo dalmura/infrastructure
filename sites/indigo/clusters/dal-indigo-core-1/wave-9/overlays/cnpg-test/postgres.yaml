@@ -6,6 +6,7 @@ metadata:
 spec:
   description: "CNPG Test DB"
   instances: 1
+  enablePDB: false
 
   enableSuperuserAccess: true
 

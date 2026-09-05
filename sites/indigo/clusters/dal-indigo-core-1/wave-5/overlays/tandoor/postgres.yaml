@@ -6,6 +6,7 @@ metadata:
 spec:
   description: "Tandoor DB"
   instances: 1
+  enablePDB: false
 
   enableSuperuserAccess: true
 

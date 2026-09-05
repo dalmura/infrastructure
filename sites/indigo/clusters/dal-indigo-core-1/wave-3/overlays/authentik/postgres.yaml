@@ -5,7 +5,7 @@ metadata:
   name: authentik-db
 spec:
   description: "Authentik DB"
-  instances: 1
+  instances: 2
 
   enableSuperuserAccess: true
 

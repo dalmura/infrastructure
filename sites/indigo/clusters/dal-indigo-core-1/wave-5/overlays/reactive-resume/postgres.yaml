@@ -6,6 +6,7 @@ metadata:
 spec:
   description: "Reactive Resume DB"
   instances: 1
+  enablePDB: false
 
   enableSuperuserAccess: true
 
