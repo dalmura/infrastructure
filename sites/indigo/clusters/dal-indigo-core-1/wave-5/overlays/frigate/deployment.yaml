@@ -25,8 +25,8 @@ spec:
     spec:
       containers:
         -
-          #image: ghcr.io/blakeblackshear/frigate:0.17.1
-          image: ghcr.io/dalmura/frigate:v0.17.1
+          #image: ghcr.io/blakeblackshear/frigate:0.17.2
+          image: ghcr.io/dalmura/frigate:v0.17.2
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 5

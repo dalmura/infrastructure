@@ -211,16 +211,16 @@ The slightly easier option is to maintain a custom Frigate image:
 * Ensure https://github.com/frigate-nvr/hailort/ has a release for the version Talos is using
 * `git clone https://github.com/blakeblackshear/frigate/`
 * Run `git tag`, locate the latest stable version
-* Run `git checkout <tag>` eg `git checkout v0.17.1`
-* Edit `docker/main/install_hailort.sh` and set `hailo_version` to what Talos has (eg 4.23.0)
+* Run `git checkout <tag>` eg `git checkout v0.17.2`
+* Edit `docker/main/install_hailort.sh` and set `hailo_version` to what Talos has (eg 4.24.0)
 * Run `make local` for your local docker to have `frigate:latest` image built
 * Go to github and create a classic PAT with `write:packages` scope (just 7 days expiry)
 * Log into github container registry: `docker login ghcr.io -u <your github user>`
-* You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.17.1`
-* Push up the image `docker push ghcr.io/dalmura/frigate:v0.17.1`
+* You can then tag it: `docker tag frigate:latest ghcr.io/dalmura/frigate:v0.17.2`
+* Push up the image `docker push ghcr.io/dalmura/frigate:v0.17.2`
    * It'll be like ~5GB so it will take _some time_
 * Update the github package settings to public visibility (once off action)
-* Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.17.1`
+* Then ensure any frigate image is using the above `ghcr.io/dalmura/frigate:v0.17.2`
 
 After saving the above the container should restart and pick up the changes, and if Frigate is a higher version than that from the config, automatically 'update' the config file to the latest schema.
 

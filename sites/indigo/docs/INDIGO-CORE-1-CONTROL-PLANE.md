@@ -16,7 +16,7 @@ Navigate to the [Talos Image Factory](https://factory.talos.dev/):
 4. Select the following System Extensions:
    * siderolabs/iscsi-tools
    * siderolabs/util-linux-tools
-5. Skip the Kernel command line or overlay options
+5. Skip the Kernel command line, embedded Machine Configuration, and Extra overlay options
 6. Download the linked *Disk Image* `metal-arm64.raw.xz`
    6.1 The download may take some time to start as the Talos Image Factory generates the assets in the backend
 
