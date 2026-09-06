@@ -24,10 +24,8 @@ Note down the following attributes:
 ```
 SCHEMATIC_ID='f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d'
 
-FACTORY_URL='https://factory.talos.dev/?arch=arm64&board=rpi_generic&bootloader=auto&cmdline-set=true&extensions=-&extensions=siderolabs%2Fiscsi-tools&extensions=siderolabs%2Futil-linux-tools&platform=metal&target=sbc&version=1.13.0'
-
 # From the `Initial Installation` section
-export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.13.0'
+export INSTALLER_IMAGE_URI='factory.talos.dev/metal-installer/f8a903f101ce10f686476024898734bb6b36353cc4d41f348514db9004ec0a9d:v1.14.0'
 ```
 
 You can then `dd` it onto the SSD Drives, via the USB Adaptors, from another machine:
