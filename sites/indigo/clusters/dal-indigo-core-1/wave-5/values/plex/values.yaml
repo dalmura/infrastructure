@@ -4,7 +4,7 @@ ingress:
 
 image:
   # renovate: datasource=docker depName=plexinc/pms-docker
-  tag: "1.43.3.10896-cb3ebc72d"
+  tag: "1.43.4.10903-e5521bd8c"
 
 pms:
   configStorage: 100Gi
