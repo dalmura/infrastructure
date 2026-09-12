@@ -1,0 +1,116 @@
+---
+# Run as a CronJob rather than a continuous Deployment loop
+kind: CronJob
+
+# Run daily at 04:30 AM AEST (18:30 UTC)
+# This safely avoids Longhorn daily backups (03:00 AM AEST) and CNPG backups (10:00 AM AEST)
+schedule: "30 18 * * *"
+
+# Command-line options
+cmdOptions:
+  v: 3
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
+
+deschedulerPolicy:
+  # Rate-limit evictions to prevent simultaneous disruptions
+  maxNoOfPodsToEvictPerNode: 1
+  maxNoOfPodsToEvictPerNamespace: 1
+  profiles:
+    - name: default
+      pluginConfig:
+        - name: DefaultEvictor
+          args:
+            podProtections:
+              defaultDisabled:
+                - "PodsWithLocalStorage"
+              # PodsWithPVC is omitted from extraEnabled so that stateful workloads
+              # (such as CNPG Postgres databases) can be rebalanced across nodes.
+        - name: RemoveDuplicates
+          args:
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: RemovePodsHavingTooManyRestarts
+          args:
+            podRestartThreshold: 100
+            includingInitContainers: true
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: RemovePodsViolatingNodeAffinity
+          args:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: RemovePodsViolatingNodeTaints
+          args:
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: RemovePodsViolatingInterPodAntiAffinity
+          args:
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: RemovePodsViolatingTopologySpreadConstraint
+          args:
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+        - name: LowNodeUtilization
+          args:
+            thresholds:
+              cpu: 20
+              memory: 20
+              pods: 20
+            targetThresholds:
+              cpu: 50
+              memory: 50
+              pods: 50
+            evictableNamespaces:
+              exclude:
+                - "kube-system"
+                - "longhorn-system"
+                - "vault"
+                - "cilium-secrets"
+      plugins:
+        balance:
+          enabled:
+            - RemoveDuplicates
+            - RemovePodsViolatingTopologySpreadConstraint
+            - LowNodeUtilization
+        deschedule:
+          enabled:
+            - RemovePodsHavingTooManyRestarts
+            - RemovePodsViolatingNodeTaints
+            - RemovePodsViolatingNodeAffinity
+            - RemovePodsViolatingInterPodAntiAffinity

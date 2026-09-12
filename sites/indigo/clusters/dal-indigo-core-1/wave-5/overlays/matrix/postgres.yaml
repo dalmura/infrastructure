@@ -39,7 +39,7 @@ metadata:
 spec:
   cluster:
     name: matrix-db
-  schedule: "0 0 0 * * *"
+  schedule: "0 0 16 * * *"
   backupOwnerReference: self
   method: plugin
   pluginConfiguration:

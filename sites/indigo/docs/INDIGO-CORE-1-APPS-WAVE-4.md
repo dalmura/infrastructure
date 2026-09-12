@@ -2,6 +2,7 @@
 
 These are:
 * [Renovate](https://docs.renovatebot.com/) for automated dependency management
+* [Descheduler](https://github.com/kubernetes-sigs/descheduler) for periodic cluster pod rebalancing
 * [VictoriaLogs Single](https://docs.victoriametrics.com/helm/victoria-logs-single/)
 * [VictoriaLogs Collector](https://docs.victoriametrics.com/helm/victoria-logs-collector/)
 * [VictoriaMetrics Single](https://docs.victoriametrics.com/helm/victoria-metrics-single/)
@@ -174,6 +175,43 @@ vault write auth/kubernetes/role/workload-reader-vma \
 ```
 
 After the above are applied you can recreate the `SecretStore` and then `ExternalSecret` resources in the `victoria-metrics-alert` app in ArgoCD.
+
+## Descheduler Configuration
+
+[Descheduler](https://github.com/kubernetes-sigs/descheduler) periodically reviews running pods and evicts those violating scheduling policies so that `kube-scheduler` can rebalance workloads across worker nodes.
+
+It is deployed as a `CronJob` running daily at **04:30 AM AEST** (`30 18 * * *` UTC) in the `descheduler` namespace.
+
+### Backup Schedule Alignment
+The 04:30 AM AEST schedule is deliberately selected to avoid conflicting with cluster backups:
+* **CloudNativePG PostgreSQL S3 Backups**: Runs at **02:00 AM AEST** (`0 0 16 * * *` UTC) and completes within ~1 minute.
+* **Longhorn Daily Backups & Obsidian Maintenance**: Runs between **02:50 AM – 03:35 AM AEST** (`16:50 – 17:35 UTC`).
+* **Descheduler**: Runs at **04:30 AM AEST** (`30 18 * * *` UTC), ensuring all database and volume backups are completely finished and steady before any rebalancing occurs.
+
+### Safeguards
+* **Rate Limits**: `maxNoOfPodsToEvictPerNode: 1` and `maxNoOfPodsToEvictPerNamespace: 1` ensure that at most 1 pod is evicted per node/namespace during a run, preventing simultaneous service failovers.
+* **PVC Pod Rebalancing**: PVC pods (such as CNPG Postgres databases) are permitted to be evicted so that they do not remain bunched up on a single worker node following Talos upgrades.
+* **Excluded Namespaces**: System-critical namespaces (`kube-system`, `longhorn-system`, `vault`, `cilium-secrets`) are explicitly excluded from all eviction strategies.
+* **Balancing Strategies**: `RemoveDuplicates`, `RemovePodsViolatingTopologySpreadConstraint`, and `LowNodeUtilization`.
+
+### Checking Descheduler Runs
+
+To check the CronJob schedule and status:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n descheduler get cronjobs
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n descheduler get jobs
+```
+
+To view logs from the latest run:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n descheduler logs -l app.kubernetes.io/name=descheduler --tail=100
+```
+
+To manually trigger a run immediately:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n descheduler create job --from=cronjob/descheduler descheduler-manual-test
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n descheduler logs -f job/descheduler-manual-test
+```
 
 ## VLS/VMS Ingress
 

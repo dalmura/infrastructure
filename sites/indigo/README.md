@@ -73,6 +73,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
    * [Renovate](https://docs.renovatebot.com/)
       * Automated Dependency Management
       * Covers all sites
+   * [Descheduler](https://github.com/kubernetes-sigs/descheduler)
+      * Periodic cluster rebalancing and pod eviction
    * [Node Exporter](https://github.com/prometheus/node_exporter)
       * Comprehensive Node level metrics
    * [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/)

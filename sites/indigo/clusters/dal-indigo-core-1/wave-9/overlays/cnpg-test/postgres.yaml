@@ -47,7 +47,7 @@ kind: ScheduledBackup
 metadata:
   name: cnpg-test-1-db-backup
 spec:
-  schedule: "0 0 0 * * *"
+  schedule: "0 0 16 * * *"
   backupOwnerReference: self
   cluster:
     name: cnpg-test-1-db
