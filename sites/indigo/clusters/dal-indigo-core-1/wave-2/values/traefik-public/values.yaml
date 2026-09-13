@@ -15,6 +15,11 @@ additionalVolumeMounts:
     mountPath: /etc/crowdsec
     readOnly: true
 
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
 ingressClass:
   name: ingress-public
 

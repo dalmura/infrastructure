@@ -5,6 +5,11 @@ global:
 deployment:
   revisionHistoryLimit: 0
 
+resources:
+  requests:
+    cpu: 25m
+    memory: 96Mi
+
 ingressClass:
   name: ingress-private
 
