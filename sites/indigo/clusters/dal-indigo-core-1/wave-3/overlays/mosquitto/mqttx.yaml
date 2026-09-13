@@ -25,6 +25,10 @@ spec:
         - name: mqttx-web
           image: "docker.io/emqx/mqttx-web:v1.13.0"
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 96Mi
           env:
             - name: VUE_APP_DEFAULT_HOST
               value: "ws://mosquitto.mosquitto.svc.cluster.local:9001/mqtt"

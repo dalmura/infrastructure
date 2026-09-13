@@ -6,6 +6,11 @@ injector:
   enabled: false
 
 server:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+
   ingress:
     enabled: false
 

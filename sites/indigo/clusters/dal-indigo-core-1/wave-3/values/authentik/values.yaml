@@ -24,6 +24,11 @@ server:
   deploymentStrategy:
     type: Recreate
 
+  resources:
+    requests:
+      cpu: 50m
+      memory: 640Mi
+
   ingress:
     # We manage this separately
     enabled: false
@@ -63,6 +68,11 @@ server:
 worker:
   podAnnotations:
     reloader.stakater.com/auto: "true"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
   livenessProbe:
     # Raspberry Pi's take a little bit longer
     initialDelaySeconds: 10

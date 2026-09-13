@@ -38,6 +38,10 @@ spec:
           args:
             - -c
             - /mosquitto/config/mosquitto.conf
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
           ports:
             - name: mqtt
               containerPort: 1883
