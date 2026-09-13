@@ -175,4 +175,4 @@ Now our k8s cluster should be running with:
 
 If this is the first group of workers for this cluster, you can now quickly go back to the [Control Plane](INDIGO-CORE-1-CONTROL-PLANE.md) doco and verify Cilium's Hubble Relay & UI have come up correctly.
 
-You can proceed to onboard [other worker classes](INDIGO-CORE-1-WORKERS-RPI4.md) or proceed to [deploying application wave management](INDIGO-CORE-1-APPS-ARGOCD.md).
+You can proceed to onboard [other](INDIGO-CORE-1-WORKERS-MACMINI2014.md) [worker classes](INDIGO-CORE-1-WORKERS-RPI4.md) or proceed to [deploying application wave management](INDIGO-CORE-1-APPS-ARGOCD.md).

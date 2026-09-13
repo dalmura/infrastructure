@@ -1,11 +1,7 @@
 machine:
-  nodeLabels:
-    node.kubernetes.io/instance-type: "rpi4.4gb.arm64"
-
   network:
     interfaces:
       - interface: "enx<HW_ADDRESS>"
-        mtu: 1500
         dhcp: false
         addresses:
           - "<NODE_IP>/25"
@@ -13,9 +9,6 @@ machine:
           - network: 0.0.0.0/0
             gateway: 192.168.77.129
             metric: 2048
-
-        vip:
-          ip: 192.168.77.130
 
         vlans:
           - # SERVERS
@@ -27,20 +20,24 @@ machine:
               - network: 0.0.0.0/0
                 gateway: 192.168.77.1
                 metric: 1024
-            vip:
-              ip: 192.168.77.2
-
-    nameservers:
-      - 192.168.77.1
-      - 192.168.77.129
 
   install:
+    image: <INSTALLER_IMAGE_URI>
+
     diskSelector:
       size: ">= 200GB"
 
-cluster:
-  network:
-    cni:
-      name: none
-  proxy:
-    disabled: true
+  sysctls:
+    # Required for Longhorn V2 Data Engine
+    vm.nr_hugepages: "1024"
+
+  kernel:
+    modules:
+      # Required for Longhorn V2 Data Engine
+      - name: nvme_tcp
+      - name: vfio_pci
+
+  udev:
+    rules:
+      # Required for Plex transcoding
+      - SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="44", MODE="0660"

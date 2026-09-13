@@ -1,8 +1,4 @@
 machine:
-  nodeLabels:
-    node.kubernetes.io/instance-type: "<NODE_INSTANCE_TYPE>"
-    k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
-
   network:
     interfaces:
       - interface: "enx<HW_ADDRESS>"
@@ -25,10 +21,6 @@ machine:
               - network: 0.0.0.0/0
                 gateway: 192.168.77.1
                 metric: 1024
-
-    nameservers:
-      - 192.168.77.1
-      - 192.168.77.129
 
   install:
     diskSelector:

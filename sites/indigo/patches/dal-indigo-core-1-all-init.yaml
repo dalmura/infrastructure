@@ -1,7 +1,15 @@
-machine:
-  nodeLabels:
-    topology.kubernetes.io/region: "melbourne"
-    topology.kubernetes.io/zone: "indigo"
+---
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+nodeIP:
+  validSubnets:
+    - 192.168.77.0/25
+
+labels:
+  topology.kubernetes.io/region: "melbourne"
+  topology.kubernetes.io/zone: "indigo"
+  k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
+  node.kubernetes.io/instance-type: "<NODE_INSTANCE_TYPE>"
 
 ---
 apiVersion: v1alpha1
@@ -9,3 +17,13 @@ kind: HostnameConfig
 hostname: "talos-<HW_ADDRESS>"
 auto:
   $patch: delete
+
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+  - address: 192.168.77.1
+  - address: 192.168.77.129
+hostDNS:
+  enabled: true
+  forwardKubeDNSToHost: true

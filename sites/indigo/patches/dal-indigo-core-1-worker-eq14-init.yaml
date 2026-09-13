@@ -1,8 +1,4 @@
 machine:
-  nodeLabels:
-    k8s.dalmura.cloud/nodegroup: "<K8S_NODE_GROUP>"
-    node.kubernetes.io/instance-type: "<NODE_INSTANCE_TYPE>"
-
   network:
     interfaces:
       - interface: bond0
@@ -37,10 +33,6 @@ machine:
                 gateway: 192.168.77.1
                 metric: 1024
 
-    nameservers:
-      - 192.168.77.1
-      - 192.168.77.129
-
   install:
     image: <INSTALLER_IMAGE_URI>
 
@@ -56,12 +48,6 @@ machine:
       # Required for Longhorn V2 Data Engine
       - name: nvme_tcp
       - name: vfio_pci
-
-      # Required for Plex transcoding
-      # 2026-01-01: Commented out for testing, might not be needed
-      #- name: i915
-      #  parameters:
-      #    - "enable_guc=3"
 
   udev:
     rules:
