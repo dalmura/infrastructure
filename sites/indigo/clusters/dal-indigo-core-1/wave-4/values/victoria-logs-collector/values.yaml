@@ -1,5 +1,10 @@
 ---
 nameOverride: vlc
 
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
 remoteWrite:
   - url: http://victoria-logs-single-vls-server:9428

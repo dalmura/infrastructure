@@ -6,6 +6,11 @@ server:
     type: Recreate
     rollingUpdate: null
 
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
   extraArgs:
     external.label: "cluster=dal-indigo-core-1"
 
@@ -151,6 +156,11 @@ server:
 
 alertmanager:
   enabled: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 48Mi
 
   ingress:
     enabled: true

@@ -3,5 +3,14 @@ hostNetwork: true
 
 revisionHistoryLimit: 1
 
+resources:
+  requests:
+    cpu: 10m
+    memory: 48Mi
+
 kubeRBACProxy:
   enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 96Mi

@@ -2,6 +2,11 @@
 podAnnotations:
   reloader.stakater.com/auto: "true"
 
+resources:
+  requests:
+    cpu: 50m
+    memory: 384Mi
+
 grafana.ini:
   server:
     root_url: "https://grafana.indigo.dalmura.cloud"

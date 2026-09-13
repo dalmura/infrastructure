@@ -3,6 +3,12 @@ nameOverride: vls
 
 server:
   retentionPeriod: 7d
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 320Mi
+
   persistentVolume:
     size: 10Gi
     storageClassName: cluster-nobackup
