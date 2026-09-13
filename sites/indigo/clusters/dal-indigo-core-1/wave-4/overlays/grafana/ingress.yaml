@@ -5,7 +5,7 @@ metadata:
   name: grafana
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: grafana.indigo.dalmura.cloud
+    external-dns.kubernetes.io/hostname: grafana.indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:

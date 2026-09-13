@@ -8,7 +8,7 @@ metadata:
   name: reactive-resume
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: resume.indigo.dalmura.cloud
+    external-dns.kubernetes.io/hostname: resume.indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:

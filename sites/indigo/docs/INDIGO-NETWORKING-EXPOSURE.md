@@ -8,7 +8,7 @@ To expose a service publicly, the Ingress resource must be configured with speci
 
 ### Required Fields
 *   `ingressClassName: ingress-public`: Binds to the Public Traefik instance
-*   `external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud`: External-DNS creates a CNAME in AWS Route53 pointing the sites Public IP or Dynamic DNS Hostname
+*   `external-dns.kubernetes.io/target: indigo.dalmura.cloud`: External-DNS creates a CNAME in AWS Route53 pointing the sites Public IP or Dynamic DNS Hostname
 
 ### Example Ingress
 ```yaml
@@ -18,8 +18,8 @@ metadata:
   name: my-public-app
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: app.indigo.dalmura.cloud
-    external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+    external-dns.kubernetes.io/hostname: app.indigo.dalmura.cloud
+    external-dns.kubernetes.io/target: indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
     # Apply standard security stack

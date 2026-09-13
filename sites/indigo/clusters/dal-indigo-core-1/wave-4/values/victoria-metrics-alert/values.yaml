@@ -24,7 +24,7 @@ server:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-      external-dns.alpha.kubernetes.io/hostname: vma.indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: vma.indigo.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
@@ -166,7 +166,7 @@ alertmanager:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-      external-dns.alpha.kubernetes.io/hostname: alert-manager.indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: alert-manager.indigo.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd

@@ -13,8 +13,8 @@ matrixAuthenticationService:
     host: "auth-matrix.indigo.dalmura.cloud"
     annotations:
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-      external-dns.alpha.kubernetes.io/hostname: auth-matrix.indigo.dalmura.cloud
-      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: auth-matrix.indigo.dalmura.cloud
+      external-dns.kubernetes.io/target: indigo.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
@@ -49,8 +49,8 @@ matrixRTC:
     host: "rtc-matrix.indigo.dalmura.cloud"
     annotations:
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-      external-dns.alpha.kubernetes.io/hostname: rtc-matrix.indigo.dalmura.cloud
-      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: rtc-matrix.indigo.dalmura.cloud
+      external-dns.kubernetes.io/target: indigo.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-
@@ -90,8 +90,8 @@ wellKnownDelegation:
     tlsEnabled: true
     tlsSecret: "indigo-dalmura-au-cert"
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: indigo.dalmura.au
-      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: indigo.dalmura.au
+      external-dns.kubernetes.io/target: indigo.dalmura.cloud
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
@@ -122,8 +122,8 @@ synapse:
     tlsSecret: "matrix-cert"
     annotations:
       cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-      external-dns.alpha.kubernetes.io/hostname: matrix.indigo.dalmura.cloud
-      external-dns.alpha.kubernetes.io/target: indigo.dalmura.cloud
+      external-dns.kubernetes.io/hostname: matrix.indigo.dalmura.cloud
+      external-dns.kubernetes.io/target: indigo.dalmura.cloud
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
       traefik.ingress.kubernetes.io/router.middlewares: >-

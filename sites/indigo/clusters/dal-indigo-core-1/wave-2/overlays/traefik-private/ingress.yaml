@@ -4,7 +4,7 @@ metadata:
   name: traefik-private-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: traefik-private.indigo.dalmura.cloud
+    external-dns.kubernetes.io/hostname: traefik-private.indigo.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: true
 spec:
