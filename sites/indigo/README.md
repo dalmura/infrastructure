@@ -41,6 +41,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * PVC Storage Class
       * Replicated container volumes & block storage
       * Offsite S3 backups
+   * [Metrics Server](https://github.com/kubernetes-sigs/metrics-server)
+      * Core Kubernetes Metrics API
 * ArgoCD - Wave 2
    * [Traefik as an Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
       * Ingress Controller

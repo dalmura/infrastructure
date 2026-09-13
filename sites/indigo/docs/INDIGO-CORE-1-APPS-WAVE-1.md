@@ -5,6 +5,7 @@ These are:
 * [cert-manager](https://cert-manager.io/docs/) for TLS certificates
 * [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) for Route53 record management
 * [Longhorn](https://longhorn.io/docs/latest/what-is-longhorn/) for persistent, distributed, replicated and backed up Block and Object storage
+* [Metrics Server](https://github.com/kubernetes-sigs/metrics-server) for core Kubernetes Metrics API (kubectl top, HPA)
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Workers - ArgoCD](INDIGO-CORE-1-WORKERS-ARGOCD.md) and `argocd` is authenticated and has connectivity to the cluster
@@ -161,6 +162,16 @@ If you start seeing weird volume/PVC issues with Longhorn and you're unable to a
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 port-forward svc/longhorn-frontend -n longhorn-system 8080:80
 
 # Open http://localhost:8080/
+```
+
+### Metrics Server
+Confirm metrics-server is running and serving metrics:
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n kube-system get pods -l app.kubernetes.io/name=metrics-server
+
+# Verify the Metrics API is responding:
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 top nodes
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 top pods -A
 ```
 
 ## Post Install Configuration
