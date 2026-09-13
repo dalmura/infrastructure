@@ -11,6 +11,11 @@ secrets:
 
 appsec:
   enabled: true
+  resources:
+    limits: null
+    requests:
+      cpu: 50m
+      memory: 256Mi
   configs:
     crs-blocking.yaml: |
       name: custom/crs-blocking
@@ -59,6 +64,11 @@ appsec:
       value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios"
 
 lapi:
+  resources:
+    limits: null
+    requests:
+      cpu: 25m
+      memory: 128Mi
   env:
     - name: COLLECTIONS
       value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/appsec-crs crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/base-http-scenarios"

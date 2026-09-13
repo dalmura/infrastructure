@@ -4,6 +4,10 @@
 operatorConfig:
   image:
     repository: ghcr.io/tailscale/k8s-operator
+  resources:
+    requests:
+      cpu: 10m
+      memory: 96Mi
 
 proxyConfig:
   image:
