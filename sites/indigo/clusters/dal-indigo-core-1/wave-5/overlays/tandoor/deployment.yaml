@@ -42,8 +42,8 @@ spec:
             periodSeconds: 120
           resources:
             requests:
-              cpu: 300m
-              memory: 512Mi
+              cpu: 100m
+              memory: 1200Mi
           volumeMounts:
             - mountPath: /opt/recipes/mediafiles
               name: media

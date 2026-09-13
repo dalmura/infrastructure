@@ -68,6 +68,10 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 30
             timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1.5Gi
           securityContext:
             # Required for hailo0 access
             privileged: true

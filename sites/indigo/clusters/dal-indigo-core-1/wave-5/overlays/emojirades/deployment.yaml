@@ -38,3 +38,7 @@ spec:
           envFrom:
             - secretRef:
                 name: emojirades-secrets
+          resources:
+            requests:
+              cpu: 25m
+              memory: 128Mi

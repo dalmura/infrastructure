@@ -16,6 +16,11 @@ pms:
     name: plex-secrets
     key: PLEX_CLAIM
 
+  resources:
+    requests:
+      cpu: 50m
+      memory: 450Mi
+
 service:
   port: 32406
 

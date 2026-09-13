@@ -4,6 +4,11 @@ createAdminSecret: false
 podAnnotations:
   reloader.stakater.com/auto: "true"
 
+resources:
+  requests:
+    cpu: 25m
+    memory: 160Mi
+
 extraSecretName: couchdb-secrets
 adminUsernameKey: ADMIN_USERNAME
 adminPasswordKey: ADMIN_PASSWORD

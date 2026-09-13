@@ -18,9 +18,18 @@ securityContext:
   runAsUser: 0
   runAsGroup: 0
 
+resources:
+  requests:
+    cpu: 50m
+    memory: 640Mi
+
 addons:
   codeserver:
     enabled: true
     ingress:
       # We manage this separately via overlays
       enabled: false
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi

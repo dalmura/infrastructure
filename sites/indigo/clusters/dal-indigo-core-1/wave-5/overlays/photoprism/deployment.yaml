@@ -55,7 +55,8 @@ spec:
             timeoutSeconds: 10
           resources:
             requests:
-              memory: 6Gi
+              cpu: 100m
+              memory: 3Gi
           securityContext:
             # Required for /dev/dri access
             privileged: true
