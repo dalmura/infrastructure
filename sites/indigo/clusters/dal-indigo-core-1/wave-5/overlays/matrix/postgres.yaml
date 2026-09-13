@@ -12,6 +12,11 @@ spec:
 
   primaryUpdateStrategy: unsupervised
 
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
   imageCatalogRef:
     apiGroup: postgresql.cnpg.io
     kind: ClusterImageCatalog
