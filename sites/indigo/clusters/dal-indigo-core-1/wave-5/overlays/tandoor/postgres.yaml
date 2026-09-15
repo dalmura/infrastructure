@@ -44,7 +44,7 @@ metadata:
 spec:
   cluster:
     name: tandoor-db
-  schedule: "0 0 16 * * *"
+  schedule: "0 25 16 * * *"
   backupOwnerReference: self
   method: plugin
   pluginConfiguration:
