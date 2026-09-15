@@ -11,6 +11,8 @@ spec:
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: cnpg-system
+        - matchLabels:
+            cnpg.io/cluster: authentik-db
       toPorts:
         - ports:
             - port: "8000"
