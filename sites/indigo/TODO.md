@@ -2,9 +2,6 @@
 
 Stuff to eventually get around to.
 
-* Update Authentik to deny superuser login not on private IP range
-  * https://docs.goauthentik.io/add-secure-apps/flows-stages/stages/deny/
-  * Must be in like 192.168.0.0/16
 * Validate Backup & Restore Strategy
   * Longhorn
   * CloudNativePG
@@ -21,9 +18,3 @@ Stuff to eventually get around to.
 * Forgejo Runner
   * Waiting for native k8s support
   * https://codeberg.org/forgejo/discussions/issues/66
-* Post-maintenance Workload Rebalancing
-  * Rolling node drains leave the last upgraded node mostly empty (`kube-scheduler` doesn't rebalance running pods)
-  * Solutions:
-    * Deploy [Kubernetes Descheduler](https://github.com/kubernetes-sigs/descheduler) (runs periodically with `LowNodeUtilization`)
-    * Run post-upgrade rolling restarts: `kubectl rollout restart deployment -A`
-

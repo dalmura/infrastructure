@@ -106,5 +106,67 @@ Now we integrate the above stage into the Username stage:
 
 Before logging out, open a new incognito tab and verify the login logic still works, otherwise you risk locking yourself out.
 
+## Restrict Superuser Logins to Private IP Range
+
+To harden Authentik against external credential attacks, superusers (such as `site-admin` and `akadmin`) are restricted to authenticating only from the internal private network (`192.168.0.0/16`). Non-superuser accounts can continue to log in from anywhere.
+
+### 1. Create Expression Policy
+* Navigate to `Customization` => `Policies` (or `Flows and Stages` => `Policies`)
+* Click `Create` and select `Expression Policy`
+* Name: `deny-external-superuser-policy`
+* Expression:
+```python
+from ipaddress import ip_network
+
+# 1. Retrieve the user currently attempting authentication
+pending_user = request.context.get("pending_user")
+if not pending_user and request.context.get("flow_plan"):
+    pending_user = request.context["flow_plan"].context.get("pending_user")
+
+if not pending_user:
+    return False
+
+# 2. Check if the user is a superuser
+if not pending_user.is_superuser:
+    return False
+
+# 3. Allowed networks (Local LAN / VLANs)
+allowed_networks = [
+    ip_network("192.168.0.0/16"),
+]
+
+# 4. Trigger deny stage if client IP is NOT in allowed networks
+is_allowed = any(ak_client_ip in net for net in allowed_networks)
+return not is_allowed
+```
+* Click `Finish`
+
+### 2. Create Deny Stage
+* Navigate to `Flows and Stages` => `Stages`
+* Click `Create` and select `Deny Stage`
+* Name: `deny-external-superuser-stage`
+* Deny message: `Administrative logins are only permitted from the local private network.`
+* Click `Finish`
+
+### 3. Bind Stage to Authentication Flow
+* Navigate to `Flows and Stages` => `Flows`
+* Select `Welcome to authentik!` (`default-authentication-flow`)
+* Open the `Stage Bindings` tab and click `Bind Stage`:
+  * Stage: `deny-external-superuser-stage`
+  * Order: `15` *(between identification `10` and password `20`)*
+  * Evaluate when flow is planned: **Unchecked (Disabled)** *(must evaluate dynamically when the stage runs)*
+  * Evaluate when stage is run: **Checked (Enabled)**
+* Click `Create`
+
+### 4. Bind Policy to the Stage Binding
+* On the `Stage Bindings` tab, expand the arrow next to `deny-external-superuser-stage` (Order 15)
+* Under `Policy / Group / User Bindings`, click `Bind Policy`
+* Policy: `deny-external-superuser-policy`
+* Negate result: **Unchecked**
+* Click `Create`
+
+Before logging out, test the authentication flow in an Incognito tab from both LAN and public internet to verify access is granted or denied as expected.
+
 ## Finally
 You can now proceed with setting up Vault: [`dal-indigo-core-1` Apps - Wave 3 - Vault Configuration](INDIGO-CORE-1-APPS-WAVE-3-VAULT.md)
+
