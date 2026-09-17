@@ -203,6 +203,12 @@ alertmanager:
 
     route:
       receiver: dalmura-infra-slack
+      group_by:
+        - alertname
+        - namespace
+        - cnpg_cluster
+        - instance
+        - pvc
 
     receivers:
       - name: dalmura-infra-slack
@@ -211,6 +217,9 @@ alertmanager:
             channel: '#infrastructure'
             username: 'Indigo Alerts'
             icon_emoji: 'warning'
+            title: >-
+              {{ if eq .Status "firing" }}[FIRING:{{ .Alerts.Firing | len }}]{{ else }}[RESOLVED]{{ end }} {{ if eq (len .Alerts) 1 }}{{ (index .Alerts 0).Annotations.summary }}{{ else }}{{ .CommonLabels.alertname }}{{ if .CommonLabels.cnpg_cluster }} ({{ .CommonLabels.cnpg_cluster }}){{ else if (index .Alerts 0).Labels.cnpg_cluster }} ({{ range $i, $a := .Alerts }}{{ if $i }}, {{ end }}{{ $a.Labels.cnpg_cluster }}{{ end }}){{ else if .CommonLabels.instance }} ({{ .CommonLabels.instance }}){{ else if (index .Alerts 0).Labels.instance }} ({{ range $i, $a := .Alerts }}{{ if $i }}, {{ end }}{{ $a.Labels.instance }}{{ end }}){{ end }}{{ end }}
+
 
   extraVolumes:
     - name: slack-config

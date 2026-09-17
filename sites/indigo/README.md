@@ -145,6 +145,7 @@ Follow this list in order:
 * [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
 ## Extra Documentation
+* [Database Management & Backups (CloudNativePG)](docs/INDIGO-APPS-DB-MGMT.md)
 * [Exposing Services Publicly](docs/INDIGO-NETWORKING-EXPOSURE.md)
 * Review [MAINTENANCE.md](MAINTENANCE.md) for maintenance schedule
 

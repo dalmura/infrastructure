@@ -16,6 +16,7 @@ Details the overall maintenance plan of the site. What actions need to be taken 
 * CloudNativePG
   * Review ClusterImageCatalogue updates
   * Updates will immediately trigger all clusters to reroll
+  * Review backup recoverability windows and prune failed backups from S3 (see [DB Management](docs/INDIGO-APPS-DB-MGMT.md))
 * [Longhorn Storage](https://longhorn.indigo.dalmura.cloud/#/node)
   * Review Longhorn Node storage utilisation
   * Capacity management
