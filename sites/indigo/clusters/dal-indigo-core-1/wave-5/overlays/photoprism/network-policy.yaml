@@ -41,3 +41,12 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Performs an apt update at the start
+    - toFQDNs:
+        - matchName: "archive.ubuntu.com"
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
