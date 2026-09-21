@@ -44,6 +44,7 @@ spec:
     # Performs an apt update at the start
     - toFQDNs:
         - matchName: "archive.ubuntu.com"
+        - matchName: "security.ubuntu.com"
       toPorts:
         - ports:
             - port: "80"
