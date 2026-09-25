@@ -13,12 +13,16 @@ authentik:
   secret_key: file:///secret-key/SECRET_KEY
 
   postgresql:
-    host: authentik-db-rw
+    host: authentik-db-rw.authentik.svc.cluster.local
     name: app
     user: file:///postgres-creds/username
     password: file:///postgres-creds/password
 
 server:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "1"
   podAnnotations:
     reloader.stakater.com/auto: "true"
   deploymentStrategy:
@@ -66,6 +70,10 @@ server:
       mountPath: /data
 
 worker:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "1"
   podAnnotations:
     reloader.stakater.com/auto: "true"
 
