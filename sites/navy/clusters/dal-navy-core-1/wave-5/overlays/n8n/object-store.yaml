@@ -1,0 +1,23 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: n8n-postgres
+spec:
+  configuration:
+    destinationPath: "s3://dal-site-backups/navy/n8n/postgres/"
+    s3Credentials:
+      accessKeyId:
+        name: n8n-db-backup-secret
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: n8n-db-backup-secret
+        key: SECRET_ACCESS_KEY
+    data:
+      compression: gzip
+    wal:
+      compression: gzip
+    tags:
+      site: navy
+      service: n8n
+      db: n8n-db
+  retentionPolicy: "10d"

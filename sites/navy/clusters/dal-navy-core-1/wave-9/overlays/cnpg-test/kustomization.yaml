@@ -7,4 +7,5 @@ resources:
   - service-account.yaml
   - vault-dynamic-secret.yaml
   - external-secret.yaml
+  - object-store.yaml
   - postgres.yaml
