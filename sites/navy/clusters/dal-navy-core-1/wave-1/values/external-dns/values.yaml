@@ -16,6 +16,7 @@ extraVolumes:
   - name: aws-credentials
     secret:
       secretName: iam-credentials
+policy: upsert-only
 provider:
   name: aws
 registry: txt

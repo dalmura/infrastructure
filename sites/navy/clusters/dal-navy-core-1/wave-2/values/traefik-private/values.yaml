@@ -5,6 +5,11 @@ global:
 deployment:
   revisionHistoryLimit: 0
 
+resources:
+  requests:
+    cpu: 25m
+    memory: 96Mi
+
 ingressClass:
   name: ingress-private
 
@@ -34,13 +39,17 @@ ports:
       default: true
   ssh:
     port: 22
+    expose:
+      default: true
 
 service:
   annotations:
     metallb.io/address-pool: servers-vlan
+    metallb.io/loadBalancerIPs: 192.168.81.11
   spec:
     externalTrafficPolicy: Local
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
   - "--api.insecure=true"
+  - "--metrics.prometheus=true"

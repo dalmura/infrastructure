@@ -5,12 +5,14 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+    - pre-delete-finalizer.argocd.argoproj.io
+    - pre-delete-finalizer.argocd.argoproj.io/cleanup
 spec:
   project: default
   sources:
     - repoURL: https://charts.longhorn.io/
       chart: longhorn
-      targetRevision: 1.12.0
+      targetRevision: 1.12.1
       helm:
         valueFiles:
         - $values/sites/navy/clusters/dal-navy-core-1/wave-1/values/longhorn/values.yaml

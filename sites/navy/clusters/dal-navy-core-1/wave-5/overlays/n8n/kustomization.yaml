@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: n8n
 
 resources:
+  - object-store.yaml
   - postgres.yaml
   - config.yaml
   - deployment.yaml

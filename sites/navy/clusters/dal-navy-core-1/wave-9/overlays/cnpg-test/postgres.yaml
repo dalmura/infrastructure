@@ -21,32 +21,21 @@ spec:
     storageClass: cluster-nobackup
     size: 5Gi
 
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://dal-site-backups/navy/cnpg-test/postgres/
-      s3Credentials:
-        accessKeyId:
-          name: cnpg-test-db-backup
-          key: access_key
-        secretAccessKey:
-          name: cnpg-test-db-backup
-          key: secret_key
-      data:
-        compression: gzip
-      wal:
-        compression: gzip
-      tags:
-        site: navy
-        service: cnpg-test
-        db: cnpg-test-1-db
-    retentionPolicy: "2d"
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: cnpg-test-1-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
   name: cnpg-test-1-db-backup
 spec:
-  schedule: "0 0 0 * * *"
-  backupOwnerReference: self
   cluster:
     name: cnpg-test-1-db
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

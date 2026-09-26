@@ -7,11 +7,11 @@ resources:
   - authentik-db-backup-secret.sealed.yaml
   - authentik-secret-key.sealed.yaml
   - authentik-email-secrets.sealed.yaml
+  - object-store.yaml
   - postgres.yaml
   - network-policy-postgres.yaml
   - network-policy-authentik-server.yaml
   - network-policy-authentik-worker.yaml
-  - network-policy-authentik-redis.yaml
   - ingress.yaml
   - traefik-middleware.yaml
   - pvc-media.yaml

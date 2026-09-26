@@ -1,4 +1,0 @@
-global:
-  domain: argocd.navy.dalmura.cloud
-  networkPolicy:
-    create: true
