@@ -1,3 +1,8 @@
+resources:
+  requests:
+    cpu: 10m
+    memory: 48Mi
+
 config:
   inCluster: false
   extraArgs:
@@ -55,7 +60,7 @@ ingress:
   enabled: true
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: headlamp.navy.dalmura.cloud
+    external-dns.kubernetes.io/hostname: headlamp.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
