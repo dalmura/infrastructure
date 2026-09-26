@@ -3,6 +3,9 @@ ipam:
 
 kubeProxyReplacement: true
 
+socketLB:
+  hostNamespaceOnly: true
+
 securityContext:
   capabilities:
     ciliumAgent:
