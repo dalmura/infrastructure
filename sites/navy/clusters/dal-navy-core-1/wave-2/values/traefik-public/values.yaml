@@ -5,6 +5,11 @@ global:
 deployment:
   revisionHistoryLimit: 0
 
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
 ingressClass:
   name: ingress-public
 
@@ -36,12 +41,14 @@ ports:
 service:
   annotations:
     metallb.io/address-pool: servers-vlan
+    metallb.io/loadBalancerIPs: 192.168.81.10
   spec:
     externalTrafficPolicy: Local
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
   - "--api.insecure=true"
+  - "--metrics.prometheus=true"
 
 experimental:
   plugins:

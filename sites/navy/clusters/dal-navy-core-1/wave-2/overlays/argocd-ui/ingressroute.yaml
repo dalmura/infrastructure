@@ -4,7 +4,7 @@ metadata:
   name: argocd-ui
   annotations:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: argocd.navy.dalmura.cloud
+    external-dns.kubernetes.io/hostname: argocd.navy.dalmura.cloud
 spec:
   ingressClassName: ingress-private
   entryPoints:
