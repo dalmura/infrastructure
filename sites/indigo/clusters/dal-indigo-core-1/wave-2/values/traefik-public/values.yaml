@@ -37,6 +37,7 @@ ports:
     port: 80
     http:
       aliasHeadersStrategy: delete
+      sanitizePath: true
       redirections:
         entryPoint:
           to: websecure
@@ -46,6 +47,7 @@ ports:
     port: 443
     http:
       aliasHeadersStrategy: delete
+      sanitizePath: true
   traefik:
     port: 8080
     expose:

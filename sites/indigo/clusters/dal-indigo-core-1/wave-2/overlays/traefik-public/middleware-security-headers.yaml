@@ -17,8 +17,11 @@ spec:
     # MIME Sniffing: Prevent browser from guessing content type
     contentTypeNosniff: true
 
-    # XSS Protection (old browsers)
-    browserXssFilter: true
+    # Disable deprecated XSS filter (modern standard to avoid client-side side-channel vulnerabilities)
+    customBrowserXSSValue: "0"
+
+    # Permissions Policy: Restrict sensitive browser features
+    permissionsPolicy: "camera=(), microphone=(), geolocation=()"
 
     # Referrer Policy: Limit referrer header to same-origin
     referrerPolicy: "same-origin"
