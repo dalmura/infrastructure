@@ -26,6 +26,7 @@ ports:
   web:
     port: 80
     http:
+      aliasHeadersStrategy: delete
       redirections:
         entryPoint:
           to: websecure
@@ -33,6 +34,8 @@ ports:
   websecure:
     port: 443
     asDefault: true
+    http:
+      aliasHeadersStrategy: delete
   traefik:
     port: 8080
     expose:
