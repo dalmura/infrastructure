@@ -3,12 +3,28 @@ global:
   sendAnonymousUsage: false
 
 deployment:
+  replicas: 2
   revisionHistoryLimit: 0
+  lifecycle:
+    preStop:
+      sleep:
+        seconds: 15
 
 resources:
   requests:
     cpu: 25m
     memory: 96Mi
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: '{{ template "traefik.name" . }}'
+              app.kubernetes.io/instance: '{{ .Release.Name }}-{{ include "traefik.namespace" . }}'
+          topologyKey: kubernetes.io/hostname
 
 ingressClass:
   name: ingress-private
@@ -41,7 +57,8 @@ ports:
   traefik:
     port: 8080
     expose:
-      default: true
+      default: false
+      dashboard: true
   ssh:
     port: 22
     expose:
@@ -53,6 +70,10 @@ service:
     metallb.io/loadBalancerIPs: 192.168.81.11
   spec:
     externalTrafficPolicy: Local
+  additionalServices:
+    dashboard:
+      spec:
+        type: ClusterIP
 
 additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"

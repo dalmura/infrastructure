@@ -6,7 +6,8 @@ metadata:
     cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
     external-dns.kubernetes.io/hostname: traefik-public.navy.dalmura.cloud
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
 spec:
   ingressClassName: ingress-private
   tls:
@@ -21,6 +22,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: traefik-public
+            name: traefik-public-dashboard
             port:
               number: 8080
