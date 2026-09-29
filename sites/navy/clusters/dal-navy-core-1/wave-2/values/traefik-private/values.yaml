@@ -33,6 +33,7 @@ providers:
   kubernetesCRD:
     ingressClass: ingress-private
     allowCrossNamespace: true
+    defaultTLSResourcesNamespace: traefik-private
   kubernetesIngress:
     ingressClass: ingress-private
     publishedService:
