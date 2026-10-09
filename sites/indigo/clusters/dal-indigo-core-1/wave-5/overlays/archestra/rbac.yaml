@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: archestra-platform-events
+  namespace: archestra
+rules:
+  - apiGroups: ["", "events.k8s.io"]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: archestra-platform-events
+  namespace: archestra
+subjects:
+  - kind: ServiceAccount
+    name: archestra-platform
+    namespace: archestra
+roleRef:
+  kind: Role
+  name: archestra-platform-events
+  apiGroup: rbac.authorization.k8s.io

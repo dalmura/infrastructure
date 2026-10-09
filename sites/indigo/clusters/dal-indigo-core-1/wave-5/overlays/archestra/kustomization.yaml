@@ -13,3 +13,4 @@ resources:
   - postgres.yaml
   - ingress.yaml
   - network-policy.yaml
+  - rbac.yaml
