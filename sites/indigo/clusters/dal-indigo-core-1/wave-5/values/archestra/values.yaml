@@ -1,3 +1,5 @@
+fullnameOverride: archestra-platform
+
 postgresql:
   # Disable bundled Bitnami PostgreSQL in favor of CloudNativePG
   enabled: false
@@ -32,15 +34,9 @@ archestra:
           key: admin-password
           optional: true
 
-  # Pre-upgrade migration job uses the same external database URL
+  # Disable Helm pre-upgrade migration Job hook to prevent PreSync deadlock before CNPG database exists
   migrationJob:
-    enabled: true
-    envWithValueFrom:
-      - name: ARCHESTRA_DATABASE_URL
-        valueFrom:
-          secretKeyRef:
-            name: archestra-db-app
-            key: uri
+    enabled: false
 
   # Code sandbox (Dagger engine) - disable for initial rollout
   codeRuntime:
@@ -67,6 +63,7 @@ archestra:
         memory: 1536Mi
 
   env:
+    ARCHESTRA_DATABASE_RUN_MIGRATIONS_ON_STARTUP: "true"
     ARCHESTRA_FRONTEND_URL: "https://archestra.indigo.dalmura.cloud"
     ARCHESTRA_API_BASE_URL: "https://archestra.indigo.dalmura.cloud"
     ARCHESTRA_TRUST_PROXY: "true"
