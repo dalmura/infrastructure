@@ -5,6 +5,7 @@ namespace: cnpg-system
 
 resources:
   - https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.11.0/manifest.yaml
+  - cronjob-backup-cleaner.yaml
 
 patches:
   - target:

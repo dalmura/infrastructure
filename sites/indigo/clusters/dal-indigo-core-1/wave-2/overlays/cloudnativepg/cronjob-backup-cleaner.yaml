@@ -1,0 +1,242 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cnpg-failed-backup-cleaner
+  namespace: cnpg-system
+data:
+  cleaner.py: |
+    import base64
+    import json
+    import logging
+    import os
+    import re
+    import ssl
+    import subprocess
+    import sys
+    import urllib.request
+    from datetime import datetime, timezone, timedelta
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
+    logger = logging.getLogger("backup-cleaner")
+
+    def k8s_get(path):
+        token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        if not os.path.exists(token_file):
+            raise RuntimeError("Service account token not found")
+        with open(token_file) as f:
+            token = f.read().strip()
+        ctx = ssl.create_default_context(cafile=ca_file)
+        req = urllib.request.Request(
+            f"https://kubernetes.default.svc{path}",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
+            return json.loads(resp.read().decode())
+
+    def get_objectstores():
+        data = k8s_get("/apis/barmancloud.cnpg.io/v1/objectstores")
+        return data.get("items", [])
+
+    def get_secret(namespace, secret_name):
+        return k8s_get(f"/api/v1/namespaces/{namespace}/secrets/{secret_name}")
+
+    def clean_failed_backups_for_store(store):
+        ns = store["metadata"]["namespace"]
+        name = store["metadata"]["name"]
+        cfg = store.get("spec", {}).get("configuration", {})
+        dest = cfg.get("destinationPath")
+        if not dest:
+            logger.warning(f"Skipping {ns}/{name}: no destinationPath")
+            return
+
+        cluster = cfg.get("tags", {}).get("db")
+        if not cluster:
+            status_recovery = store.get("status", {}).get("serverRecoveryWindow", {})
+            if status_recovery:
+                cluster = list(status_recovery.keys())[0]
+        if not cluster:
+            cluster = name[:-9] + "-db" if name.endswith("-postgres") else name
+
+        s3_creds = cfg.get("s3Credentials", {})
+        sec_name = s3_creds.get("accessKeyId", {}).get("name")
+        ak_key = s3_creds.get("accessKeyId", {}).get("key")
+        sk_key = s3_creds.get("secretAccessKey", {}).get("key")
+
+        if not (sec_name and ak_key and sk_key):
+            logger.warning(f"Skipping {ns}/{name}: incomplete s3Credentials specification")
+            return
+
+        try:
+            secret = get_secret(ns, sec_name)
+        except Exception as e:
+            logger.error(f"Failed to fetch secret {ns}/{sec_name}: {e}")
+            return
+
+        sec_data = secret.get("data", {})
+        if ak_key not in sec_data or sk_key not in sec_data:
+            logger.error(f"Secret {ns}/{sec_name} missing key '{ak_key}' or '{sk_key}'")
+            return
+
+        ak = base64.b64decode(sec_data[ak_key]).decode().strip()
+        sk = base64.b64decode(sec_data[sk_key]).decode().strip()
+
+        env = os.environ.copy()
+        env["AWS_ACCESS_KEY_ID"] = ak
+        env["AWS_SECRET_ACCESS_KEY"] = sk
+
+        logger.info(f"Checking backups for {ns}/{cluster} at {dest}...")
+        cmd_list = [
+            "barman-cloud-backup-list",
+            "--cloud-provider", "aws-s3",
+            dest,
+            cluster
+        ]
+        endpoint_url = cfg.get("endpointURL")
+        if endpoint_url:
+            cmd_list.extend(["--endpoint-url", endpoint_url])
+
+        try:
+            proc = subprocess.run(
+                cmd_list,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error(f"barman-cloud-backup-list failed for {ns}/{cluster}: {e.stderr.strip()}")
+            return
+        except Exception as e:
+            logger.error(f"Error executing barman-cloud-backup-list for {ns}/{cluster}: {e}")
+            return
+
+        failed_backups = []
+        for line in proc.stdout.strip().splitlines():
+            parts = line.split()
+            if len(parts) >= 4 and "FAILED" in parts:
+                backup_id = parts[0]
+                if re.match(r"^\d{8}T\d{6}$", backup_id):
+                    failed_backups.append(backup_id)
+
+        if not failed_backups:
+            logger.info(f"No failed backups found for {ns}/{cluster}.")
+            return
+
+        logger.warning(f"Found {len(failed_backups)} failed backup(s) for {ns}/{cluster}: {failed_backups}")
+        now = datetime.now(timezone.utc)
+
+        for bid in failed_backups:
+            # Skip backups less than 1 hour old to avoid racing with active backup executions
+            try:
+                bid_dt = datetime.strptime(bid, "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc)
+                if now - bid_dt < timedelta(hours=1):
+                    logger.info(f"Skipping recently failed backup {bid} (< 1 hour old)")
+                    continue
+            except Exception:
+                pass
+
+            logger.info(f"Deleting failed backup {bid} for {ns}/{cluster}...")
+            cmd_del = [
+                "barman-cloud-backup-delete",
+                "--cloud-provider", "aws-s3",
+                "-b", bid,
+                dest,
+                cluster
+            ]
+            if endpoint_url:
+                cmd_del.extend(["--endpoint-url", endpoint_url])
+
+            try:
+                del_proc = subprocess.run(
+                    cmd_del,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    check=True
+                )
+                logger.info(f"Successfully deleted failed backup {bid} for {ns}/{cluster}: {del_proc.stdout.strip()}")
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Failed to delete backup {bid} for {ns}/{cluster}: {e.stderr.strip()}")
+            except Exception as e:
+                logger.error(f"Error during backup deletion {bid} for {ns}/{cluster}: {e}")
+
+    def main():
+        logger.info("Starting CNPG failed backup cleaner run...")
+        try:
+            stores = get_objectstores()
+        except Exception as e:
+            logger.critical(f"Failed to list ObjectStores from Kubernetes API: {e}")
+            sys.exit(1)
+
+        logger.info(f"Discovered {len(stores)} ObjectStore resource(s).")
+        for store in stores:
+            clean_failed_backups_for_store(store)
+        logger.info("CNPG failed backup cleaner run completed.")
+
+    if __name__ == "__main__":
+        main()
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cnpg-failed-backup-cleaner
+  namespace: cnpg-system
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: cnpg-failed-backup-cleaner
+        spec:
+          serviceAccountName: plugin-barman-cloud
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 26
+            runAsGroup: 26
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: cleaner
+              image: ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.11.0
+              command:
+                - python3
+                - /scripts/cleaner.py
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: script
+              configMap:
+                name: cnpg-failed-backup-cleaner
+                defaultMode: 0755
+            - name: tmp
+              emptyDir: {}
