@@ -68,3 +68,4 @@ archestra:
     ARCHESTRA_API_BASE_URL: "https://archestra.indigo.dalmura.cloud"
     ARCHESTRA_TRUST_PROXY: "true"
     ARCHESTRA_HTTP_KEEP_ALIVE_TIMEOUT_MS: "300000"
+    ARCHESTRA_AUTH_ADDITIONAL_TRUSTED_ORIGINS: "https://auth.indigo.dalmura.cloud"
