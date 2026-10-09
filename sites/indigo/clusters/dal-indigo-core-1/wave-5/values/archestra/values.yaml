@@ -1,0 +1,73 @@
+postgresql:
+  # Disable bundled Bitnami PostgreSQL in favor of CloudNativePG
+  enabled: false
+
+archestra:
+  replicaCount: 1
+
+  # Disable internal probe pods that test default K8s NetworkPolicy
+  networkPolicyProbe:
+    enabled: false
+
+  # Ingress is managed via overlay ingress.yaml for consistency with dal-indigo-core-1 patterns
+  ingress:
+    enabled: false
+
+  # Auth secrets reference external secret created by External Secrets Operator
+  authSecret:
+    existingSecretName: archestra-auth
+    existingSecretKey: auth-secret
+
+  # Database and admin credentials injected from Kubernetes secrets
+  envWithValueFrom:
+    - name: ARCHESTRA_DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: archestra-db-app
+          key: uri
+    - name: ARCHESTRA_AUTH_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: archestra-auth
+          key: admin-password
+          optional: true
+
+  # Pre-upgrade migration job uses the same external database URL
+  migrationJob:
+    enabled: true
+    envWithValueFrom:
+      - name: ARCHESTRA_DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: archestra-db-app
+            key: uri
+
+  # Code sandbox (Dagger engine) - disable for initial rollout
+  codeRuntime:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 3Gi
+
+  # Dedicated background worker deployment for processing jobs from the postgres queue
+  worker:
+    enabled: true
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1536Mi
+
+  env:
+    ARCHESTRA_FRONTEND_URL: "https://archestra.indigo.dalmura.cloud"
+    ARCHESTRA_API_BASE_URL: "https://archestra.indigo.dalmura.cloud"
+    ARCHESTRA_TRUST_PROXY: "true"
+    ARCHESTRA_HTTP_KEEP_ALIVE_TIMEOUT_MS: "300000"

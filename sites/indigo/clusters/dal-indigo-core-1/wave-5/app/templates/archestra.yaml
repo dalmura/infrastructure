@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: archestra
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: europe-west1-docker.pkg.dev/friendly-path-465518-r6/archestra-public/helm-charts
+      chart: archestra-platform
+      targetRevision: 1.4.0-rc.35
+      helm:
+        valueFiles:
+          - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/archestra/values.yaml
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/dalmura/infrastructure.git
+      path: sites/indigo/clusters/dal-indigo-core-1/wave-5/overlays/archestra
+      targetRevision: HEAD
+  destination:
+    namespace: archestra
+    server: {{ .Values.spec.destination.server }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 1

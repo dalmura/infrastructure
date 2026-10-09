@@ -1,0 +1,44 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: archestra
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.kubernetes.io/hostname: archestra.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - archestra.indigo.dalmura.cloud
+      secretName: archestra-cert
+  rules:
+    - host: archestra.indigo.dalmura.cloud
+      http:
+        paths:
+          # Route LLM Proxy and MCP Gateway API requests directly to the backend
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: archestra-platform
+                port:
+                  number: 9000
+          # Route Agent-to-Agent (A2A) API requests directly to the backend
+          - path: /v2
+            pathType: Prefix
+            backend:
+              service:
+                name: archestra-platform
+                port:
+                  number: 9000
+          # Route web UI and auth endpoints to the frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: archestra-platform
+                port:
+                  number: 3000

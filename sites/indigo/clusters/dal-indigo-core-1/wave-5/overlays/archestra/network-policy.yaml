@@ -1,0 +1,151 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: archestra-platform
+  namespace: archestra
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: archestra-platform
+  ingress:
+    # Allow traffic from Traefik Private (Web UI on 3000, API / LLM proxy on 9000)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "9000"
+              protocol: TCP
+    # Allow intra-namespace traffic (MCP server pods calling back to platform API on 9000)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: archestra
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    # Allow VictoriaMetrics to scrape metrics
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9050"
+              protocol: TCP
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow connections to Vault
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: vault
+            app.kubernetes.io/name: vault
+      toPorts:
+        - ports:
+            - port: "8200"
+              protocol: TCP
+    # Allow connections to Postgres (CNPG)
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: archestra-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-namespace communication (MCP server pods, workers)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: archestra
+    # Allow Kubernetes API access for orchestrating MCP server pods
+    - toEntities:
+        - kube-apiserver
+    # Allow outbound HTTP/HTTPS for model providers, registries, and connectors
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: archestra-db
+  namespace: archestra
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: archestra-db
+  ingress:
+    # Allow traffic from Archestra app and workers
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: archestra
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Allow intra-cluster DB communication
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: archestra-db
+    # Allow traffic from CloudNativePG operator for health checks
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "5432"
+              protocol: TCP
+    # Allow VictoriaMetrics to scrape metrics
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: victoria-metrics
+      toPorts:
+        - ports:
+            - port: "9187"
+              protocol: TCP
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow intra-cluster DB communication
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: archestra-db
+    # Allow access to K8s API
+    - toEntities:
+        - kube-apiserver
+    # Allow egress to S3 for Barman backups
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

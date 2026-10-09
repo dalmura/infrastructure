@@ -9,6 +9,7 @@ These are:
 * [Tandoor](https://tandoor.dev/) for Recipe management
 * [Reactive Resume](https://rxresu.me/) for Resume management
 * [Matrix Synapse](https://matrix.org/) for Chat and Messaging
+* [Archestra](https://archestra.ai/) for MCP and LLM Agent Gateway
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -583,3 +584,57 @@ argocd app sync matrix
 
 Matrix Synapse will be accessible publicly via:
 `https://matrix.indigo.dalmura.cloud/`
+
+
+## Archestra Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md](INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md)
+
+### Vault Configuration
+
+1. Create the Vault AWS Role (AKA IAM User Template) for Archestra CNPG backups:
+```bash
+vault write aws/roles/archestra-db-backup \
+    credential_type=iam_user \
+    policy_arns='<iam_vended_permissions.id>' \
+    iam_tags="domain=dalmura" \
+    iam_tags="site=indigo" \
+    iam_tags="app=archestra" \
+    iam_tags="role=postgres"
+```
+
+2. Create the Vault policy and Kubernetes auth role:
+```bash
+vault policy write workload-reader-archestra-secrets -<<EOF
+path "aws/creds/archestra-db-backup" {
+    capabilities = ["read"]
+}
+path "site/data/wave-5/archestra/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-archestra-secrets \
+   bound_service_account_names=archestra-sa \
+   bound_service_account_namespaces=archestra \
+   token_policies=workload-reader-archestra-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=31d
+```
+
+3. Create the application secrets in Vault (`site/data/wave-5/archestra/config`):
+   - `auth_secret`: `<random_32byte_hex>`
+   - `session_secret`: `<random_32byte_hex>`
+   - `secrets_encryption_secret`: `<random_32byte_hex>`
+   - `admin_password`: `<secure_initial_admin_password>`
+
+### Deploy & Verify
+
+Sync the application via ArgoCD:
+```bash
+argocd app sync wave-5
+argocd app sync archestra
+```
+
+Archestra will be accessible privately via:
+`https://archestra.indigo.dalmura.cloud/`
