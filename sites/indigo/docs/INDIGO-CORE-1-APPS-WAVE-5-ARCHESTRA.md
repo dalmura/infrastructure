@@ -94,7 +94,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n archestra exec archestra-d
 
 ### Step 4.2: Access Web UI
 Navigate to [https://archestra.indigo.dalmura.cloud/](https://archestra.indigo.dalmura.cloud/) in your browser.
-* Sign in using username `admin` (or the default admin email) and the `admin_password` configured in Vault.
+* Sign in using email `admin@example.com` and the `admin_password` configured in Vault.
 * Navigate to settings to confirm the database and platform status are healthy.
 
 ### Step 4.3: Verify Routing
