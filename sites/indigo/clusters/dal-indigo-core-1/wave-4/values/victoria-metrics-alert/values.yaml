@@ -75,7 +75,10 @@ server:
                 description: "Postgres cluster {{ $labels.cnpg_cluster }} in namespace {{ $labels.namespace }} has not successfully archived a WAL segment to S3/Barman for over 1 hour. Immediate action is required to ensure backup recoverability."
 
             - alert: PostgresNoSuccessfulBackup
-              expr: "time() - (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp or cnpg_collector_last_available_backup_timestamp) > 90000"
+              expr: |
+                (time() - (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp or cnpg_collector_last_available_backup_timestamp) > 90000)
+                and
+                (lifetime(cnpg_cluster_instances[30d]) > 86400)
               labels:
                 severity: critical
               annotations:
