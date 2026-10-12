@@ -61,4 +61,11 @@ spec:
         - ports:
             - port: "1883"
               protocol: TCP
-
+    # Allow connections to external services
+    - toFQDNs:
+        - matchName: "huggingface.co"
+        - matchName: "api.github.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
