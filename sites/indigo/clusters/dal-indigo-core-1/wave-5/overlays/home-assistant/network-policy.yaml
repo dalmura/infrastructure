@@ -19,6 +19,15 @@ spec:
               protocol: TCP
             - port: "8080"
               protocol: TCP
+    # Allow traffic from Traefik Public (webhooks on /api/webhook)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8123"
+              protocol: TCP
     # Allow traffic to Matter Server WebSocket from within home-assistant namespace
     - fromEndpoints:
         - matchLabels:

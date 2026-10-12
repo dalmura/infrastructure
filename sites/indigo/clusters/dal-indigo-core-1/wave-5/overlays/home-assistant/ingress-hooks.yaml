@@ -1,0 +1,29 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ha-hooks
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.kubernetes.io/hostname: ha-hooks.indigo.dalmura.cloud
+    external-dns.kubernetes.io/target: indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: true
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-public-ratelimit@kubernetescrd,traefik-public-crowdsec-bouncer@kubernetescrd,traefik-public-security-headers@kubernetescrd
+spec:
+  ingressClassName: ingress-public
+  tls:
+    - hosts:
+      - ha-hooks.indigo.dalmura.cloud
+      secretName: home-assistant-hooks-cert
+  rules:
+  - host: ha-hooks.indigo.dalmura.cloud
+    http:
+      paths:
+      - path: /api/webhook
+        pathType: Prefix
+        backend:
+          service:
+            name: ha
+            port:
+              name: http

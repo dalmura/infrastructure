@@ -69,6 +69,9 @@ spec:
               - matchPattern: "matrix-matrix-rtc-sfu.matrix"
               - matchPattern: "matrix-matrix-rtc-authorisation-service"
               - matchPattern: "matrix-matrix-rtc-authorisation-service.matrix"
+              - matchPattern: "*.home-assistant.svc.cluster.local"
+              - matchPattern: "ha"
+              - matchPattern: "ha.home-assistant"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -86,6 +89,8 @@ spec:
             io.kubernetes.pod.namespace: tailscale
         - matchLabels:
             io.kubernetes.pod.namespace: matrix
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
     - toFQDNs:
         - matchName: "plugins.traefik.io"
         - matchName: "get.geojs.io"

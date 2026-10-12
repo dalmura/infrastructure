@@ -42,3 +42,9 @@ A list of other integrations via HACS:
 Required [`matterjs-server`](https://github.com/matter-js/matterjs-server) deployed in the `home-assistant` namespace to allow for HA to reach matter devices natively.
 
 WebSocket Endpoint URL is `ws://matter-server.home-assistant.svc.cluster.local:5580/ws` (configure this in Home Assistant 'Matter' integration).
+
+## Public Webhooks
+
+Home Assistant [webhook triggers](https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger) create an unauthenticated endpoint at `/api/webhook/<webhook_id>` (the `webhook_id` is the only secret, so treat it like a password).
+To let external sites trigger automations, a dedicated public ingress is exposed at `ha-hooks.indigo.dalmura.cloud` (see `wave-5/overlays/home-assistant/ingress-hooks.yaml`).
+Within Home Assistant, webhook triggers must be configured with `local_only: false` otherwise HA rejects internet requests.
