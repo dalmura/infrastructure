@@ -15,3 +15,11 @@ configs:
 
 controller:
   revisionHistoryLimit: 0
+
+dex:
+  startupProbe:
+    enabled: true
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
