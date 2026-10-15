@@ -91,6 +91,15 @@
       "additionalBranchPrefix": "navy-"
     },
     {
+      "matchFileNames": [
+        "sites/navy/**"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "groupName": "navy patch updates"
+    },
+    {
       "matchDatasources": [
         "docker"
       ],

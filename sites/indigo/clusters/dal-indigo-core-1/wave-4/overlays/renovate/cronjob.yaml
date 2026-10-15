@@ -22,6 +22,8 @@ spec:
               env:
                 - name: LOG_LEVEL
                   value: debug
+                - name: RENOVATE_DOCKER_MAX_PAGES
+                  value: "10"
               volumeMounts:
                 - name: config-volume
                   mountPath: /usr/src/app/config.js
