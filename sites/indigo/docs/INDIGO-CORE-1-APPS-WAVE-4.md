@@ -144,6 +144,14 @@ Renovate itself will be run from the Indigo site and cover all sites from a gith
 
 As new sites are onboarded we need to update the [renovate.json](/renovate.json) at the root of the repo, and any additional secrets are included in the above Secret.
 
+### Docker Hub tag pagination
+
+Renovate determines Docker image release timestamps for `minimumReleaseAge` from the Docker Hub tags API (`hub.docker.com`, `tag_last_pushed`). Docker Hub refuses anonymous pagination past an offset of 1000, returning HTTP 403 `pagination offset too large for anonymous requests; sign in to page further`.
+
+For Docker Hub repos with more than 1000 tags, e.g. `n8nio/n8n` (~6000 tags) and `library/nginx` (~1400), this makes the whole Docker Hub tags lookup fail. Renovate then silently falls back to the registry tag list, which carries no timestamps, and because [renovate.json](/renovate.json) sets `minimumReleaseAgeBehaviour: "timestamp-optional"` the update is raised with no release age check at all.
+
+The `RENOVATE_DOCKER_MAX_PAGES` env var (see `cronjob.yaml`) caps pagination at 10 pages (offset 900), which stays below the anonymous limit so timestamps are retained and the 7 day `minimumReleaseAge` is enforced. The durable fix would be to authenticate Renovate against Docker Hub via a `hostRules` entry, which lifts the anonymous offset cap.
+
 ## VMS Alert Manager Configuration
 By default the `ExternalSecret` and `SecretStore` resources will be broken until we deploy the correct Vault and ESO integration for Alert Manager.
 
