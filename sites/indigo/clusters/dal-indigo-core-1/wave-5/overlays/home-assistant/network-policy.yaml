@@ -186,3 +186,10 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Allow egress to Matter CSA IOT
+    - toFQDNs:
+        - matchName: "on.dcl.csa-iot.org"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
