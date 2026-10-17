@@ -125,6 +125,7 @@ spec:
         - matchName: "checkip.home-assistant.io"
         - matchName: "alerts.home-assistant.io"
         - matchName: "wheels.home-assistant.io"
+        - matchName: "vector.openstreetmap.org"
       toPorts:
         - ports:
             - port: "443"
