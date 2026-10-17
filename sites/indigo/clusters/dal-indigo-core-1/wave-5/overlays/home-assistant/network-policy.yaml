@@ -50,7 +50,7 @@ spec:
             dns:
               - matchPattern: "*"
     # Allow traffic to Matter Server WebSocket from within home-assistant namespace
-    - fromEndpoints:
+    - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: home-assistant
       toPorts:
