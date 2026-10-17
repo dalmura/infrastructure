@@ -116,6 +116,7 @@ spec:
         - matchName: "version.home-assistant.io"
         - matchName: "checkip.home-assistant.io"
         - matchName: "alerts.home-assistant.io"
+        - matchName: "wheels.home-assistant.io"
       toPorts:
         - ports:
             - port: "443"
