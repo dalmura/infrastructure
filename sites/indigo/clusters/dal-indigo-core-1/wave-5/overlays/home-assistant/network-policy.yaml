@@ -189,6 +189,7 @@ spec:
     # Allow egress to Matter CSA IOT
     - toFQDNs:
         - matchName: "on.dcl.csa-iot.org"
+        - matchName: "on.test-net.dcl.csa-iot.org"
       toPorts:
         - ports:
             - port: "443"
