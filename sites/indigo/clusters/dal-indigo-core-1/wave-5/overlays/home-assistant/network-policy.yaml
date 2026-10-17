@@ -49,6 +49,14 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+    # Allow traffic to Matter Server WebSocket from within home-assistant namespace
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
+      toPorts:
+        - ports:
+            - port: "5580"
+              protocol: TCP
     # Allow egress to Matter OTBR
     - toCIDR:
         - 192.168.78.91/32
