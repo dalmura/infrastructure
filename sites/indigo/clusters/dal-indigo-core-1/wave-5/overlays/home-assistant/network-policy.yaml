@@ -49,12 +49,12 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # Allow egress to Matter Server (matterjs-server)
+    # Allow egress to Matter Server
     - toCIDR:
-        - 192.168.78.88/32
+        - 192.168.78.91/32
       toPorts:
         - ports:
-            - port: "5580"
+            - port: "8080"
               protocol: TCP
     # Allow egress to Frigate API
     - toEndpoints:
