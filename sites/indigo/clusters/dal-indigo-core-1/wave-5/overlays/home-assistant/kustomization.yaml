@@ -7,8 +7,8 @@ resources:
   - ingress.yaml
   - ingress-codeserver.yaml
   - ingress-hooks.yaml
-  - ingress-matter-server.yaml
   - network-policy.yaml
   - pvc-matter-server.yaml
-  - deployment-matter-server.yaml
-  - service-matter-server.yaml
+  #- deployment-matter-server.yaml
+  #- service-matter-server.yaml
+  #- ingress-matter-server.yaml
