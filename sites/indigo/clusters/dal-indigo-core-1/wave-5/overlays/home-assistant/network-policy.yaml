@@ -59,6 +59,13 @@ spec:
         - ports:
             - port: "5580"
               protocol: TCP
+    # Allow traffic to Matter Server WebSocket on Router
+    - toCIDR:
+        - 192.168.78.102/32
+      toPorts:
+        - ports:
+            - port: "5580"
+              protocol: TCP
     # Allow egress to Matter OTBR
     - toCIDR:
         - 192.168.78.91/32
@@ -111,7 +118,6 @@ spec:
         - ports:
             - port: "5540"
               protocol: TCP
-
     # Allow egress to Home Assistant Cloud/Visual assets
     - toFQDNs:
         - matchName: "brands.home-assistant.io"
