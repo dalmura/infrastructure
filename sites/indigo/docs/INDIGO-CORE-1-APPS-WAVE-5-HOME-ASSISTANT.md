@@ -43,6 +43,8 @@ Required [`matterjs-server`](https://github.com/matter-js/matterjs-server) deplo
 
 WebSocket Endpoint URL is `ws://matter-server.home-assistant.svc.cluster.local:5580/ws` (configure this in Home Assistant 'Matter' integration).
 
+The Matter Server Web UI is exposed privately at `ha-matter.indigo.dalmura.cloud` behind Authentik Proxy Auth (see `wave-5/overlays/home-assistant/ingress-matter-server.yaml`). Configure a reverse proxy application in Authentik for `ha-matter.indigo.dalmura.cloud` following [INDIGO-APPS-AUTH.md](INDIGO-APPS-AUTH.md).
+
 ## Public Webhooks
 
 Home Assistant [webhook triggers](https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger) create an unauthenticated endpoint at `/api/webhook/<webhook_id>` (the `webhook_id` is the only secret, so treat it like a password).

@@ -19,6 +19,8 @@ spec:
               protocol: TCP
             - port: "8080"
               protocol: TCP
+            - port: "5580"
+              protocol: TCP
     # Allow traffic from Traefik Public (webhooks on /api/webhook)
     - fromEndpoints:
         - matchLabels:
