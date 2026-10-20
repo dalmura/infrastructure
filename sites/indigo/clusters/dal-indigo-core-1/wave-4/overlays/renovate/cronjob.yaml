@@ -15,6 +15,7 @@ spec:
           containers:
             - name: renovate
               image: ghcr.io/renovatebot/renovate:44
+              imagePullPolicy: Always
               resources:
                 requests:
                   cpu: 100m
