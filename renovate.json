@@ -126,6 +126,16 @@
         "plexinc/pms-docker"
       ],
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-(?<revision>[0-9a-f]{9})$"
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/element-hq/ess-helm/matrix-stack"
+      ],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "element-hq/ess-helm"
     }
   ]
 }
