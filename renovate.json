@@ -58,6 +58,16 @@
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
       ],
       "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "sites/*/clusters/*/*/values/forgejo/values.yaml"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n\\s+tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
+      ],
+      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [

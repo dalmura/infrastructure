@@ -1,6 +1,7 @@
 image:
   # Chart tracks the Forgejo LTS by default (see forgejo-helm#1639). Pin the
   # non-LTS release explicitly.
+  # renovate: datasource=docker depName=code.forgejo.org/forgejo/forgejo
   tag: 17.0.0
 
 postgresql-ha:
