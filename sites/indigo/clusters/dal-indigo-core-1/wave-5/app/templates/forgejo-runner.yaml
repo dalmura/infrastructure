@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: git.erwanleboucher.dev/eleboucher/charts/forgejo-runner
+    - repoURL: git.erwanleboucher.dev/eleboucher/charts
       chart: forgejo-runner
       targetRevision: 13.2.1
       helm:
