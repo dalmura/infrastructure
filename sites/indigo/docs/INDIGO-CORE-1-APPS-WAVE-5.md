@@ -5,6 +5,7 @@ These are:
 * [Plex](https://www.plex.tv/) for Media Library Playback
 * [Forgejo](https://forgejo.org/) as a Github replacement
 * [Forgejo Runner](https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin) for running Forgejo Actions jobs as Kubernetes pods
+* [Actions Runner Controller](https://github.com/actions/actions-runner-controller) for running GitHub Actions jobs as Kubernetes pods
 * [Photoprism](https://github.com/photoprism/photoprism) for Photo management
 * [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
 * [Tandoor](https://tandoor.dev/) for Recipe management
@@ -345,6 +346,164 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n forgejo-runner logs deploy
 ```
 
 The runner should appear as idle in Forgejo's runner list. Jobs create `forgejo-runner-task-*` Jobs and pods in the `forgejo-runner` namespace, which are garbage-collected shortly after finishing.
+
+
+## GitHub Runner Setup
+
+[Actions Runner Controller (ARC)](https://github.com/actions/actions-runner-controller) runs GitHub Actions jobs as Kubernetes pods. It is independent of the Forgejo runner: it has its own namespaces, credentials, RBAC, and `runs-on` labels. The ARC controller runs in `arc-systems`; the runner scale set runs in `arc-runners`.
+
+Without `containerMode`, each job gets a fresh ephemeral runner pod and the workflow steps run inside that pod. This supports ordinary `run:` steps and JavaScript actions, but not `container:` jobs, `services:`, or Docker actions. See [Container jobs and Docker actions](#container-jobs-and-docker-actions) if you need those.
+
+The ARC controller Application is `arc-controller` and the scale set Application is `github-runner`. Sync `arc-controller` first so the `actions.github.com` CRDs exist before the scale set is applied.
+
+These steps assume `dalmura` is a GitHub organization. GitHub cannot attach an organization runner to a personal account; if `dalmura` is a user, use a repository-scoped App and `githubConfigUrl: https://github.com/dalmura/<repo>`, with one scale set per repository.
+
+### 1. Create the GitHub App
+
+Create a GitHub App in the `dalmura` organization:
+
+1. Open `https://github.com/organizations/dalmura/settings/apps/new`.
+2. Set the name to something recognisable, for example `indigo-arc-runner`, and any Homepage URL.
+3. Disable the webhook; this setup does not use webhook-driven scaling.
+4. Set these permissions:
+   * Repository permissions:
+     * Actions: Read-only
+     * Metadata: Read-only (mandatory)
+   * Organization permissions:
+     * Self-hosted runners: Read and write
+5. Create the App and note the **App ID**.
+6. Generate a private key and keep the `.pem` file secure.
+7. Install the App on the `dalmura` organization and grant it access to the repositories that should use the runner.
+8. Copy the **Installation ID** from the installation URL, which ends in `/settings/installations/<installation-id>`.
+
+For a repository-scoped runner instead, set `githubConfigUrl` to `https://github.com/dalmura/<repo>` and use Repository permissions `Actions: Read-only`, `Administration: Read and write`, and `Metadata: Read-only`. That needs one scale set per repository. GitHub self-hosted runners cannot be scoped to a personal account; use an organization or one scale set per repository.
+
+### 2. Store the credentials in Vault
+
+Store the App credentials at `site/wave-5/github-runner/github-app`:
+
+```bash
+vault kv put site/wave-5/github-runner/github-app \
+   github_app_id="<app-id>" \
+   github_app_installation_id="<installation-id>" \
+   github_app_private_key=@/path/to/private-key.pem
+```
+
+Create the Vault policy and Kubernetes auth role:
+
+```bash
+vault policy write workload-reader-github-runner-secrets - <<EOF
+path "site/data/wave-5/github-runner/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-github-runner-secrets \
+   bound_service_account_names=github-runner-sa \
+   bound_service_account_namespaces=arc-runners \
+   token_policies=workload-reader-github-runner-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+```
+
+External Secrets syncs `github_app_id`, `github_app_installation_id`, and `github_app_private_key` into the `github-runner-github-app` Secret in `arc-runners`. The scale set references that Secret by name.
+
+To rotate the private key, generate a new key in the GitHub App settings, update Vault, and force a refresh:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-runners \
+   annotate externalsecret github-runner-github-app force-sync="$(date +%s)" --overwrite
+```
+
+GitHub keeps multiple private keys valid during rotation, so delete the old key after the listener reconnects.
+
+### 3. Deploy
+
+```bash
+argocd app sync arc-controller
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-systems \
+   rollout status deploy/arc-controller-gha-rs-controller --timeout=3m
+argocd app sync github-runner
+```
+
+If you sync all wave-5 children at once, `github-runner` can fail once because the CRDs from `arc-controller` are not established yet. Re-sync `github-runner` after the controller is healthy.
+
+`arc-controller` sets `ServerSideApply=true` because the ARC CRDs are several hundred kilobytes each, which is too large for client-side apply's `last-applied-configuration` annotation.
+
+### Runner label
+
+The scale set is named `indigo-github`, which is the `runs-on:` label:
+
+```yaml
+runs-on: indigo-github
+```
+
+GitHub also applies the implicit `self-hosted`, `linux`, and `x64` labels. Workflows can use `runs-on: indigo-github` or `runs-on: [self-hosted, linux, x64, indigo-github]`. The scale set is scoped to the `dalmura` organization, so any repository the App can access can use it. This label is separate from the Forgejo runner's `ubuntu-24.04` and `indigo` labels.
+
+In the default configuration (no `containerMode`), runner pods are pinned to `kubernetes.io/arch: amd64` and have `automountServiceAccountToken: false`. `minRunners: 0` scales to zero when idle; `maxRunners: 3` caps concurrent jobs on the N150 workers.
+
+### Container jobs and Docker actions
+
+The initial deployment leaves `containerMode` unset. If workflows use `container:`, `services:`, or Docker actions, enable the Kubernetes hooks in `values/github-runner/values.yaml`:
+
+```yaml
+containerMode:
+  type: kubernetes-novolume
+```
+
+Then remove `automountServiceAccountToken: false` from the runner pod template, or set it to `true`. The hooks use the `indigo-github-gha-rs-kube-mode` ServiceAccount to create, exec into, and clean up job pods; without the mounted token they fail with `Unauthorized`.
+
+`kubernetes-novolume` uses [actions/runner-container-hooks](https://github.com/actions/runner-container-hooks) to run the job in a separate pod and copy the workspace between pods. It needs no PVC, Docker daemon, or privileged container. The hook template ConfigMap in `overlays/github-runner/hook-template.yaml` is already mounted into the runner pod, so job pods are pinned to `kubernetes.io/arch: amd64` and have `automountServiceAccountToken: false`.
+
+Both modes set `ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true`, so every job must have a container image; jobs without `container:` fail with `Jobs without a job container are forbidden on this runner`.
+
+Keep `REQUIRE_JOB_CONTAINER=true` when hooks are enabled. Setting it to `false` runs non-container jobs inside the runner pod, which can read the hook ServiceAccount token and create pods, exec into them, and read secrets.
+
+If novolume workspace copying is too slow or flaky for large repositories, switch to the PVC-backed mode:
+
+```yaml
+containerMode:
+  type: kubernetes
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: cluster-nobackup
+    resources:
+      requests:
+        storage: 1Gi
+```
+
+The ReadWriteOnce PVC keeps the job pod on the same node as the runner pod, so it stays on amd64. `cluster-nobackup` avoids Longhorn backup churn for ephemeral workspaces. Longhorn binds RWO volumes immediately, so the job pod can occasionally wait on a multi-attach error before the scheduler retries; novolume avoids that.
+
+The network policy already includes a rule for the hook ServiceAccount and a rule for hook-created job pods (`runner-pod` label). Runner and job pods can reach DNS and the internet on ports 80 and 443 only. If a job needs an in-cluster service, a private registry on another port, or SSH git, extend `overlays/github-runner/network-policy.yaml`.
+
+### Verifying
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-systems get deploy,pods
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-runners \
+   get autoscalingrunnerset,ephemeralrunnerset,pods,externalsecret
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-runners \
+   logs -l app.kubernetes.io/component=runner-scale-set-listener --tail=50
+```
+
+In GitHub, open the organization's `Settings` => `Actions` => `Runners` and confirm the `indigo-github` scale set is present. The `github-runner-github-app` ExternalSecret should report `Ready=True`:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-runners \
+   get externalsecret github-runner-github-app \
+   -o jsonpath='{range .status.conditions[*]}{.type}={.status} {.reason}{"\n"}{end}'
+```
+
+### Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| Listener logs `failed to get access token` or `401` | App ID, installation ID, or private key mismatch, or the App is not installed on the organization |
+| Listener logs `Resource not accessible by integration` | Missing `Actions: Read` or `Self-hosted runners: Read and write` permission |
+| Listener logs `not found` | `githubConfigUrl` points at the wrong scope (organization vs repository) |
+| Jobs stay queued | Workflow `runs-on` does not match `indigo-github`; check the scale set name and repository access |
+| Hooks fail with `Unauthorized` after enabling `containerMode` | `automountServiceAccountToken: false` is still set on the runner pod |
+| `Jobs without a job container are forbidden` | `containerMode` is enabled and the job has no `container:`; add one or disable the hooks |
 
 
 ## Photoprism Setup

@@ -1,0 +1,90 @@
+# GitHub Actions runner scale set managed by Actions Runner Controller (ARC).
+#
+# The GitHub App credentials come from the `github-runner-github-app` Secret
+# managed by External Secrets (Vault path
+# `site/wave-5/github-runner/github-app`). See the wave-5 docs for the GitHub
+# App setup and the Vault policy/role.
+#
+# `containerMode` is intentionally unset. Each job gets a fresh ephemeral
+# runner pod and the workflow steps run inside it, without Docker, a Docker
+# socket, a PVC, or a privileged container. That is enough for ordinary `run:`
+# steps and JavaScript actions.
+#
+# To run `container:` jobs, `services:`, or Docker actions, enable
+# `kubernetes-novolume` below and remove `automountServiceAccountToken: false`
+# from the template. The hook template ConfigMap in
+# `overlays/github-runner/hook-template.yaml` is already wired in, so job pods
+# stay on the amd64 workers and do not get a ServiceAccount token.
+#
+# The PVC-backed `kubernetes` mode is the fallback if workspace copying is too
+# slow. It keeps the job pod on the runner's node, but Longhorn's RWO volumes
+# bind immediately, so the job pod can hit a multi-attach delay.
+#
+# containerMode:
+#   type: kubernetes-novolume
+#
+# containerMode:
+#   type: kubernetes
+#   kubernetesModeWorkVolumeClaim:
+#     accessModes: ["ReadWriteOnce"]
+#     storageClassName: cluster-nobackup
+#     resources:
+#       requests:
+#         storage: 1Gi
+
+githubConfigUrl: "https://github.com/dalmura"
+githubConfigSecret: github-runner-github-app
+
+# This is the `runs-on:` label in GitHub workflows. GitHub also applies the
+# implicit `self-hosted`, `linux`, and `x64` labels.
+runnerScaleSetName: indigo-github
+
+# Scale to zero when idle and cap concurrent jobs at three. The N150 workers
+# are small, so keep this low until there is a reason to raise it.
+minRunners: 0
+maxRunners: 3
+
+# The controller is installed by the `arc-controller` Application in
+# `arc-systems`. ArgoCD renders Helm with `lookup` disabled, so point the scale
+# set at the controller ServiceAccount explicitly instead of relying on the
+# chart's auto-discovery.
+controllerServiceAccount:
+  namespace: arc-systems
+  name: arc-controller-gha-rs-controller
+
+template:
+  spec:
+    # Runner pods execute untrusted CI code and do not need the Kubernetes API
+    # while containerMode is unset.
+    #
+    # If you enable containerMode above, remove this line (or set it to true):
+    # the Kubernetes hooks need the ServiceAccount token to create, exec into,
+    # and clean up job pods.
+    automountServiceAccountToken: false
+    # The Indigo worker pools are amd64 only (eq14 N150 and macmini2014 i7).
+    # Keep runner/job pods off the arm64 Raspberry Pi nodes.
+    nodeSelector:
+      kubernetes.io/arch: amd64
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:2.338.1
+        command: ["/home/runner/run.sh"]
+        env:
+          # Used by actions/runner-container-hooks when containerMode is
+          # enabled. Inert without containerMode.
+          - name: ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE
+            value: /home/runner/hook-template/extension
+        volumeMounts:
+          - name: hook-template
+            mountPath: /home/runner/hook-template
+            readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+    volumes:
+      - name: hook-template
+        configMap:
+          name: github-runner-hook-template

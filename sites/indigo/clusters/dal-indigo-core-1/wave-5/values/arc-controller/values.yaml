@@ -1,0 +1,26 @@
+# Actions Runner Controller (ARC) controller.
+#
+# Installs the cluster-wide controller that reconciles AutoscalingRunnerSet
+# resources. The runner scale set itself is in the `github-runner` Application
+# and the `arc-runners` namespace.
+#
+# Chart:
+# https://github.com/actions/actions-runner-controller/tree/master/charts/gha-runner-scale-set-controller
+# Docs:
+# https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+flags:
+  logLevel: info
+  logFormat: json
+
+# The controller only talks to the Kubernetes API. The controller image is
+# multi-arch, so it can run on either the amd64 workers or the arm64 nodes.
+# Runner pods are scheduled by the github-runner Application and are pinned to
+# amd64 there.

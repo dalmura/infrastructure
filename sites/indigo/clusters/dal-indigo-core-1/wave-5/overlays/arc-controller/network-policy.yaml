@@ -1,0 +1,26 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: arc-controller
+  namespace: arc-systems
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: gha-rs-controller
+      app.kubernetes.io/component: controller-manager
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow managing AutoscalingRunnerSet, listener, and runner resources
+    - toEntities:
+        - kube-apiserver

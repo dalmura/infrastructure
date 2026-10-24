@@ -1,0 +1,124 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-runner-listener
+  namespace: arc-runners
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/component: runner-scale-set-listener
+      actions.github.com/scale-set-name: indigo-github
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow creating and watching runner resources in this namespace
+    - toEntities:
+        - kube-apiserver
+    # Allow the GitHub Actions service and API
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-runner-jobs
+  namespace: arc-runners
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/component: runner
+      actions.github.com/scale-set-name: indigo-github
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow GitHub API/service, action downloads, and job dependencies.
+    # Runner pods have no Kubernetes API access and no ServiceAccount token
+    # while containerMode is unset.
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+# The Kubernetes container hooks need the Kubernetes API to create and exec
+# into job pods. This selector only matches when containerMode is enabled,
+# because the `indigo-github-gha-rs-kube-mode` ServiceAccount is created by the
+# chart in that mode. It is inert while containerMode is unset.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-runner-container-hooks
+  namespace: arc-runners
+spec:
+  endpointSelector:
+    matchLabels:
+      io.cilium.k8s.policy.serviceaccount: indigo-github-gha-rs-kube-mode
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+# Job pods created by the container hooks only carry the `runner-pod` label.
+# The rule is inert while containerMode is unset, but keeps hook-created pods
+# from falling through to Cilium's default allow when it is enabled.
+#
+# Services for a job are containers in the same pod, so they share localhost
+# and do not need extra ingress or intra-namespace rules.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: github-runner-job-containers
+  namespace: arc-runners
+spec:
+  endpointSelector:
+    matchExpressions:
+      - key: runner-pod
+        operator: Exists
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow GitHub API/service, action downloads, and job dependencies.
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
