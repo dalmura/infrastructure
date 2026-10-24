@@ -1,0 +1,107 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: forgejo-runner
+  namespace: forgejo-runner
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo-runner
+      app.kubernetes.io/instance: forgejo-runner
+  ingress:
+    # Job pods fetch the action cache from the runner.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo-runner
+            app.kubernetes.io/name: forgejo-runner-job
+      toPorts:
+        - ports:
+            - port: "8088"
+              protocol: TCP
+            - port: "8089"
+              protocol: TCP
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow Kubernetes API access for creating and exec'ing into job pods
+    - toEntities:
+        - kube-apiserver
+    # Allow the Forgejo API
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo
+            app.kubernetes.io/name: forgejo
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    # Allow fetching actions and runner updates from the internet
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: forgejo-runner-jobs
+  namespace: forgejo-runner
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo-runner-job
+  ingress:
+    # Service containers share the job pod, but the runner and any future
+    # per-service pods live in this namespace. Allow intra-namespace traffic.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo-runner
+  egress:
+    # Allow DNS
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow git checkout and API calls against Forgejo
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo
+            app.kubernetes.io/name: forgejo
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    # Allow the action cache and service containers in this namespace
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo-runner
+    # Allow downloading dependencies and actions
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

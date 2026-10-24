@@ -16,7 +16,10 @@ spec:
             app.kubernetes.io/name: traefik
         - matchLabels:
             io.kubernetes.pod.namespace: forgejo-runner
-            app.kubernetes.io/name: actions-runner
+            app.kubernetes.io/name: forgejo-runner
+        - matchLabels:
+            io.kubernetes.pod.namespace: forgejo-runner
+            app.kubernetes.io/name: forgejo-runner-job
       toPorts:
         - ports:
             - port: "3000"

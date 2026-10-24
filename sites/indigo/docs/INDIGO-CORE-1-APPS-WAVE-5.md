@@ -4,6 +4,7 @@ These are:
 * [Frigate](https://frigate.video/) for Security NVR
 * [Plex](https://www.plex.tv/) for Media Library Playback
 * [Forgejo](https://forgejo.org/) as a Github replacement
+* [Forgejo Runner](https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin) for running Forgejo Actions jobs as Kubernetes pods
 * [Photoprism](https://github.com/photoprism/photoprism) for Photo management
 * [Emojirades](https://emojirades.io) runs Slack based Emoji Charades
 * [Tandoor](https://tandoor.dev/) for Recipe management
@@ -292,6 +293,51 @@ Configuring OIDC via the Forgejo UI:
 * Save the Authentication Source
 
 Within Authentik you can override Forgejo's "Launch URL" to be `https://forgejo.indigo.dalmura.cloud/user/oauth2/indigo-auth` which should also auto-login the user instead of just sending them to the default home page.
+
+## Forgejo Runner Setup
+
+[Forgejo Runner](https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin) runs Forgejo Actions jobs as native Kubernetes pods. The runner and the `runner-k8s-plugin` sidecar run in the `forgejo-runner` namespace, and each job runs in its own pod in that same namespace. The plugin creates job pods through the Kubernetes API; it does not use Docker or a Docker socket. The namespace enforces the `baseline` Pod Security Standard, and neither the runner nor the plugin runs privileged.
+
+### Registration details
+
+The chart runs `forgejo-runner daemon` with a fixed runner UUID and runner token. In Forgejo open `Site administration` => `Actions` => `Runners` => `Create new runner`, enter a name, and copy the **UUID** and **Token** shown on the setup page. The token is displayed only once.
+
+Store both in Vault at `site/wave-5/forgejo-runner/config`:
+
+```bash
+vault kv put site/wave-5/forgejo-runner/config \
+   uuid="<runner-uuid>" \
+   token="<runner-token>"
+```
+
+External Secrets syncs `uuid` and `token` into the `forgejo-runner-secrets` Secret, which the chart mounts. The older registration-token / `.runner` flow is not required for this chart.
+
+To rotate the token, edit the runner in Forgejo, tick **Regenerate token**, save, and copy the new token; update `token` in Vault (the UUID stays the same). The ExternalSecret refreshes hourly by default; to apply a change immediately, annotate it to force a sync:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n forgejo-runner \
+   annotate externalsecret forgejo-runner-secrets force-sync="$(date +%s)" --overwrite
+```
+
+If the runner logs `unregistered runner`, the `uuid` or `token` no longer matches Forgejo; regenerate the token or create a new runner and update Vault.
+
+### Runner labels
+
+| Label | Job pod |
+|---|---|
+| `ubuntu-latest`, `ubuntu-24.04`, `default` | Standard job pod (`podspec-default.yaml`) |
+
+Use these as `runs-on:` values in `.forgejo/workflows`.
+
+### Verifying
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n forgejo-runner get deploy,role,rolebinding,externalsecret
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n forgejo-runner logs deploy/forgejo-runner -c runner --tail=50
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n forgejo-runner logs deploy/forgejo-runner -c k8s-plugin --tail=50
+```
+
+The runner should appear as idle in Forgejo's runner list. Jobs create `forgejo-runner-task-*` Jobs and pods in the `forgejo-runner` namespace, which are garbage-collected shortly after finishing.
 
 
 ## Photoprism Setup
