@@ -70,16 +70,21 @@ runnerConfig: |
             memory: 512Mi
   runner:
     capacity: 3
+    # `ubuntu-24.04` describes the job environment; `indigo` identifies the
+    # site so workflows can target it once other sites have runners too.
     labels:
-      - ubuntu-latest:k8s:///config/podspec-default.yaml
       - ubuntu-24.04:k8s:///config/podspec-default.yaml
-      - default:k8s:///config/podspec-default.yaml
+      - indigo:k8s:///config/podspec-default.yaml
     timeout: 3h
     shutdown_timeout: 3m
 
 podSpecs:
   podspec-default.yaml: |
     automountServiceAccountToken: false
+    # The Indigo worker pools are amd64 only (eq14 N150 and macmini2014 i7).
+    # Keep job pods off the arm64 Raspberry Pi nodes.
+    nodeSelector:
+      kubernetes.io/arch: amd64
     containers:
       - name: main
         image: ghcr.io/bjw-s-labs/forgejo-runner:ubuntu-24.04

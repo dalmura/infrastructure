@@ -323,11 +323,18 @@ If the runner logs `unregistered runner`, the `uuid` or `token` no longer matche
 
 ### Runner labels
 
-| Label | Job pod |
-|---|---|
-| `ubuntu-latest`, `ubuntu-24.04`, `default` | Standard job pod (`podspec-default.yaml`) |
+| Label | Meaning | Job pod |
+|---|---|---|
+| `ubuntu-24.04` | Environment | Ubuntu 24.04 job pod on an amd64 worker (`podspec-default.yaml`) |
+| `indigo` | Site | Same job pod, but only on the Indigo runner |
 
-Use these as `runs-on:` values in `.forgejo/workflows`.
+Use `runs-on: ubuntu-24.04` for site-agnostic jobs and `runs-on: [ubuntu-24.04, indigo]` when a job must run in Indigo. Labels are ANDed: every label in `runs-on` must be declared by the same runner. There is no preference or fallback — if no Indigo runner is available, the job waits.
+
+Job pods are pinned to `kubernetes.io/arch: amd64`, so they run on the eq14 or macmini2014 workers and never on the arm64 Raspberry Pi nodes. The runner pod itself has no architecture constraint; both runner images are multi-arch, and it only creates and execs into the job pods. Site targeting only selects the runner; job pods still have no Kubernetes API access.
+
+GitHub-style labels such as `ubuntu-latest`, `self-hosted`, `linux`, `x64`, `amd64`, and `default` are not declared, so workflows using them stay queued until changed to one of the labels above.
+
+If you later add runners in other sites, give each one `ubuntu-24.04` plus its site label (`navy`, etc.). Jobs using only `ubuntu-24.04` can run on any site; jobs using `[ubuntu-24.04, <site>]` are pinned to that site. Multiple runners in the same site should declare the same labels so Forgejo can distribute jobs across them; add a unique label only when a workflow must target one specific runner.
 
 ### Verifying
 
