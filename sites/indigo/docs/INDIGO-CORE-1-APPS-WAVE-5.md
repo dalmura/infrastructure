@@ -498,6 +498,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n arc-runners \
 
 | Symptom | Likely cause |
 |---|---|
+| `arc-systems` controller logs `POST https://api.github.com/app/installations/.../access_tokens failed: context deadline exceeded` | The `arc-controller` network policy is missing egress to GitHub on 443. The controller creates the runner scale set and fetches installation tokens; the listener only starts after that succeeds, so `arc-runners` is empty |
 | Listener logs `failed to get access token` or `401` | App ID, installation ID, or private key mismatch, or the App is not installed on the organization |
 | Listener logs `Resource not accessible by integration` | Missing `Actions: Read` or `Self-hosted runners: Read and write` permission |
 | Listener logs `not found` | `githubConfigUrl` points at the wrong scope (organization vs repository) |

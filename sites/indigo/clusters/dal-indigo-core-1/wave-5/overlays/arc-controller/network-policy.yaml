@@ -24,3 +24,15 @@ spec:
     # Allow managing AutoscalingRunnerSet, listener, and runner resources
     - toEntities:
         - kube-apiserver
+    # The controller, not the listener, creates the runner scale set and
+    # requests installation access tokens from the GitHub API. Without this
+    # rule the reconcile times out with "context deadline exceeded".
+    # api.github.com is the only GitHub host the controller calls; github.com
+    # is included for redirects and future API changes.
+    - toFQDNs:
+        - matchName: "api.github.com"
+        - matchName: "github.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
