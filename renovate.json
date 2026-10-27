@@ -136,6 +136,19 @@
       ],
       "overrideDatasource": "github-releases",
       "overridePackageName": "element-hq/ess-helm"
+    },
+    {
+      "description": [
+        "Archestra publishes OCI charts with -rc.N tags. The argocd manager maps OCI charts to the docker datasource, whose versioning treats '-rc.35' as a suffix, so no version is ever 'compatible' and updates are skipped. Use semver versioning and allow prereleases to track the latest rc."
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "europe-west1-docker.pkg.dev/friendly-path-465518-r6/archestra-public/helm-charts/archestra-platform"
+      ],
+      "versioning": "semver",
+      "ignoreUnstable": false
     }
   ]
 }
