@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: europe-west1-docker.pkg.dev/friendly-path-465518-r6/archestra-public/helm-charts
       chart: archestra-platform
-      targetRevision: 1.5.0-rc.11
+      targetRevision: 1.5.0-rc.12
       helm:
         valueFiles:
           - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/archestra/values.yaml
