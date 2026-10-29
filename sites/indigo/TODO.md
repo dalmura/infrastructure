@@ -15,8 +15,3 @@ Stuff to eventually get around to.
   * Cut over to Gateway API (when ListenerSets are supported and stable) instead of Ingress
 * Switchboard
   * Deprecate when Gateway API is being used
-* Forgejo
-  * Update to v16 with image tag override
-  * Double check native plugin functionality
-  * Setup k8s runner: https://git.erwanleboucher.dev/eleboucher/runner-k8s-plugin
-  * Context: https://codeberg.org/forgejo/discussions/issues/66
