@@ -15,6 +15,25 @@ archestra:
   ingress:
     enabled: false
 
+  # Trust the CloudNativePG self-signed CA for PostgreSQL TLS.
+  # The OpenAPPA runtime (@archestra/openappa-rs, rustls + native-certs) verifies
+  # the server chain against the native store. Mount the CNPG CA in the system CA
+  # directory and point SSL_CERT_DIR at that directory: unlike SSL_CERT_FILE this
+  # keeps the public roots (ca-certificates.crt) in the trust set.
+  extraVolumes:
+    - name: archestra-db-ca
+      secret:
+        secretName: archestra-db-ca
+        items:
+          - key: ca.crt
+            path: archestra-db-ca.crt
+
+  extraVolumeMounts:
+    - name: archestra-db-ca
+      mountPath: /etc/ssl/certs/archestra-db-ca.crt
+      subPath: archestra-db-ca.crt
+      readOnly: true
+
   # Auth secrets reference external secret created by External Secrets Operator
   authSecret:
     existingSecretName: archestra-auth
@@ -67,5 +86,6 @@ archestra:
     ARCHESTRA_FRONTEND_URL: "https://archestra.indigo.dalmura.cloud"
     ARCHESTRA_API_BASE_URL: "https://archestra.indigo.dalmura.cloud"
     ARCHESTRA_TRUST_PROXY: "true"
+    SSL_CERT_DIR: "/etc/ssl/certs"
     ARCHESTRA_HTTP_KEEP_ALIVE_TIMEOUT_MS: "300000"
     ARCHESTRA_AUTH_ADDITIONAL_TRUSTED_ORIGINS: "https://auth.indigo.dalmura.cloud"
