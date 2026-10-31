@@ -18,7 +18,7 @@ forgejo:
 
 image:
   repository: data.forgejo.org/forgejo/runner
-  tag: "13.2.0"
+  tag: "13.2.1"
 
 # The plugin image tag defaults to the chart appVersion (13.2.1).
 
