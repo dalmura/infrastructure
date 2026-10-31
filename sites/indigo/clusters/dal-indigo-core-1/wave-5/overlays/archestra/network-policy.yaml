@@ -6,7 +6,8 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/instance: archestra-platform
+      app.kubernetes.io/instance: archestra
+      app.kubernetes.io/part-of: archestra
   ingress:
     # Allow traffic from Traefik Private (Web UI on 3000, API / LLM proxy on 9000)
     - fromEndpoints:
@@ -69,6 +70,25 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: archestra
+    # Allow connections to Authentik for SSO/OIDC
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: authentik
+            app.kubernetes.io/name: authentik
+            app.kubernetes.io/component: server
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    # Allow egress to Traefik Public for OIDC discovery/token exchange
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     # Allow Kubernetes API access for orchestrating MCP server pods
     - toEntities:
         - kube-apiserver
