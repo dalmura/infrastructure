@@ -17,7 +17,7 @@ spec:
         - ports:
             - port: "8123"
               protocol: TCP
-            - port: "8080"
+            - port: "12321"
               protocol: TCP
             - port: "5580"
               protocol: TCP
@@ -59,9 +59,9 @@ spec:
         - ports:
             - port: "5580"
               protocol: TCP
-    # Allow traffic to Matter Server WebSocket on Router
+    # Allow traffic to Matter Server WebSocket on Raspberry Pi
     - toCIDR:
-        - 192.168.78.102/32
+        - 192.168.78.92/32
       toPorts:
         - ports:
             - port: "5580"
