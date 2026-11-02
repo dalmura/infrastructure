@@ -1,0 +1,20 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik-private-egress-archestra
+  namespace: traefik-private
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: archestra
+            app.kubernetes.io/name: archestra-platform
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "9000"
+              protocol: TCP

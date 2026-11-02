@@ -7,7 +7,6 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: traefik
-      app.kubernetes.io/instance: traefik-private
   egress:
     - toEndpoints:
         - matchLabels:
@@ -15,6 +14,8 @@ spec:
             app.kubernetes.io/name: mosquitto
       toPorts:
         - ports:
+            - port: "80"
+              protocol: TCP
             - port: "1883"
               protocol: TCP
             - port: "9001"

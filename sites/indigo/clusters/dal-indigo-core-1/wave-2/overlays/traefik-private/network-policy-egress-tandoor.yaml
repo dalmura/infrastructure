@@ -1,0 +1,18 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik-private-egress-tandoor
+  namespace: traefik-private
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: tandoor
+            app.kubernetes.io/name: tandoor
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP

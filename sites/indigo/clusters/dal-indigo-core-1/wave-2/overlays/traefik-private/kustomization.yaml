@@ -8,6 +8,7 @@ resources:
   - tls-option.yaml
   - network-policy-core.yaml
   - network-policy-egress-argocd.yaml
+  - network-policy-egress-archestra.yaml
   - network-policy-egress-authentik.yaml
   - network-policy-egress-forgejo.yaml
   - network-policy-egress-frigate.yaml
@@ -19,6 +20,9 @@ resources:
   - network-policy-egress-mosquitto.yaml
   - network-policy-egress-obsidian-livesync.yaml
   - network-policy-egress-photoprism.yaml
+  - network-policy-egress-reactive-resume.yaml
+  - network-policy-egress-stignore-manager.yaml
+  - network-policy-egress-tandoor.yaml
   - network-policy-egress-traefik-private-dashboard.yaml
   - network-policy-egress-traefik-public-dashboard.yaml
   - network-policy-egress-vault.yaml

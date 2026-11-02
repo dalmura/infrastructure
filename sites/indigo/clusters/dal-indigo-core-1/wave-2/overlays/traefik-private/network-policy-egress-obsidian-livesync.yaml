@@ -7,13 +7,11 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: traefik
-      app.kubernetes.io/instance: traefik-private
   egress:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: obsidian-livesync
-            app.kubernetes.io/instance: obsidian-livesync
-            app.kubernetes.io/name: couchdb
+            app: couchdb
       toPorts:
         - ports:
             - port: "5984"
