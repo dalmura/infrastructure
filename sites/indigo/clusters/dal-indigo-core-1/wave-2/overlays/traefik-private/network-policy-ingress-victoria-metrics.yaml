@@ -8,6 +8,22 @@ spec:
     matchLabels:
       app.kubernetes.io/name: traefik
   ingress:
+    # Private LB traffic. The service uses externalTrafficPolicy: Local, so the
+    # client source is preserved and shows up as the world identity.
+    - fromEntities:
+        - world
+        - cluster
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+            - port: "8080" # dashboard service
+              protocol: TCP
+            - port: "22"
+              protocol: TCP
+    # VictoriaMetrics scraping the traefik metrics endpoint and dashboard.
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: victoria-metrics
