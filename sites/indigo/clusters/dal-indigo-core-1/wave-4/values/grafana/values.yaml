@@ -2,6 +2,8 @@
 podAnnotations:
   reloader.stakater.com/auto: "true"
 
+revisionHistoryLimit: 0
+
 resources:
   requests:
     cpu: 50m
