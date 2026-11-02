@@ -1,0 +1,21 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mosquitto-mqttx
+  namespace: mosquitto
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/component: mqttx-web
+      app.kubernetes.io/instance: mosquitto
+      app.kubernetes.io/name: mosquitto
+  ingress:
+    # Allow traffic from Traefik Private (web UI)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP

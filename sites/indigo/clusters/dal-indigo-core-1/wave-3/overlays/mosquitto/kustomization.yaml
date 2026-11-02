@@ -11,3 +11,4 @@ resources:
   - service.yaml
   - ingress.yaml
   - network-policy.yaml
+  - network-policy-mqttx.yaml
