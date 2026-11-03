@@ -8,6 +8,9 @@ preUpgradeChecker:
 
 defaultSettings:
   allowCollectingLonghornUsageMetrics: false
+  # Obsidian's CouchDB is scaled down for the 17:00 UTC backup window, so
+  # Longhorn must attach the detached volume itself to run the recurring job.
+  allowRecurringJobWhileVolumeDetached: "true"
   backupExecutionTimeout: "5"
   concurrentReplicaRebuildPerNodeLimit: "2"
   concurrentBackupRestorePerNodeLimit: "2"
