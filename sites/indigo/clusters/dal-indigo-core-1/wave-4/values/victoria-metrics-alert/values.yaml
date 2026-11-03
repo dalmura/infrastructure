@@ -51,7 +51,7 @@ server:
         #      annotations:
         #        summary: "This is a Test Alert"
         #        description: "A Test Alert designed to verify Slack comms"
-        - name: longhorn-volume-full
+        - name: longhorn
           rules:
             - alert: LonghornVolumeFull
               expr: "((avg by (volume, pvc, pvc_namespace) (longhorn_volume_actual_size_bytes)) / (avg by (volume, pvc, pvc_namespace) (longhorn_volume_capacity_bytes))) * 100 > 95"
@@ -60,6 +60,71 @@ server:
               annotations:
                 summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full"
                 description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is >95% full, either reclaim space or expand volume."
+
+            - alert: LonghornVolumeBackupStale
+              expr: |
+                (time() - max by (volume, pvc, pvc_namespace) (longhorn_volume_last_backup_at)) / 3600 > 25
+                and
+                max by (volume, pvc, pvc_namespace) (longhorn_volume_last_backup_at) > 0
+              labels:
+                severity: critical
+              annotations:
+                summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has no recent backup"
+                description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has not been successfully backed up for {{ $value | printf \"%.1f\" }} hours. The daily recurring backup job may be failing."
+
+            - alert: LonghornBackupFailed
+              expr: max by (volume, backup, recurring_job) (longhorn_backup_state) == 4
+              for: 10m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Longhorn backup {{ $labels.backup }} failed"
+                description: "Longhorn backup {{ $labels.backup }} for volume {{ $labels.volume }} (recurring job {{ $labels.recurring_job }}) is in the Error state. Check the Longhorn UI backup page and the longhorn-manager logs."
+
+            - alert: LonghornMetricsScrapeFailing
+              expr: up{job="longhorn"} == 0
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Longhorn metrics scrape failing on {{ $labels.instance }}"
+                description: "VictoriaMetrics has been unable to scrape the Longhorn manager on {{ $labels.instance }} for more than 15 minutes. Longhorn alerts may be incomplete or unable to fire."
+
+            - alert: LonghornVolumeFaulted
+              expr: max by (volume, pvc, pvc_namespace) (longhorn_volume_robustness{state="faulted"}) == 1
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is faulted"
+                description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has been in the faulted state for more than 5 minutes. Data may be unavailable; check the volume and replica status in the Longhorn UI."
+
+            - alert: LonghornVolumeDegraded
+              expr: max by (volume, pvc, pvc_namespace) (longhorn_volume_robustness{state="degraded"}) == 1
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} is degraded"
+                description: "Longhorn volume {{ $labels.pvc_namespace }}/{{ $labels.pvc }} has been degraded for more than 15 minutes. One or more replicas may be rebuilding or unavailable, so redundancy is reduced."
+
+            - alert: LonghornNodeNotReady
+              expr: max by (node) (longhorn_node_status{condition="ready"}) == 0
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Longhorn node {{ $labels.node }} is not ready"
+                description: "Longhorn node {{ $labels.node }} has reported not ready for more than 5 minutes. Volumes with replicas on this node may be degraded."
+
+            - alert: LonghornDiskUnhealthy
+              expr: max by (node, disk) (longhorn_disk_health) == 0
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Longhorn disk {{ $labels.disk }} on {{ $labels.node }} is unhealthy"
+                description: "Longhorn disk {{ $labels.disk }} on node {{ $labels.node }} has been reported unhealthy for more than 10 minutes. Check SMART data and the disk status in the Longhorn UI."
 
         - name: postgresql-cnpg
           rules:
