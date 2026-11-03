@@ -1,7 +1,7 @@
-#envFrom:
-#  - # Do we need anything?
-
 fullnameOverride: ha
+
+controller:
+  revisionHistoryLimit: 0
 
 ingress:
   # We manage this separately via overlays
