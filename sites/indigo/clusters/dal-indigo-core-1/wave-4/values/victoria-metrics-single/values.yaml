@@ -17,6 +17,10 @@ server:
     reloader.stakater.com/auto: "true"
   retentionPeriod: 6M
 
+  statefulSet:
+    spec:
+      revisionHistoryLimit: 0
+
   resources:
     requests:
       cpu: 150m

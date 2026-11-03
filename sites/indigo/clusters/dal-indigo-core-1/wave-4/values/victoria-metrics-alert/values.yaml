@@ -225,6 +225,10 @@ server:
 alertmanager:
   enabled: true
 
+  deployment:
+    spec:
+      revisionHistoryLimit: 0
+
   resources:
     requests:
       cpu: 10m

@@ -4,6 +4,10 @@ nameOverride: vls
 server:
   retentionPeriod: 7d
 
+  statefulSet:
+    spec:
+      revisionHistoryLimit: 0
+
   resources:
     requests:
       cpu: 50m
