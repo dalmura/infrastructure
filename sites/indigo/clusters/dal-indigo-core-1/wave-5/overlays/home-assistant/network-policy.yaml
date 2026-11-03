@@ -126,6 +126,7 @@ spec:
         - matchName: "alerts.home-assistant.io"
         - matchName: "wheels.home-assistant.io"
         - matchName: "vector.openstreetmap.org"
+        - matchName: "account-link.nabucasa.com"
       toPorts:
         - ports:
             - port: "443"
