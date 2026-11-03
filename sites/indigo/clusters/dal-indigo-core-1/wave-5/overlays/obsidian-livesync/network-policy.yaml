@@ -6,8 +6,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/instance: obsidian-livesync
-      app.kubernetes.io/name: couchdb
+      app: couchdb
   ingress:
     # Allow traffic from within the same namespace (DB init, internal ops, etc)
     - fromEndpoints:

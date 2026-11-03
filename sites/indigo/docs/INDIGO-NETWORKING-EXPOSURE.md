@@ -130,3 +130,36 @@ Whenever exposing a **new** application namespace through `ingress-public`:
 > In the Traefik node's Cilium monitor (`cilium monitor --type drop`), you will observe dropped TCP SYN packets:
 > `xx drop (Policy denied) ... identity <traefik-id> -> <app-id>: <traefik-ip> -> <pod-ip>:<port> tcp SYN`
 
+### Traefik Private Cilium Egress Policy Requirement
+
+Traefik Private also enforces default-deny egress, but each application gets its own file instead of editing a shared policy:
+`wave-2/overlays/traefik-private/network-policy-egress-<app>.yaml`
+
+```yaml
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik-private-egress-<app>
+  namespace: traefik-private
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: <app-namespace>
+            app.kubernetes.io/name: <app>
+      toPorts:
+        - ports:
+            - port: "<container-port>"
+              protocol: TCP
+```
+
+Add the file to `wave-2/overlays/traefik-private/kustomization.yaml`. Use the pod/container port (the Service `targetPort`), not the Service port.
+
+Select the Traefik pods with `app.kubernetes.io/name: traefik` only. The Helm release labels the pods `app.kubernetes.io/instance: <release-name>-<namespace>`, so an `instance: traefik-private` selector silently matches no endpoints and turns the policy into a no-op.
+
+> [!WARNING]
+> **Never add a narrow `ingress:` rule to a policy that selects the Traefik pods.** A `CiliumNetworkPolicy` with any `ingress` section makes ingress default-deny for the selected pods, which takes down every host served by that Traefik instance. The only ingress rules in the traefik namespaces must allow `world` and `cluster` on the entrypoint ports, as done in [`network-policy-ingress-victoria-metrics.yaml`](../clusters/dal-indigo-core-1/wave-2/overlays/traefik-private/network-policy-ingress-victoria-metrics.yaml) (80/443/8080/22 plus VictoriaMetrics scraping on 9100/8080).
+> **Symptom if missing**: every `ingress-private` host times out at the load balancer while the public Traefik IP still works.
