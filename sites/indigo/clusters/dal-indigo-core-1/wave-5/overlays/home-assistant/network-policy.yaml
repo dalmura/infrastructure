@@ -91,6 +91,15 @@ spec:
         - ports:
             - port: "1883"
               protocol: TCP
+    # Allow egress to Traefik Private for Archestra (https://archestra.indigo.dalmura.cloud)
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     # Allow egress to IOT_INTERNET devices
     - toCIDR:
         - 192.168.78.0/25
