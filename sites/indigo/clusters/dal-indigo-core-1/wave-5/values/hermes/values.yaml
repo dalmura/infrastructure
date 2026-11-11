@@ -1,0 +1,172 @@
+fullnameOverride: hermes
+
+image:
+  repository: nousresearch/hermes-agent
+  # renovate: datasource=docker depName=nousresearch/hermes-agent
+  tag: v0.23.0
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+controller:
+  type: deployment
+
+serviceAccount:
+  create: true
+  name: hermes
+  # The agent does not need to call the Kubernetes API.
+  automountServiceAccountToken: false
+
+config:
+  # Route LLM traffic through the in-cluster Archestra Unified Model API.
+  # IDs are provider-qualified and must match GET /v1/unified-model/models.
+  providers:
+    archestra:
+      base_url: http://archestra-platform.archestra.svc.cluster.local:9000/v1/unified-model
+      key_env: ARCHESTRA_API_KEY
+      discover_models: true
+  model:
+    provider: archestra
+    default: "deepseek:deepseek-flash"
+  terminal:
+    backend: local
+  agent:
+    gateway_timeout: 1800
+  approvals:
+    mode: manual
+    cron_mode: deny
+    unattended_mode: deny
+    single_query_mode: deny
+    deny:
+      - "rm -rf /"
+      - "curl.*\\|.*sh"
+
+# Ignored when externalSecret.enabled is true; kept empty to satisfy schema.
+env: {}
+
+extraEnv:
+  - name: TZ
+    value: Australia/Melbourne
+  # Dashboard OIDC: issuer and scopes here; the client ID is injected from hermes-env.
+  - name: HERMES_DASHBOARD_OIDC_ISSUER
+    value: https://auth.indigo.dalmura.cloud/application/o/hermes/
+  - name: HERMES_DASHBOARD_OIDC_SCOPES
+    value: openid profile email
+  - name: XDG_CACHE_HOME
+    value: /opt/data/cache
+  - name: npm_config_cache
+    value: /opt/data/.npm
+
+externalSecret:
+  enabled: true
+  refreshInterval: 1h
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  secretStoreRef:
+    kind: SecretStore
+    name: site
+  target:
+    name: hermes-env
+    creationPolicy: Owner
+    deletionPolicy: Retain
+  data:
+    - secretKey: ARCHESTRA_API_KEY
+      remoteRef:
+        key: wave-5/hermes/config
+        property: ARCHESTRA_API_KEY
+    - secretKey: HERMES_DASHBOARD_OIDC_CLIENT_ID
+      remoteRef:
+        key: wave-5/hermes/config
+        property: HERMES_DASHBOARD_OIDC_CLIENT_ID
+    - secretKey: SLACK_BOT_TOKEN
+      remoteRef:
+        key: wave-5/hermes/config
+        property: SLACK_BOT_TOKEN
+    - secretKey: SLACK_APP_TOKEN
+      remoteRef:
+        key: wave-5/hermes/config
+        property: SLACK_APP_TOKEN
+    - secretKey: SLACK_ALLOWED_USERS
+      remoteRef:
+        key: wave-5/hermes/config
+        property: SLACK_ALLOWED_USERS
+
+persistence:
+  enabled: true
+  storageClass: cluster-regular
+  size: 10Gi
+  mountPath: /opt/data
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Delete=false
+
+dashboard:
+  enabled: true
+  publicUrl: https://hermes.indigo.dalmura.cloud
+  trustedProxies:
+    - 10.244.0.0/16
+  auth:
+    # Credentials (including HERMES_DASHBOARD_OIDC_CLIENT_ID) are injected via ExternalSecret.
+    provider: external
+
+service:
+  enabled: true
+  port: 9119
+
+# Ingress is managed via overlay ingress.yaml for consistency with dal-indigo-core-1 patterns.
+ingress:
+  enabled: false
+
+# CiliumNetworkPolicy is managed via overlay network-policy.yaml.
+networkPolicy:
+  enabled: false
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10000
+  runAsGroup: 10000
+  fsGroup: 10000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# s6-overlay requires writable+executable /run; the agent and headless Chromium require /tmp and /dev/shm.
+extraVolumes:
+  - name: run-tmpfs
+    emptyDir:
+      medium: Memory
+      sizeLimit: 16Mi
+  - name: tmp-tmpfs
+    emptyDir:
+      medium: Memory
+      sizeLimit: 1Gi
+  - name: shm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 1Gi
+
+extraVolumeMounts:
+  - name: run-tmpfs
+    mountPath: /run
+  - name: tmp-tmpfs
+    mountPath: /tmp
+  - name: shm
+    mountPath: /dev/shm
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+
+deploymentAnnotations:
+  reloader.stakater.com/auto: "true"
+  argocd.argoproj.io/sync-wave: "2"
+
+tests:
+  enabled: true

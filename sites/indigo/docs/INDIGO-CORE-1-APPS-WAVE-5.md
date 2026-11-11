@@ -12,6 +12,7 @@ These are:
 * [Reactive Resume](https://rxresu.me/) for Resume management
 * [Matrix Synapse](https://matrix.org/) for Chat and Messaging
 * [Archestra](https://archestra.ai/) for MCP and LLM Agent Gateway
+* [Hermes Agent](https://github.com/NousResearch/hermes-agent) for Personal AI Agent & Automation
 
 We assume you've followed the steps at:
 * [`dal-indigo-core-1` Apps - Wave 3](INDIGO-CORE-1-APPS-WAVE-3.md) and have all the precursors up and running
@@ -852,3 +853,46 @@ argocd app sync archestra
 
 Archestra will be accessible privately via:
 `https://archestra.indigo.dalmura.cloud/`
+
+
+## Hermes Agent Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-HERMES.md](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md)
+
+### Vault Configuration
+
+1. Create the Vault policy and Kubernetes auth role:
+```bash
+vault policy write workload-reader-hermes-secrets -<<EOF
+path "site/data/wave-5/hermes/*" {
+    capabilities = ["read", "list"]
+}
+EOF
+
+vault write auth/kubernetes/role/workload-reader-hermes-secrets \
+   bound_service_account_names=hermes \
+   bound_service_account_namespaces=hermes \
+   token_policies=workload-reader-hermes-secrets \
+   audience='https://192.168.77.2:6443/' \
+   ttl=24h
+```
+
+2. Create the application secrets in Vault (`site/data/wave-5/hermes/config`):
+   - `ARCHESTRA_API_KEY`: `<archestra_standard_virtual_api_key>` (mapped to the DeepSeek provider key for `deepseek:deepseek-flash`)
+   - `HERMES_DASHBOARD_OIDC_CLIENT_ID`: `<authentik_client_id>`
+   - `SLACK_BOT_TOKEN`: `<slack_xoxb_token>`
+   - `SLACK_APP_TOKEN`: `<slack_xapp_token>`
+   - `SLACK_ALLOWED_USERS`: `<comma_separated_slack_member_ids>`
+
+### Deploy & Verify
+
+Sync the application via ArgoCD:
+```bash
+argocd app sync traefik-private
+argocd app sync archestra
+argocd app sync wave-5
+argocd app sync hermes
+```
+
+Hermes Agent will be accessible privately via:
+`https://hermes.indigo.dalmura.cloud/`

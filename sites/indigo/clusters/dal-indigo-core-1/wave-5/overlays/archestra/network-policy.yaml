@@ -28,6 +28,15 @@ spec:
         - ports:
             - port: "9000"
               protocol: TCP
+    # Allow Hermes Agent to call the LLM Proxy and MCP Gateway on 9000
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes-agent
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
     # Allow VictoriaMetrics to scrape metrics
     - fromEndpoints:
         - matchLabels:

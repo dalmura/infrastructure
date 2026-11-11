@@ -108,6 +108,10 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Resume builder
    * [Matrix Synapse](https://matrix.org/)
       * Decentralized chat & messaging
+   * [Archestra](https://archestra.ai/)
+      * MCP and LLM Agent Gateway
+   * [Hermes Agent](https://github.com/NousResearch/hermes-agent)
+      * Personal AI Agent & Automation
    * Not Implemented Yet
       * [PeerTube](https://joinpeertube.org/)
          * Video Hosting
@@ -142,6 +146,8 @@ Follow this list in order:
    * [`dal-indigo-core-1` Apps - Wave 5 - Tandoor](docs/INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Reactive Resume](docs/INDIGO-CORE-1-APPS-WAVE-5-REACTIVE-RESUME.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Matrix](docs/INDIGO-CORE-1-APPS-WAVE-5-MATRIX.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Archestra](docs/INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Hermes Agent](docs/INDIGO-CORE-1-APPS-WAVE-5-HERMES.md)
 * [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
 ## Extra Documentation

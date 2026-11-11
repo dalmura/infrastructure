@@ -1,0 +1,73 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-agent
+      app.kubernetes.io/instance: hermes
+  ingress:
+    # Allow traffic from Traefik Private to the management dashboard (port 9119)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-private
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "9119"
+              protocol: TCP
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow connections to Archestra LLM Proxy & MCP Gateway
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: archestra
+            app.kubernetes.io/instance: archestra
+            app.kubernetes.io/part-of: archestra
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    # Allow egress to Traefik Public (Pods and VIP) for OIDC discovery/token exchange
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    - toCIDR:
+        - 192.168.77.11/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    # Allow outbound HTTP/HTTPS to public internet (Slack Socket Mode, web search, browser, etc.)
+    # while blocking RFC1918 private networks and cloud metadata endpoints.
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 169.254.0.0/16
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

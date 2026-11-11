@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes
+  labels:
+    app.kubernetes.io/name: hermes-agent
+    app.kubernetes.io/instance: hermes
+  annotations:
+    cert-manager.io/cluster-issuer: dalmura-letsencrypt-prod
+    external-dns.kubernetes.io/hostname: hermes.indigo.dalmura.cloud
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: ingress-private
+  tls:
+    - hosts:
+        - hermes.indigo.dalmura.cloud
+      secretName: hermes-cert
+  rules:
+    - host: hermes.indigo.dalmura.cloud
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hermes
+                port:
+                  number: 9119
