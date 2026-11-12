@@ -879,6 +879,7 @@ vault write auth/kubernetes/role/workload-reader-hermes-secrets \
 
 2. Create the application secrets in Vault (`site/data/wave-5/hermes/config`):
    - `ARCHESTRA_API_KEY`: `<archestra_standard_virtual_api_key>` (mapped to the DeepSeek provider key for `deepseek:deepseek-flash`)
+   - `GITHUB_TOKEN`: `<github_fine_grained_pat>` (Skills Hub, update checks, private repo clones)
    - `HERMES_DASHBOARD_OIDC_CLIENT_ID`: `<authentik_client_id>`
    - `HERMES_DASHBOARD_OIDC_CLIENT_SECRET`: `<authentik_client_secret>` (Authentik provider client type must be `Confidential`)
    - `SLACK_BOT_TOKEN`: `<slack_xoxb_token>`

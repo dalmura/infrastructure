@@ -66,7 +66,7 @@ vault write auth/kubernetes/role/workload-reader-hermes-secrets \
 
 Before storing secrets, create a **standard Virtual API Key** in Archestra (**Virtual Keys**) and map it to the provider key(s) Hermes needs. Hermes uses the OpenAI-compatible Unified Model API at `/v1/unified-model`, and the default model is `deepseek:deepseek-flash`, so at minimum map the **DeepSeek** provider key. The model ID must match an entry returned by `GET /v1/unified-model/models`.
 
-Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID and Client Secret, and Slack Socket Mode credentials:
+Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID and Client Secret, GitHub token, and Slack Socket Mode credentials:
 
 ```bash
 umask 077
@@ -75,6 +75,7 @@ trap 'rm -f "$tmp"' EXIT
 
 jq -n \
   --arg archestra_key '<archestra-virtual-api-key>' \
+  --arg github_token '<github-fine-grained-pat>' \
   --arg oidc_client_id '<authentik-client-id-from-step-1>' \
   --arg oidc_client_secret '<authentik-client-secret-from-step-1>' \
   --arg slack_bot_token 'xoxb-...' \
@@ -82,6 +83,7 @@ jq -n \
   --arg slack_allowed_users '<comma-separated-slack-member-ids>' \
   '{
     ARCHESTRA_API_KEY: $archestra_key,
+    GITHUB_TOKEN: $github_token,
     HERMES_DASHBOARD_OIDC_CLIENT_ID: $oidc_client_id,
     HERMES_DASHBOARD_OIDC_CLIENT_SECRET: $oidc_client_secret,
     SLACK_BOT_TOKEN: $slack_bot_token,
@@ -94,6 +96,30 @@ vault kv put site/wave-5/hermes/config @"$tmp"
 
 > [!NOTE]
 > Every key listed under `externalSecret.data` in `values/hermes/values.yaml` must exist in `site/wave-5/hermes/config` or External Secrets Operator will report `SecretSyncedError`.
+
+### GitHub token
+
+Hermes uses `GITHUB_TOKEN` for its own GitHub integration: the `hermes doctor` connectivity probe, update checks, Skills Hub installs, and credentials for private plugin/MCP/profile clones. It is not available to ordinary shell `git` commands, because Hermes strips it from terminal subprocesses.
+
+Create a **fine-grained personal access token** at <https://github.com/settings/tokens>, scoped to only the repositories Hermes should touch, then pick the smallest tier that covers the job:
+
+| Tier | Permissions | Enables |
+|---|---|---|
+| Read-only (recommended default) | `Contents: Read-only` (`Metadata: Read-only` is always included) | Update checks, `hermes doctor`, Skills Hub installs of public skills, `git clone` of private plugin/MCP/profile repos |
+| Read + collaborate | `Contents: Read and write`, `Pull requests: Read and write`, `Issues: Read and write` | Pushing branches, opening PRs and issues, PR review (the bundled `github` skill's write workflows) |
+| Add CI access | `Actions: Read-only`, `Workflows: Read and write` | Reading workflow runs, pushing changes under `.github/workflows/` |
+
+Notes:
+
+* `Metadata: Read-only` is mandatory on every fine-grained token and is included automatically.
+* Fine-grained tokens cannot fork arbitrary public repositories. `hermes skills publish --target github` forks the target, pushes a branch, then opens a PR, so it needs a **classic** token with `public_repo`, or a token whose account already has a fork.
+* A classic token with `repo`, `workflow`, and `read:org` covers every tier above but is not scoped to specific repositories. Prefer fine-grained.
+* **Expiration**: 90 days is a reasonable default; rotate it in Vault before it expires.
+* If the repositories belong to an organisation, an org owner may need to approve the token, and SSO-enforced organisations require you to authorise the token for that org.
+* Hermes can also authenticate as a **GitHub App** (`GITHUB_APP_ID` + `GITHUB_APP_PRIVATE_KEY_PATH`) instead of a PAT; it mints a short-lived installation token per call. That avoids a long-lived user credential but needs an app created and installed on the org.
+
+> [!IMPORTANT]
+> Hermes treats `GITHUB_TOKEN` as a Tier-1 secret and strips it from terminal subprocesses. That means its internal GitHub features use it, but an agent shell command will not inherit it. The bundled `github` skill can still read it from `${HERMES_HOME}/.env` via its `gh-env.sh` helper. Also note that the current image does not ship the `gh` CLI, so the skill's `gh`-based workflows need `gh` installed (for example via a custom image or an init container) or must fall back to `git` and raw REST.
 
 ---
 

@@ -74,6 +74,12 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: ARCHESTRA_API_KEY
+    # Used by Hermes internally for Skills Hub, update checks, doctor, and
+    # private git clones. Tier-1 secrets are stripped from terminal subprocesses.
+    - secretKey: GITHUB_TOKEN
+      remoteRef:
+        key: wave-5/hermes/config
+        property: GITHUB_TOKEN
     - secretKey: HERMES_DASHBOARD_OIDC_CLIENT_ID
       remoteRef:
         key: wave-5/hermes/config
