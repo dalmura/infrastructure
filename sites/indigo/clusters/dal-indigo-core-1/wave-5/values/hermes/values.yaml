@@ -170,6 +170,28 @@ extraVolumeMounts:
   - name: shm
     mountPath: /dev/shm
 
+# The image normally chowns HERMES_HOME to the gateway user as root before
+# dropping privileges. The non-root podSecurityContext above skips that, and
+# fsGroup only changes the group, so a fresh Longhorn volume leaves /opt/data
+# owned by root. Hermes then refuses the home as an unsafe control path.
+# Ownership of the volume root is therefore fixed here, as root, once per start.
+extraInitContainers:
+  - name: fix-data-ownership
+    image: busybox:1.38
+    command:
+      - sh
+      - -c
+      - chown 10000:10000 /opt/data
+    securityContext:
+      runAsNonRoot: false
+      runAsUser: 0
+      runAsGroup: 0
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+    volumeMounts:
+      - name: data
+        mountPath: /opt/data
+
 resources:
   requests:
     cpu: 250m
