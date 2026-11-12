@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://jyje.github.io/hermes-agent-helm
       chart: hermes-agent
-      targetRevision: 1.23.0
+      targetRevision: 1.25.0
       helm:
         valueFiles:
           - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/hermes/values.yaml
