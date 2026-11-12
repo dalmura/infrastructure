@@ -3,7 +3,7 @@ fullnameOverride: hermes
 image:
   repository: nousresearch/hermes-agent
   # renovate: datasource=docker depName=nousresearch/hermes-agent
-  tag: v0.23.0
+  tag: v0.23.1
   pullPolicy: IfNotPresent
 
 replicaCount: 1
