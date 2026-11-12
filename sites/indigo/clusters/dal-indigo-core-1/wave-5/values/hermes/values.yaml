@@ -100,6 +100,17 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: SLACK_ALLOWED_USERS
+    # Default destination for cron results and proactive messages. The bot must
+    # be invited to this channel; the ID is visible in the channel's details.
+    - secretKey: SLACK_HOME_CHANNEL
+      remoteRef:
+        key: wave-5/hermes/config
+        property: SLACK_HOME_CHANNEL
+    # Optional human-readable label for the home channel.
+    - secretKey: SLACK_HOME_CHANNEL_NAME
+      remoteRef:
+        key: wave-5/hermes/config
+        property: SLACK_HOME_CHANNEL_NAME
 
 persistence:
   enabled: true

@@ -81,6 +81,8 @@ jq -n \
   --arg slack_bot_token 'xoxb-...' \
   --arg slack_app_token 'xapp-...' \
   --arg slack_allowed_users '<comma-separated-slack-member-ids>' \
+  --arg slack_home_channel 'C01234567890' \
+  --arg slack_home_channel_name 'general' \
   '{
     ARCHESTRA_API_KEY: $archestra_key,
     GITHUB_TOKEN: $github_token,
@@ -88,7 +90,9 @@ jq -n \
     HERMES_DASHBOARD_OIDC_CLIENT_SECRET: $oidc_client_secret,
     SLACK_BOT_TOKEN: $slack_bot_token,
     SLACK_APP_TOKEN: $slack_app_token,
-    SLACK_ALLOWED_USERS: $slack_allowed_users
+    SLACK_ALLOWED_USERS: $slack_allowed_users,
+    SLACK_HOME_CHANNEL: $slack_home_channel,
+    SLACK_HOME_CHANNEL_NAME: $slack_home_channel_name
   }' >"$tmp"
 
 vault kv put site/wave-5/hermes/config @"$tmp"
@@ -96,6 +100,24 @@ vault kv put site/wave-5/hermes/config @"$tmp"
 
 > [!NOTE]
 > Every key listed under `externalSecret.data` in `values/hermes/values.yaml` must exist in `site/wave-5/hermes/config` or External Secrets Operator will report `SecretSyncedError`.
+
+### Slack home channel
+
+`SLACK_HOME_CHANNEL` is the default destination for cron results and proactive/cross-platform messages. While it is unset, Hermes posts a one-time onboarding prompt the first time it talks to you on Slack:
+
+> No home channel is set for Slack. A home channel is where Hermes delivers cron job results and cross-platform messages. Type `/hermes sethome` ...
+
+* Get the ID from the channel's details: right-click the channel → **View channel details** → scroll to the bottom → **Channel ID** (starts with `C` for public channels, `G` for private channels).
+* Invite the bot to that channel (`/invite @Hermes`); Hermes never joins channels automatically.
+* `SLACK_HOME_CHANNEL_NAME` is cosmetic and only used in prompts and logs. Both keys are declared under `externalSecret.data`, so both must exist in Vault; remove `SLACK_HOME_CHANNEL_NAME` from that list if you don't want to set it.
+* If `SLACK_HOME_CHANNEL` is set here, the onboarding prompt is suppressed and cron delivery works even when the gateway process restarts with a fresh database.
+
+### Slack slash commands
+
+The Slack app declares every Hermes command in its app manifest. An app created manually ("From scratch") without the generated manifest has no `/hermes` command, so the `/hermes sethome` hint fails with "app did not respond" and the gateway logs `slack_bolt.AsyncApp: Unhandled request`. For this deployment, prefer setting `SLACK_HOME_CHANNEL` in Vault, which needs no slash command. To get the full command set, run `hermes slack manifest --agent-view --write` and paste the generated `~/.hermes/slack-manifest.json` into **Features → App Manifest**, then reinstall the app.
+
+> [!NOTE]
+> A home channel set with `/hermes sethome` is written to `.env` on the `/opt/data` PVC, not to this repository. The `SLACK_HOME_CHANNEL` value injected from `hermes-env` takes precedence, so setting it in Vault during bootstrap avoids drift and survives a fresh volume.
 
 ### GitHub token
 
