@@ -18,14 +18,14 @@ Navigate to **Applications** => **Providers** => **Create**:
 * **Type**: `OAuth2/OpenID Provider`
 * **Name**: `Provider for Hermes`
 * **Authorization flow**: `implicit-consent` (or `default-provider-authorization-implicit-consent`)
-* **Client type**: `Public` (Hermes dashboard uses OIDC with PKCE)
+* **Client type**: `Confidential` (Hermes authenticates to the token endpoint with a client secret; PKCE is still used)
 * **Redirect URIs**:
   ```text
   https://hermes.indigo.dalmura.cloud/auth/callback
   ```
 * **Scopes**: Ensure `openid`, `email`, and `profile` are selected.
 * **Subject mode**: `Based on the User's hashed ID` (default)
-* Note down the generated **Client ID**.
+* Note down the generated **Client ID** and **Client Secret** (the secret is shown once; store it in Vault in [Step 3](#3-store-application-secrets-in-vault)).
 
 ### Step 1.2: Create Application & Bind Group
 Navigate to **Applications** => **Applications** => **Create**:
@@ -66,7 +66,7 @@ vault write auth/kubernetes/role/workload-reader-hermes-secrets \
 
 Before storing secrets, create a **standard Virtual API Key** in Archestra (**Virtual Keys**) and map it to the provider key(s) Hermes needs. Hermes uses the OpenAI-compatible Unified Model API at `/v1/unified-model`, and the default model is `deepseek:deepseek-flash`, so at minimum map the **DeepSeek** provider key. The model ID must match an entry returned by `GET /v1/unified-model/models`.
 
-Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID, and Slack Socket Mode credentials:
+Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID and Client Secret, and Slack Socket Mode credentials:
 
 ```bash
 umask 077
@@ -76,12 +76,14 @@ trap 'rm -f "$tmp"' EXIT
 jq -n \
   --arg archestra_key '<archestra-virtual-api-key>' \
   --arg oidc_client_id '<authentik-client-id-from-step-1>' \
+  --arg oidc_client_secret '<authentik-client-secret-from-step-1>' \
   --arg slack_bot_token 'xoxb-...' \
   --arg slack_app_token 'xapp-...' \
   --arg slack_allowed_users '<comma-separated-slack-member-ids>' \
   '{
     ARCHESTRA_API_KEY: $archestra_key,
     HERMES_DASHBOARD_OIDC_CLIENT_ID: $oidc_client_id,
+    HERMES_DASHBOARD_OIDC_CLIENT_SECRET: $oidc_client_secret,
     SLACK_BOT_TOKEN: $slack_bot_token,
     SLACK_APP_TOKEN: $slack_app_token,
     SLACK_ALLOWED_USERS: $slack_allowed_users
@@ -143,3 +145,5 @@ argocd app sync hermes
 * **Persistent Config (`bootstrap.overwrite`)**: The chart seeds `/opt/data/config.yaml` only on first boot (`bootstrap.overwrite: false`) so runtime changes made through the dashboard or CLI persist across restarts. If you later change `dashboard.publicUrl`, `dashboard.trustedProxies`, or `config.*` in `values/hermes/values.yaml`, temporarily set `bootstrap.overwrite: true` for one sync (or update `/opt/data/config.yaml` on the PVC), then revert `bootstrap.overwrite` to `false`.
 * **Storage & Backups**: `/opt/data` (`HERMES_HOME`) uses a `10Gi` `cluster-regular` Longhorn block volume, which is covered by the `daily-default-backup` recurring S3 job and protected with `Delete=false` / `helm.sh/resource-policy: keep`.
 * **Single Replica Only**: Hermes uses SQLite in WAL mode under `/opt/data`; keep `replicaCount: 1` with `Recreate` strategy.
+* **Confidential OIDC Client**: The Authentik provider is `Confidential`; Hermes sends `HERMES_DASHBOARD_OIDC_CLIENT_SECRET` to the token endpoint while still using PKCE. To rotate the secret, generate a new one on the Authentik provider, update `site/data/wave-5/hermes/config` in Vault, then force an ExternalSecret refresh (`kubectl -n hermes annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite`) and let Reloader restart the Deployment.
+* **Secret Layout**: Every key rendered under `externalSecret.data` must exist in `site/wave-5/hermes/config`; the chart injects the whole `hermes-env` Secret via `envFrom`, so new keys take effect after refresh and restart.

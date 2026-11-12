@@ -78,6 +78,10 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: HERMES_DASHBOARD_OIDC_CLIENT_ID
+    - secretKey: HERMES_DASHBOARD_OIDC_CLIENT_SECRET
+      remoteRef:
+        key: wave-5/hermes/config
+        property: HERMES_DASHBOARD_OIDC_CLIENT_SECRET
     - secretKey: SLACK_BOT_TOKEN
       remoteRef:
         key: wave-5/hermes/config
@@ -106,7 +110,8 @@ dashboard:
   trustedProxies:
     - 10.244.0.0/16
   auth:
-    # Credentials (including HERMES_DASHBOARD_OIDC_CLIENT_ID) are injected via ExternalSecret.
+    # Authentik provider is Confidential: the client ID and client secret are injected
+    # via ExternalSecret (HERMES_DASHBOARD_OIDC_CLIENT_ID / _CLIENT_SECRET).
     provider: external
 
 service:
