@@ -29,6 +29,15 @@ server:
       cpu: 50m
       memory: 640Mi
 
+  # A CNPG failover can leave the DB unavailable for longer than the chart default
+  # of 3 x 10s, which restarts the container and lengthens the outage. Liveness
+  # only gates restarts; readiness still drops the pod from the Service as soon as
+  # the DB check fails.
+  livenessProbe:
+    failureThreshold: 5
+  readinessProbe:
+    failureThreshold: 3
+
   ingress:
     # We manage this separately
     enabled: false

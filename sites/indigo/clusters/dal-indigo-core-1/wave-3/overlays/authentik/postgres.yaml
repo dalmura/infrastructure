@@ -10,6 +10,9 @@ spec:
   enableSuperuserAccess: true
 
   primaryUpdateStrategy: unsupervised
+  # Roll the primary via switchover: the promoted replica is already running the
+  # new image, so there is no window without a writable primary.
+  primaryUpdateMethod: switchover
 
   resources:
     requests:
