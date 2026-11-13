@@ -3,6 +3,8 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: cluster-regular
   annotations:
+    # StorageClass parameters are immutable; Replace lets ArgoCD delete+recreate on change.
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
@@ -13,4 +15,4 @@ parameters:
   staleReplicaTimeout: "30"
   dataLocality: "best-effort"
   fsType: ext4
-  recurringJobSelector: '[{"name":"daily-default-backup", "isGroup":false}]'
+  recurringJobSelector: '[{"name":"daily-default-backup", "isGroup":false}, {"name":"daily-filesystem-trim", "isGroup":false}]'

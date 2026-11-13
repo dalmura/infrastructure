@@ -6,3 +6,4 @@ resources:
   - storageclass-regular.yaml
   - storageclass-nobackup.yaml
   - recurringjob.yaml
+  - recurringjob-filesystem-trim.yaml
