@@ -29,7 +29,7 @@ spec:
   imageCatalogRef:
     apiGroup: postgresql.cnpg.io
     kind: ClusterImageCatalog
-    name: postgresql
+    name: postgresql-minimal-trixie
     major: 18
 
   storage:

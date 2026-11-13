@@ -152,7 +152,61 @@ High level steps:
 
 ## Upgrading
 
-Upgrading minor versions is handled automatically by CNPG, whenever it detects a new minor version it will immediately start upgrading all Clusters.
+### Minor versions
+
+Minor (patch) upgrades are driven by the `ClusterImageCatalog` named `postgresql-minimal-trixie` in `cnpg-system`. It is sourced from the upstream `main` branch ([`cloudnative-pg-image-catalog`](../clusters/dal-indigo-core-1/wave-2/app/templates/cloudnativepg-image-catalog.yaml)), so a new patch release published by the CNPG project reaches the cluster without any change in this repo. Each `Cluster` that uses `imageCatalogRef` then starts a rolling update: replicas first, primary last.
+
+Because that would otherwise happen at an arbitrary time, the catalog Application is held to a nightly sync window defined on the `default` AppProject in [`wave-0/overlays/argocd/appproject-default.yaml`](../clusters/dal-indigo-core-1/wave-0/overlays/argocd/appproject-default.yaml):
+
+* `allow`, `0 20 * * *` UTC, duration `1h` (07:00 AEDT / 06:00 AEST)
+* scoped to the `cloudnativepg-image-catalog` Application only
+* outside the window the Application reports `OutOfSync`; it syncs on its own when the window opens
+* `manualSync: true`, so `argocd app sync cloudnativepg-image-catalog` still works at any time
+
+Note that this only gates changes coming from the catalog. A change to `spec.resources`, to restart-requiring `postgresql.parameters`, or an operator upgrade will still roll the Clusters whenever it is applied.
+
+### Image type and OS base
+
+The catalog is the **`minimal`** image type on Debian **`trixie`** (13, current stable), taken from the signed `cloudnative-pg/artifacts` repo:
+
+| Type | Approx. size (amd64) | Contents |
+|---|---|---|
+| `minimal` | 84 MB | PostgreSQL only |
+| `standard` | 214 MB | + JIT, all locales, pgvector, pgaudit, failover slots |
+| `system` | 258 MB | `standard` + in-core Barman Cloud binaries (**deprecated**) |
+
+`minimal` is sufficient because every cluster currently uses only the `plpgsql` extension. If an application needs pgvector, pgaudit or JIT, switch to `postgresql-standard-trixie` (change the catalog resource in [the kustomization](../clusters/dal-indigo-core-1/wave-2/overlays/cloudnativepg-image-catalog/kustomization.yaml) and `spec.imageCatalogRef.name` on the affected Clusters).
+
+This was previously `system` on Debian `bookworm` (12). `system` is deprecated now that backup runs through the Barman Cloud plugin, and bookworm passed its end-of-life on 2026-06-10, after which CNPG maintains those images on a best-effort basis only. Moving between OS bases within the same PostgreSQL major is an ordinary rolling update, no dump/restore. It is safe here because all databases use the `C` collation: a libc collation such as `en_US.utf8` can change sort order across a glibc upgrade and would require a `REINDEX`.
+
+When changing the catalog, sync in this order, so that no `Cluster` ever references a catalog that does not exist:
+
+1. Sync `cloudnativepg-image-catalog` while both the current and the new catalog are listed in its kustomization.
+2. Sync the waves that own the `Cluster` resources (`wave-3`, `wave-5`), which updates `imageCatalogRef.name` and rolls the databases.
+3. Remove the superseded catalog entry from the kustomization and sync again.
+
+
+
+### Backup schedule
+
+CNPG's `ScheduledBackup` has no `timeZone` field and the operator runs in UTC, so the schedules below are fixed in UTC and shift by an hour relative to local time across daylight saving. Keep the sync window clear of them — a restart or switchover during a `ScheduledBackup` aborts that backup, and the next attempt is 24 hours later.
+
+| Time (UTC) | Job |
+|---|---|
+| 16:00 | `authentik-db-backup` |
+| 16:05 | `emojirades-db-backup` |
+| 16:10 | `forgejo-db-backup` |
+| 16:15 | `matrix-db-backup` |
+| 16:20 | `reactive-resume-db-backup`, `archestra-db-backup` |
+| 16:25 | `tandoor-db-backup` |
+| 17:00 | Longhorn `daily-default-backup` (`cluster-regular` PVCs) |
+| 18:00 / 00:00 / 06:00 / 12:00 | `cnpg-failed-backup-cleaner` |
+| 18:30 | descheduler |
+| 20:00 | CNPG image catalog sync window |
+
+In local time the CNPG backups run 02:00-02:25 AEST (03:00-03:25 AEDT), so a sync window placed around 03:00 local would collide with them for most of the year.
+
+### Major versions
 
 To upgrade to a newer version of Postgres with CNPG, the easiest way is simply to update the `spec.imageCatalogRef.major` version, this will perform an *offline* major upgrade which means:
 * Cluster is shut down

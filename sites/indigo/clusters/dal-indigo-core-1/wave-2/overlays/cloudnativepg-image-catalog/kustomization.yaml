@@ -4,4 +4,12 @@ kind: Kustomization
 namespace: cnpg-system
 
 resources:
+  # Official, signed catalog. `minimal` images on Debian trixie (13), current
+  # stable. Clusters reference this via `imageCatalogRef.name:
+  # postgresql-minimal-trixie`. See docs/INDIGO-APPS-DB-MGMT.md for the upgrade
+  # window.
+  - https://raw.githubusercontent.com/cloudnative-pg/artifacts/refs/heads/main/image-catalogs/catalog-minimal-trixie.yaml
+  # Legacy `system`/bookworm catalog, still referenced by any Cluster that has not
+  # been switched to `postgresql-minimal-trixie` yet. Remove this entry once every
+  # Cluster has rolled onto the new catalog.
   - https://raw.githubusercontent.com/cloudnative-pg/postgres-containers/refs/heads/main/Debian/ClusterImageCatalog-bookworm.yaml

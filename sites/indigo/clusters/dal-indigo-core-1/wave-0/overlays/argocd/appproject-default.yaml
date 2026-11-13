@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+spec:
+  description: Default project, with a sync window for the CNPG image catalog
+  sourceRepos:
+    - "*"
+  destinations:
+    - namespace: "*"
+      server: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  # The ClusterImageCatalog is pulled from upstream `main` and self-heals into the
+  # cluster as soon as ArgoCD sees a new patch release. Applying it immediately
+  # triggers a rolling update of every CNPG Cluster, so hold it to a window that
+  # does not overlap the nightly backups (16:00-16:25 UTC CNPG, 17:00 UTC Longhorn).
+  # 20:00 UTC = 07:00 AEDT / 06:00 AEST.
+  syncWindows:
+    - kind: allow
+      schedule: "0 20 * * *"
+      duration: 1h
+      timeZone: UTC
+      applications:
+        - cloudnativepg-image-catalog
+      manualSync: true
+      syncOverrun: true

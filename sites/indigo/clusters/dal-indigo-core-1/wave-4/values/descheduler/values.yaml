@@ -3,7 +3,8 @@
 kind: CronJob
 
 # Run daily at 04:30 AM AEST (18:30 UTC)
-# This safely avoids Longhorn daily backups (03:00 AM AEST) and CNPG backups (10:00 AM AEST)
+# This avoids the nightly backups, which are fixed in UTC: CNPG at 16:00-16:25 UTC
+# (02:00 AM AEST, 03:00 AM AEDT) and Longhorn at 17:00 UTC (03:00 AM AEST, 04:00 AM AEDT)
 schedule: "30 18 * * *"
 
 # Command-line options
