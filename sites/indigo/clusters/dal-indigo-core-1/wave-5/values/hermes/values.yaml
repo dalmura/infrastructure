@@ -50,8 +50,11 @@ extraEnv:
   # Dashboard OIDC: issuer and scopes here; the client ID is injected from hermes-env.
   - name: HERMES_DASHBOARD_OIDC_ISSUER
     value: https://auth.indigo.dalmura.cloud/application/o/hermes/
+  # offline_access is required for Authentik to issue a refresh token; without it the
+  # access-token cookie expires after the provider TTL (~5 min) and the dashboard
+  # bounces every user back through the login flow.
   - name: HERMES_DASHBOARD_OIDC_SCOPES
-    value: openid profile email
+    value: openid profile email offline_access
   - name: XDG_CACHE_HOME
     value: /opt/data/cache
   - name: npm_config_cache
