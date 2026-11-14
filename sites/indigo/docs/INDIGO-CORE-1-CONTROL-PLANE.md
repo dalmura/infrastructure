@@ -104,6 +104,7 @@ You can also use the above to just generate new `talosconfig` files with `--outp
 `--config-patch @patches/dal-indigo-core-1-all-init.yaml` contains:
 * General node labels for this site
 * Configures the default network interface with dhcp
+* Configures kubelet image garbage collection to prune at 70/60% (instead of the default 85/80%) and to remove images unused for 30 days, so containerd does not fill the `/var` filesystem that Longhorn replicas share
 
 `--config-patch-control-plane @patches/dal-indigo-core-1-controlplane-init.yaml` contains:
 * Configures the VIPs on all interfaces and configures VLANs

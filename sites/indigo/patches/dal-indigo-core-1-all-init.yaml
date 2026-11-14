@@ -27,3 +27,18 @@ nameservers:
 hostDNS:
   enabled: true
   forwardKubeDNSToHost: true
+
+---
+apiVersion: v1alpha1
+kind: KubeletConfig
+# containerd images, container logs and Longhorn replicas all share the /var
+# filesystem (default-data-path is /var/lib/longhorn/). Longhorn reserves 25%
+# of that disk via storage-minimal-available-percentage, so the kubelet default
+# 85/80 image GC band only starts cleaning up after Longhorn has already marked
+# the disk unschedulable. Prune earlier and also drop stale tags by age.
+config:
+  imageGCHighThresholdPercent: 70
+  imageGCLowThresholdPercent: 60
+  imageMinimumGCAge: 5m
+  # Remove images unused for 30 days regardless of disk pressure.
+  imageMaximumGCAge: 720h
