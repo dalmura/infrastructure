@@ -57,6 +57,11 @@ spec:
             capabilities:
               drop:
                 - ALL
+              # Dropping ALL also drops CAP_CHOWN, so even root gets EPERM from
+              # chown on the Longhorn volume. This container exists only to
+              # create the subdirectories and hand them to uid 10000.
+              add:
+                - CHOWN
           volumeMounts:
             - name: data
               mountPath: /mnt/data
