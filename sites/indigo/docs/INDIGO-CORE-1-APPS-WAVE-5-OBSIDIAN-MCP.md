@@ -1,6 +1,6 @@
 # Wave 5 - Obsidian MCP Setup
 
-This document describes the `obsidian-mcp` application: a headless [Self-hosted LiveSync](https://github.com/vrtmrz/obsidian-livesync) mirror of the Obsidian vault, plus a file-based [obsidian-mcp](https://github.com/htarrega/obsidian-mcp) server that gives [Hermes Agent](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md) read/write access to it over MCP.
+This document describes the `obsidian-mcp` application: a headless [Self-hosted LiveSync](https://github.com/vrtmrz/obsidian-livesync) mirror of the Obsidian vault, plus a file-based [obsidian-mcp](https://github.com/ykoellmann/obsidian-mcp) server that gives [Hermes Agent](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md) read/write access to it over MCP.
 
 We assume you have followed [`dal-indigo-core-1` Apps - Wave 5](INDIGO-CORE-1-APPS-WAVE-5.md), the [Obsidian LiveSync section](INDIGO-CORE-1-APPS-WAVE-5.md#obsidian-livesync-couchdb-setup), and [Hermes Agent Setup](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md).
 
@@ -52,28 +52,33 @@ sites/indigo/clusters/dal-indigo-core-1/wave-5/
 | Container | Image | Notes |
 |---|---|---|
 | `livesync` | `ghcr.io/vrtmrz/livesync-cli:1.0.50-cli` | Public. The `-cli` suffix is part of the tag; `1.0.50` does not exist. |
-| `mcp` | `ghcr.io/dalmura/obsidian-mcp:v2.1.2` | Mirror of `ghcr.io/htarrega/obsidian-mcp:v2.1.2`, which is a private upstream package. |
+| `mcp` | `ghcr.io/ykoellmann/obsidian-mcp:2.1.2` | Public, multi-arch (`linux/amd64`, `linux/arm64`). Tag has no `v` prefix. Digest `sha256:82c3892e6fc42453441a7da5cae63260c446d373a54c766e2e6e7b5c12f92cc6`. |
 
-Mirror the upstream MCP image before the first sync:
+> [!IMPORTANT]
+> The `htarrega/obsidian-mcp` fork's README advertises `ghcr.io/htarrega/obsidian-mcp`, but **that package does not exist**. The fork has no GitHub releases and no Release workflow runs, so nothing was ever published. The image that does exist is published by the original project, [ykoellmann/obsidian-mcp](https://github.com/ykoellmann/obsidian-mcp), whose Release workflow hardcodes `ghcr.io/ykoellmann/obsidian-mcp`.
+>
+> The fork's `v2.1.2` tag and the upstream release are the same commit (`b4c76f7`), so the upstream image is the same code. Do not go looking for an `htarрега` image.
+
+No mirroring step is needed: like the other third-party images in this repository, it is pulled directly from the public registry. If you want an organisation-controlled copy (for example to survive an upstream deletion), vendor it deliberately and update `deployment.yaml` in the same change:
 
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-user> --password-stdin
-docker pull ghcr.io/htarrega/obsidian-mcp:v2.1.2
-docker tag ghcr.io/htarrega/obsidian-mcp:v2.1.2 ghcr.io/dalmura/obsidian-mcp:v2.1.2
-docker push ghcr.io/dalmura/obsidian-mcp:v2.1.2
+# Copies the multi-arch index, unlike docker pull/tag/push which would keep
+# only the host platform and break the arm64 workers.
+docker buildx imagetools create \
+  --tag ghcr.io/dalmura/obsidian-mcp:2.1.2 \
+  ghcr.io/ykoellmann/obsidian-mcp:2.1.2
 ```
 
-Then make the `ghcr.io/dalmura/obsidian-mcp` package public (organisation → Packages → package → Settings → Change visibility), matching `stignore-manager` and `frigate`. No `imagePullSecret` is configured for this namespace.
-
-If the upstream package cannot be pulled (it is private and your account has no access), build the same tag from source instead:
+To build it yourself instead (multi-arch, from the same tag):
 
 ```bash
-git clone --depth 1 --branch v2.1.2 https://github.com/htarrega/obsidian-mcp.git /tmp/obsidian-mcp
-docker build -t ghcr.io/dalmura/obsidian-mcp:v2.1.2 /tmp/obsidian-mcp
-docker push ghcr.io/dalmura/obsidian-mcp:v2.1.2
+git clone --depth 1 --branch v2.1.2 https://github.com/ykoellmann/obsidian-mcp.git /tmp/obsidian-mcp
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/dalmura/obsidian-mcp:2.1.2 --push /tmp/obsidian-mcp
 ```
 
-Pin by tag or digest in `deployment.yaml`; `latest` is rejected by the repository validator.
+Either way, pin by tag or digest in `deployment.yaml`; `latest` is rejected by the repository validator.
 
 ## 4. Vault configuration
 
@@ -348,7 +353,7 @@ Reuse the `Mcp-Session-Id` response header on a follow-up `tools/list` request. 
 
 ## 7. Operations
 
-* **Image updates**: bump the tag in `deployment.yaml` after mirroring it to `ghcr.io/dalmura`. The upstream project has no release artifacts other than the GHCR image, so review its changelog before bumping.
+* **Image updates**: bump the tag in `deployment.yaml`. The upstream image tag drops the GitHub `v` prefix (`v2.1.2` → `2.1.2`), and only the `ykoellmann` registry path exists. If the org ever vendors a copy to `ghcr.io/dalmura`, change the image reference in the same commit.
 * **Token rotation**: update `MCP_API_KEY` in Vault, force both ExternalSecrets to refresh (`kubectl annotate externalsecret <name> force-sync="$(date +%s)" --overwrite`), and let Reloader restart `obsidian-mcp` and `hermes`. Both sides must be refreshed together.
 * **Passphrase or path-setting rotation**: stop the Deployment, update Vault, remove the `livesync` subdirectory on the PVC, then start again so the mirror is rebuilt from CouchDB. Do not change `pathNormalizationVersion` on a working mirror.
 * **PVC loss**: delete the PVC and start the Deployment again. `Delete=false` protects it from a prune, so this is deliberate. The mirror is re-fetched; CouchDB is unaffected.

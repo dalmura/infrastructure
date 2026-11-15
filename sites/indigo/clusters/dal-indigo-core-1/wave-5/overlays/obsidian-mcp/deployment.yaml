@@ -204,10 +204,7 @@ spec:
             - name: tmp
               mountPath: /tmp
         - name: mcp
-          # Upstream ghcr.io/htarrega/obsidian-mcp is private; this is the same
-          # tag mirrored into the org registry. See the runbook for the copy
-          # command.
-          image: ghcr.io/dalmura/obsidian-mcp:v2.1.2
+          image: ghcr.io/ykoellmann/obsidian-mcp:2.1.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

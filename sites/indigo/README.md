@@ -102,7 +102,7 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Home Automation
    * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
       * Personal Notes
-   * [Obsidian MCP](https://github.com/htarrega/obsidian-mcp)
+   * [Obsidian MCP](https://github.com/ykoellmann/obsidian-mcp)
       * MCP read/write access to the LiveSync vault
    * [Tandoor](https://tandoor.dev/)
       * Recipe management
