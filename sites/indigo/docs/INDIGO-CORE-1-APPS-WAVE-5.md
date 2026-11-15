@@ -639,6 +639,20 @@ vault write auth/kubernetes/role/workload-reader-obsidian-livesync-secrets \
 
 ```
 
+## Obsidian MCP (Agent Vault Access) Setup
+
+See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md)
+
+The `obsidian-mcp` application mirrors the E2EE-protected LiveSync vault from CouchDB into a local volume with the LiveSync CLI, then serves it to Hermes over MCP. It does not read CouchDB directly, because the vault is encrypted end-to-end.
+
+Its secret lives at `site/wave-5/obsidian-mcp/config` and contains the CouchDB replication user (scoped to this vault's database only), the LiveSync E2EE settings, and the MCP bearer token. The Hermes Vault policy must also grant read on that path for `OBSIDIAN_MCP_TOKEN`:
+
+```
+path "site/data/wave-5/obsidian-mcp/config" {
+    capabilities = ["read"]
+}
+```
+
 ## Tandoor Setup
 
 See dedicated setup guide: [INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md](INDIGO-CORE-1-APPS-WAVE-5-TANDOOR.md)

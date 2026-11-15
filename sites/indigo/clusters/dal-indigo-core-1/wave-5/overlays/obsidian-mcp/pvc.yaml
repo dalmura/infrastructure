@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: obsidian-mcp-data
+  namespace: obsidian-mcp
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    # The mirror is reconstructible from CouchDB, so losing this volume is a
+    # resync rather than data loss.
+    argocd.argoproj.io/sync-options: Delete=false
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # Deliberately not backed up: the vault mirror is plaintext while CouchDB
+  # holds the E2EE ciphertext, and a Longhorn backup would copy the plaintext
+  # into S3. Re-fetch from CouchDB instead of restoring this volume.
+  storageClassName: cluster-nobackup
+  resources:
+    requests:
+      storage: 10Gi

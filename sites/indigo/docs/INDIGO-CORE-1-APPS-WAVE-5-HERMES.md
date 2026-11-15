@@ -43,12 +43,16 @@ Navigate to **Applications** => **Applications** => **Create**:
 Log into your `vault` CLI environment.
 
 ### Step 2.1: Create Vault Workload Reader Policy & Kubernetes Auth Role
-Run the following to grant the `hermes` ServiceAccount in the `hermes` namespace read access to `site/data/wave-5/hermes/*`:
+Run the following to grant the `hermes` ServiceAccount in the `hermes` namespace read access to `site/data/wave-5/hermes/*`, plus the Obsidian MCP token that Hermes needs for its `obsidian` MCP server:
 
 ```bash
 vault policy write workload-reader-hermes-secrets -<<EOF
 path "site/data/wave-5/hermes/*" {
     capabilities = ["read", "list"]
+}
+# MCP_API_KEY for the obsidian-mcp server (see INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md)
+path "site/data/wave-5/obsidian-mcp/config" {
+    capabilities = ["read"]
 }
 EOF
 
@@ -66,7 +70,7 @@ vault write auth/kubernetes/role/workload-reader-hermes-secrets \
 
 Before storing secrets, create a **standard Virtual API Key** in Archestra (**Virtual Keys**) and map it to the provider key(s) Hermes needs. Hermes uses the OpenAI-compatible Unified Model API at `/v1/unified-model`, and the default model is `deepseek:deepseek-flash`, so at minimum map the **DeepSeek** provider key. The model ID must match an entry returned by `GET /v1/unified-model/models`.
 
-Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID and Client Secret, GitHub token, and Slack Socket Mode credentials:
+Using the Vault CLI (or Web UI at `site/data/wave-5/hermes/config`), store the Archestra virtual key, Authentik OIDC Client ID and Client Secret, GitHub token, Slack Socket Mode credentials, and the Home Assistant long-lived token:
 
 ```bash
 umask 077
@@ -83,6 +87,7 @@ jq -n \
   --arg slack_allowed_users '<comma-separated-slack-member-ids>' \
   --arg slack_home_channel 'C01234567890' \
   --arg slack_home_channel_name 'general' \
+  --arg hass_token '<home-assistant-long-lived-access-token>' \
   '{
     ARCHESTRA_API_KEY: $archestra_key,
     GITHUB_TOKEN: $github_token,
@@ -92,14 +97,15 @@ jq -n \
     SLACK_APP_TOKEN: $slack_app_token,
     SLACK_ALLOWED_USERS: $slack_allowed_users,
     SLACK_HOME_CHANNEL: $slack_home_channel,
-    SLACK_HOME_CHANNEL_NAME: $slack_home_channel_name
+    SLACK_HOME_CHANNEL_NAME: $slack_home_channel_name,
+    HASS_TOKEN: $hass_token
   }' >"$tmp"
 
 vault kv put site/wave-5/hermes/config @"$tmp"
 ```
 
 > [!NOTE]
-> Every key listed under `externalSecret.data` in `values/hermes/values.yaml` must exist in `site/wave-5/hermes/config` or External Secrets Operator will report `SecretSyncedError`.
+> Every key listed under `externalSecret.data` in `values/hermes/values.yaml` must exist in its referenced Vault path or External Secrets Operator reports `SecretSyncedError`. `OBSIDIAN_MCP_TOKEN` is the exception in location only: it is read from `site/wave-5/obsidian-mcp/config` property `MCP_API_KEY`, not from `site/wave-5/hermes/config`. See [Obsidian MCP Setup](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md).
 
 ### Slack home channel
 
@@ -188,8 +194,101 @@ argocd app sync hermes
 
 ---
 
-## 6. Operations & Maintenance Notes
+## 6. Obsidian MCP Server
 
+Hermes exposes the vault through the `obsidian` MCP server declared in `values/hermes/values.yaml`. The server itself is documented in [Obsidian MCP Setup](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md); this section only covers the Hermes side.
+
+```yaml
+config:
+  mcp_servers:
+    obsidian:
+      url: http://obsidian-mcp.obsidian-mcp.svc.cluster.local:8000/mcp
+      headers:
+        Authorization: "Bearer ${OBSIDIAN_MCP_TOKEN}"
+      trust: untrusted
+      skip_preflight: true
+```
+
+* `OBSIDIAN_MCP_TOKEN` is injected from `hermes-env`; its value comes from `site/wave-5/obsidian-mcp/config` property `MCP_API_KEY`. Both applications must read the same Vault key, and both ExternalSecrets must be refreshed together when the token is rotated.
+* `trust: untrusted` makes every write-capable MCP tool call require approval through the standard approval surface, on top of `approvals.mode: manual`.
+* `skip_preflight: true` suppresses Hermes' fail-fast content-type probe, which a FastMCP endpoint fails on a bare `GET /mcp`.
+* Tools are not filtered here. Use `hermes mcp configure obsidian` after the first successful connection to pick a surface, then copy the resulting `tools.include` back into values.
+* As with any other `config.*` change, set `bootstrap.overwrite: true` for one sync, or edit `/opt/data/config.yaml` on the PVC, otherwise the running copy stays authoritative.
+
+Verify registration:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  tail -n 50 /opt/data/logs/agent.log | grep -i mcp
+```
+
+The log should report the `obsidian` server and its tool count. Then ask Hermes to list or read a note; a write should trigger the approval prompt.
+
+---
+
+## 7. Home Assistant
+
+Hermes talks to Home Assistant through the official `homeassistant` plugin. The plugin provides four LLM-callable tools — `ha_list_entities`, `ha_get_state`, `ha_list_services`, and `ha_call_service` — and, if enabled as a gateway platform, a WebSocket subscription that forwards state-change events to the agent. This deployment only enables the tools.
+
+The plugin is not bundled with the Hermes image, and the chart has no values key for plugins. Install it once into the `/opt/data` profile; it persists across restarts and upgrades:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  hermes plugins install homeassistant
+```
+
+### Step 7.1: Create a Long-Lived Access Token
+
+In Home Assistant, open your **Profile** => **Security** => **Long-lived access tokens**, click **Create token**, name it `Hermes Agent`, and copy the token (it is shown once).
+
+Add it to the existing secret without dropping the other keys:
+
+```bash
+umask 077
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
+vault kv get -format=json site/wave-5/hermes/config | jq '.data.data' >"$tmp"
+jq --arg token '<long-lived-access-token>' '. + {HASS_TOKEN: $token}' "$tmp" >"$tmp.new"
+mv "$tmp.new" "$tmp"
+
+vault kv put site/wave-5/hermes/config @"$tmp"
+```
+
+Then force an ExternalSecret refresh; Reloader restarts the Deployment because `reloader.stakater.com/auto` is set:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
+  annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite
+```
+
+### Step 7.2: Connection details
+
+* `HASS_URL` is set in `values/hermes/values.yaml` to `http://ha.home-assistant.svc.cluster.local:8080`. The `ha` Service listens on **8080** and forwards to the pod's named port `http` (8123). Use 8080 in `HASS_URL`; the Cilium policies match the pod port 8123, like the existing `traefik-private` policy.
+* `HASS_TOKEN` is a normal `hermes-env` key read from `site/wave-5/hermes/config`, so it follows the same rotation flow as the other secrets. With it set, the `homeassistant` toolset activates automatically; no `platforms.homeassistant` entry is needed in `config.yaml`.
+* Traffic is allowed in both directions: `overlays/hermes/network-policy.yaml` (egress to the `home-assistant` pods on 8123) and `overlays/home-assistant/network-policy.yaml` (ingress from the `hermes` namespace to 8123).
+* Setting only `HASS_TOKEN` does **not** subscribe to state-change events, so Home Assistant noise never reaches Slack. To enable reactive automations, add `platforms.homeassistant.extra.watch_domains` (or `watch_entities`) in `values/hermes/values.yaml` with `bootstrap.overwrite: true` for one sync, as described in [Operations & Maintenance Notes](#8-operations--maintenance-notes).
+* The plugin blocks the `shell_command`, `command_line`, `python_script`, `pyscript`, `hassio`, and `rest_command` service domains, and validates entity IDs before calling the REST API.
+
+### Step 7.3: Verification
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  sh -c 'curl -fsS -H "Authorization: Bearer $HASS_TOKEN" "$HASS_URL/api/"'
+```
+
+This should print `{"message":"API running."}`. Then confirm the tools are registered:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  hermes tools list | grep -i home
+```
+
+Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights") — `ha_call_service` should be the tool it reaches for, with `ha_list_entities` first to resolve the entity ID.
+
+---
+
+## 8. Operations & Maintenance Notes
 * **Persistent Config (`bootstrap.overwrite`)**: The chart seeds `/opt/data/config.yaml` only on first boot (`bootstrap.overwrite: false`) so runtime changes made through the dashboard or CLI persist across restarts. If you later change `dashboard.publicUrl`, `dashboard.trustedProxies`, or `config.*` in `values/hermes/values.yaml`, temporarily set `bootstrap.overwrite: true` for one sync (or update `/opt/data/config.yaml` on the PVC), then revert `bootstrap.overwrite` to `false`.
 * **Storage & Backups**: `/opt/data` (`HERMES_HOME`) uses a `10Gi` `cluster-regular` Longhorn block volume, which is covered by the `daily-default-backup` recurring S3 job and protected with `Delete=false` / `helm.sh/resource-policy: keep`.
 * **Volume Ownership**: The chart's normal entrypoint chowns `/opt/data` to uid/gid `10000` as root before dropping privileges, but the non-root `podSecurityContext` here prevents that and `fsGroup` only changes the group. A fresh Longhorn volume therefore leaves the directory owned by `root:10000`, and Hermes rejects it with `gateway inaccessible: unsafe_control_path (/opt/data is owned by uid 0, expected uid 10000 ...)`. The `fix-data-ownership` init container runs as root and chowns the volume root before the agent starts. This is expected and safe; do not remove it while `podSecurityContext.runAsUser` is non-root.

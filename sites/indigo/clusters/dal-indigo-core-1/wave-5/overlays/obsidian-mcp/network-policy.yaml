@@ -1,0 +1,44 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: obsidian-mcp
+  namespace: obsidian-mcp
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: obsidian-mcp
+      app.kubernetes.io/instance: obsidian-mcp
+  ingress:
+    # Hermes is the only client; the MCP server is deliberately not exposed
+    # through either Traefik instance.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes-agent
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+
+  egress:
+    # Allow DNS lookups
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # Allow the livesync container to reach the LiveSync CouchDB
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-livesync
+            app: couchdb
+      toPorts:
+        - ports:
+            - port: "5984"
+              protocol: TCP

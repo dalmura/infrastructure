@@ -37,6 +37,10 @@ A list of other integrations via HACS:
 * [Solis Cloud Control](https://github.com/mkuthan/solis-cloud-control)
 * [Solis Sensor](https://github.com/hultenvp/solis-sensor)
 
+## Hermes Agent Access
+
+The Hermes Agent in `wave-5` uses this instance through the internal `ha` Service at `http://ha.home-assistant.svc.cluster.local:8080` (Service port 8080, pod port 8123). It authenticates with a Long-Lived Access Token stored in Vault at `site/wave-5/hermes/config` property `HASS_TOKEN`, and Cilium policies allow the traffic in both directions. See [Hermes Agent Setup](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md#7-home-assistant).
+
 ## Matter Server (matterjs-server)
 
 Required [`matterjs-server`](https://github.com/matter-js/matterjs-server) deployed in the `home-assistant` namespace to allow for HA to reach matter devices natively.

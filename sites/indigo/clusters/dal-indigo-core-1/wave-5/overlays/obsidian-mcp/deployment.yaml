@@ -1,0 +1,321 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: obsidian-mcp
+    app.kubernetes.io/name: obsidian-mcp
+  name: obsidian-mcp
+  namespace: obsidian-mcp
+  annotations:
+    reloader.stakater.com/auto: "true"
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: obsidian-mcp
+      app.kubernetes.io/name: obsidian-mcp
+  # PouchDB and the MCP index both hold state on the same volume; a second
+  # replica would corrupt the database directory.
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: obsidian-mcp
+        app.kubernetes.io/name: obsidian-mcp
+    spec:
+      serviceAccountName: obsidian-mcp-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Create the volume layout and hand it to the runtime UID. Only the
+        # three top-level directories are chowned; a recursive chown of a large
+        # vault on every start is not acceptable.
+        - name: fix-ownership
+          image: busybox:1.38
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /mnt/data/vault /mnt/data/livesync /mnt/data/mcp
+              chown 10000:10000 /mnt/data/vault /mnt/data/livesync /mnt/data/mcp
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data
+              mountPath: /mnt/data
+        # Render the LiveSync settings JSON from the ExternalSecret values.
+        # It lives beside the PouchDB directory so the CLI's default settings
+        # path applies and a recovery pod can reuse it without extra mounts.
+        - name: livesync-settings
+          image: ghcr.io/vrtmrz/livesync-cli:1.0.50-cli
+          command:
+            - node
+            - -e
+            - |
+              const fs = require("fs");
+              const env = process.env;
+              const required = [
+                "LIVESYNC_COUCH_URI",
+                "LIVESYNC_COUCH_DBNAME",
+                "LIVESYNC_COUCH_USER",
+                "LIVESYNC_COUCH_PASSWORD",
+                "LIVESYNC_PASSPHRASE",
+                "LIVESYNC_PATH_NORMALIZATION_VERSION",
+                "LIVESYNC_USE_PATH_OBFUSCATION",
+                "LIVESYNC_HANDLE_FILENAME_CASE_SENSITIVE",
+              ];
+              const missing = required.filter((key) => !env[key]);
+              if (missing.length > 0) {
+                console.error("Missing required settings: " + missing.join(", "));
+                process.exit(1);
+              }
+              const settings = {
+                couchDB_URI: env.LIVESYNC_COUCH_URI,
+                couchDB_USER: env.LIVESYNC_COUCH_USER,
+                couchDB_PASSWORD: env.LIVESYNC_COUCH_PASSWORD,
+                couchDB_DBNAME: env.LIVESYNC_COUCH_DBNAME,
+                liveSync: true,
+                syncOnSave: true,
+                syncOnStart: true,
+                encrypt: true,
+                passphrase: env.LIVESYNC_PASSPHRASE,
+                usePathObfuscation: env.LIVESYNC_USE_PATH_OBFUSCATION === "true",
+                pathNormalizationVersion: Number(env.LIVESYNC_PATH_NORMALIZATION_VERSION),
+                handleFilenameCaseSensitive: env.LIVESYNC_HANDLE_FILENAME_CASE_SENSITIVE === "true",
+                usePluginSync: false,
+                isConfigured: true,
+              };
+              fs.mkdirSync("/data/.livesync", { recursive: true });
+              fs.writeFileSync("/data/.livesync/settings.json", JSON.stringify(settings, null, 2), {
+                mode: 0o600,
+              });
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: LIVESYNC_COUCH_URI
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_COUCH_URI
+            - name: LIVESYNC_COUCH_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_COUCH_DBNAME
+            - name: LIVESYNC_COUCH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_COUCH_USER
+            - name: LIVESYNC_COUCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_COUCH_PASSWORD
+            - name: LIVESYNC_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_PASSPHRASE
+            - name: LIVESYNC_PATH_NORMALIZATION_VERSION
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_PATH_NORMALIZATION_VERSION
+            - name: LIVESYNC_USE_PATH_OBFUSCATION
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_USE_PATH_OBFUSCATION
+            - name: LIVESYNC_HANDLE_FILENAME_CASE_SENSITIVE
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: LIVESYNC_HANDLE_FILENAME_CASE_SENSITIVE
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: livesync
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        # Mirrors CouchDB <-> /vault using the plug-in's own sync core, which is
+        # what performs the E2EE decryption.
+        - name: livesync
+          image: ghcr.io/vrtmrz/livesync-cli:1.0.50-cli
+          imagePullPolicy: IfNotPresent
+          args:
+            - --vault
+            - /vault
+            - --settings
+            - /data/.livesync/settings.json
+            - daemon
+          env:
+            - name: HOME
+              value: /data
+            - name: TZ
+              value: Australia/Melbourne
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 25m
+              memory: 256Mi
+          volumeMounts:
+            # PouchDB database and CLI state.
+            - name: data
+              mountPath: /data
+              subPath: livesync
+            # The decrypted Markdown mirror served by the MCP container.
+            - name: data
+              mountPath: /vault
+              subPath: vault
+            - name: tmp
+              mountPath: /tmp
+        - name: mcp
+          # Upstream ghcr.io/htarrega/obsidian-mcp is private; this is the same
+          # tag mirrored into the org registry. See the runbook for the copy
+          # command.
+          image: ghcr.io/dalmura/obsidian-mcp:v2.1.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+          env:
+            - name: VAULT_PATH
+              value: /vault
+            - name: TRANSPORT
+              value: http
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "8000"
+            # Read/write is intentional. The barrier against destructive edits
+            # is the disabled tool groups below plus Hermes approvals and the
+            # `trust: untrusted` setting in values/hermes/values.yaml.
+            - name: READ_ONLY
+              value: "false"
+            - name: REQUIRE_WRITE_PRECONDITIONS
+              value: "true"
+            - name: DENY_READ_PATHS
+              value: .obsidian/,.trash/
+            - name: DENY_WRITE_PATHS
+              value: .obsidian/,.trash/,_AI_INSTRUCTIONS.md
+            # Destructive tool groups stay unregistered. Do not enable these
+            # without deciding how Hermes should obtain approval for them.
+            - name: ENABLE_DELETE
+              value: "false"
+            - name: ENABLE_MOVE
+              value: "false"
+            - name: ENABLE_FOLDER_RENAME
+              value: "false"
+            - name: ENABLE_BULK_REPLACE
+              value: "false"
+            - name: LOCK_PATH
+              value: /data/locks
+            - name: AUDIT_LOG_PATH
+              value: /data/audit.jsonl
+            - name: FASTMCP_HOME
+              value: /data/fastmcp
+            - name: HOME
+              value: /data
+            - name: XDG_CACHE_HOME
+              value: /data/cache
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: TZ
+              value: Australia/Melbourne
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-env
+                  key: MCP_API_KEY
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          # A large vault can take minutes to index; keep liveness out of the
+          # way until /health answers, then let the normal probes take over.
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            timeoutSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /vault
+              subPath: vault
+            - name: data
+              mountPath: /data
+              subPath: mcp
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: obsidian-mcp-data
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi

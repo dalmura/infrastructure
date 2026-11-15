@@ -28,6 +28,19 @@ config:
   model:
     provider: archestra
     default: "deepseek:deepseek-flash"
+  mcp_servers:
+    # Obsidian vault (headless LiveSync mirror + file-based MCP server).
+    # See INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md.
+    obsidian:
+      url: http://obsidian-mcp.obsidian-mcp.svc.cluster.local:8000/mcp
+      headers:
+        Authorization: "Bearer ${OBSIDIAN_MCP_TOKEN}"
+      # Every write-capable tool call needs approval, even if the MCP server's
+      # own readOnlyHint is wrong. Applied on top of approvals.mode: manual.
+      trust: untrusted
+      # FastMCP answers a bare GET/HEAD on /mcp with a non-MCP content type,
+      # which trips the fail-fast preflight probe.
+      skip_preflight: true
   terminal:
     backend: local
   agent:
@@ -59,6 +72,12 @@ extraEnv:
     value: /opt/data/cache
   - name: npm_config_cache
     value: /opt/data/.npm
+  # Home Assistant's internal `ha` Service (8080 -> pod 8123). HASS_TOKEN is
+  # injected from hermes-env; with it set, the homeassistant plugin enables the
+  # ha_* tools automatically. No `platforms.homeassistant` entry is needed
+  # unless we also want HA state-change events forwarded to the agent.
+  - name: HASS_URL
+    value: http://ha.home-assistant.svc.cluster.local:8080
 
 externalSecret:
   enabled: true
@@ -114,6 +133,19 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: SLACK_HOME_CHANNEL_NAME
+    # Bearer token for the Obsidian MCP server. The value is owned by the
+    # obsidian-mcp application, so the Hermes Vault policy also needs read on
+    # site/data/wave-5/obsidian-mcp/config.
+    - secretKey: OBSIDIAN_MCP_TOKEN
+      remoteRef:
+        key: wave-5/obsidian-mcp/config
+        property: MCP_API_KEY
+    # Home Assistant Long-Lived Access Token (HA profile -> Security ->
+    # Long-lived access tokens). Enables the homeassistant plugin's ha_* tools.
+    - secretKey: HASS_TOKEN
+      remoteRef:
+        key: wave-5/hermes/config
+        property: HASS_TOKEN
 
 persistence:
   enabled: true

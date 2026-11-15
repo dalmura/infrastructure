@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: obsidian-mcp
+
+resources:
+  - service-account.yaml
+  - secret-store-site.yaml
+  - external-secret.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - network-policy.yaml

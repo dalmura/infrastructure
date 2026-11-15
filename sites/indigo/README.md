@@ -102,6 +102,8 @@ Omni now supports a [self hosted non-production deployment](https://docs.siderol
       * Home Automation
    * [Obsidian LiveSync](https://github.com/vrtmrz/obsidian-livesync)
       * Personal Notes
+   * [Obsidian MCP](https://github.com/htarrega/obsidian-mcp)
+      * MCP read/write access to the LiveSync vault
    * [Tandoor](https://tandoor.dev/)
       * Recipe management
    * [Reactive Resume](https://rxresu.me/)
@@ -148,6 +150,7 @@ Follow this list in order:
    * [`dal-indigo-core-1` Apps - Wave 5 - Matrix](docs/INDIGO-CORE-1-APPS-WAVE-5-MATRIX.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Archestra](docs/INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md)
    * [`dal-indigo-core-1` Apps - Wave 5 - Hermes Agent](docs/INDIGO-CORE-1-APPS-WAVE-5-HERMES.md)
+   * [`dal-indigo-core-1` Apps - Wave 5 - Obsidian MCP](docs/INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md)
 * [`dal-indigo-core-1` Apps - Wave 6](docs/INDIGO-CORE-1-APPS-WAVE-6.md)
 
 ## Extra Documentation

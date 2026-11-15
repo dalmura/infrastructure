@@ -21,6 +21,17 @@ spec:
         - ports:
             - port: "5984"
               protocol: TCP
+    # Allow the headless LiveSync CLI (obsidian-mcp namespace) to replicate
+    # with this database. CouchDB is the E2EE source of truth; the CLI is the
+    # only client that holds the passphrase.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-mcp
+            app.kubernetes.io/name: obsidian-mcp
+      toPorts:
+        - ports:
+            - port: "5984"
+              protocol: TCP
   egress:
     # Allow DNS lookups
     - toEndpoints:

@@ -41,6 +41,25 @@ spec:
         - ports:
             - port: "9000"
               protocol: TCP
+    # Allow connections to the Obsidian MCP server
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-mcp
+            app.kubernetes.io/name: obsidian-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    # Allow connections to Home Assistant's internal `ha` service (REST + WebSocket).
+    # The Service listens on 8080 and forwards to the pod's 8123.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home-assistant
+            app.kubernetes.io/name: home-assistant
+      toPorts:
+        - ports:
+            - port: "8123"
+              protocol: TCP
     # Allow egress to Traefik Public (Pods and VIP) for OIDC discovery/token exchange
     - toEndpoints:
         - matchLabels:

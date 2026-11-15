@@ -30,6 +30,15 @@ spec:
         - ports:
             - port: "8123"
               protocol: TCP
+    # Allow Hermes Agent to call the REST API and WebSocket (ha.home-assistant:8080)
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes-agent
+      toPorts:
+        - ports:
+            - port: "8123"
+              protocol: TCP
     # Allow traffic to Matter Server WebSocket from within home-assistant namespace
     - fromEndpoints:
         - matchLabels:
