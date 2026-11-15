@@ -173,6 +173,9 @@ curl -fsS -u "obsidian-mcp:$OBSIDIAN_MCP_PASSWORD" "http://localhost:5984/$COUCH
 kill "$PF_PID"
 ```
 
+> [!WARNING]
+> Re-creating the database — deleting and re-uploading the vault from a device, or a clean rebuild — resets `_security` to `{"admins":{"roles":["_admin"]},"members":{"roles":["_admin"]}}`. The user document in `_users` survives, but this grant does not, so the pod starts returning `403: Forbidden` and the daemon stops with `Initial replication failed, cannot continue`. Re-run the grant above after any database re-create. See 7.2.
+
 ### 4.3 Secret values
 
 Read the E2EE settings from a working Obsidian device: **Settings → Self-hosted LiveSync → Remote Configuration**. Every value under `externalSecret.data` must exist in Vault or External Secrets Operator reports `SecretSyncedError`.
@@ -190,7 +193,7 @@ Read the E2EE settings from a working Obsidian device: **Settings → Self-hoste
 | `MCP_API_KEY` | `openssl rand -hex 32`; also consumed by Hermes |
 
 > [!IMPORTANT]
-> A mismatch in `pathNormalizationVersion`, `usePathObfuscation`, or `handleFilenameCaseSensitive` does not fail loudly. It produces duplicate documents, missing files, or refused operations. Copy the values from the plug-in rather than guessing.
+> A mismatch in `pathNormalizationVersion`, `usePathObfuscation`, `handleFilenameCaseSensitive`, or the passphrase does not say which value is wrong. Note IDs are derived from the passphrase and the path, so a wrong input produces `id-derivation-mismatch` and the daemon stops at `Initial replication failed, cannot continue` — or, on an existing mirror, duplicate documents, missing files, or refused operations. Copy the values from the plug-in rather than guessing, and diagnose with 7.2.
 
 ```bash
 umask 077
@@ -249,15 +252,9 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n obsidian-mcp logs deploy/o
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n obsidian-mcp logs deploy/obsidian-mcp -c mcp -f
 ```
 
-If the remote is locked, check and unlock it:
+If the initial replication does not complete, work through 7.2 first. **Do not unlock the remote** to get past it: unlocking goes through `markRemoteLocked(false)`, which rewrites `accepted_nodes` to the device that clicked and evicts every other device. If the cause is the lock, the fix is to accept this device (7.1), not to remove the lock.
 
-```bash
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n obsidian-mcp \
-  exec deploy/obsidian-mcp -c livesync -- \
-  livesync-cli --vault /vault --settings /data/.livesync/settings.json remote-status
-```
-
-If the initial replication does not complete, do a deliberate one-shot fetch. It replaces the local database with the remote state, so **stop the daemon first** (one CLI process per database directory):
+If the cause is instead a stale or mismatched local database — a partial initial replication, or an `id-derivation-mismatch` — do a deliberate one-shot fetch. It replaces the local database with the remote state, so **stop the daemon first** (one CLI process per database directory):
 
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n obsidian-mcp \
@@ -364,14 +361,136 @@ Reuse the `Mcp-Session-Id` response header on a follow-up `tools/list` request. 
      exec deploy/obsidian-mcp -c mcp -- tail -n 20 /data/audit.jsonl
    ```
 
+   There is no delete tool (`ENABLE_DELETE=false`), so a test note has to be removed in Obsidian on a device. Create it inside a throwaway folder with `create_folder_tool` so the cleanup is one folder deletion.
+
 ## 7. Operations
 
 * **Image updates**: bump the tag in `deployment.yaml`. The upstream image tag drops the GitHub `v` prefix (`v2.1.2` → `2.1.2`), and only the `ykoellmann` registry path exists. If the org ever vendors a copy to `ghcr.io/dalmura`, change the image reference in the same commit.
 * **Token rotation**: update `MCP_API_KEY` in Vault, force both ExternalSecrets to refresh (`kubectl annotate externalsecret <name> force-sync="$(date +%s)" --overwrite`), and let Reloader restart `obsidian-mcp` and `hermes`. Both sides must be refreshed together.
 * **Passphrase or path-setting rotation**: stop the Deployment, update Vault, remove the `livesync` subdirectory on the PVC, then start again so the mirror is rebuilt from CouchDB. Do not change `pathNormalizationVersion` on a working mirror.
-* **PVC loss**: delete the PVC and start the Deployment again. `Delete=false` protects it from a prune, so this is deliberate. The mirror is re-fetched; CouchDB is unaffected.
-* **Hermes approvals**: `approvals.mode: manual`, `cron_mode: deny`, and `unattended_mode: deny` remain in place. The MCP entry also uses `trust: untrusted`, so every write-capable tool call prompts even if the server's own annotations claim otherwise.
+* **PVC loss**: delete the PVC and start the Deployment again. `Delete=false` protects it from a prune, so this is deliberate. The mirror is re-fetched; CouchDB is unaffected. A new PVC is also a **new device identity**, so if the remote is locked the daemon will be refused with `node-locked` until the new node id is accepted — see 7.1.
+* **Remote lock and device acceptance**: the remote database is locked, and `accepted_nodes` decides which devices may replicate. Locking, unlocking, accepting a device, and the failure modes are covered in 7.1. Never use the plug-in's lock or unlock toggle for this.
+* **Hermes approvals**: `approvals.mode: manual`, `cron_mode: deny`, and `unattended_mode: deny` remain in place for shell and terminal tools. The `obsidian` MCP entry is **trusted** (no `trust:` key), so MCP tool calls run without a per-call prompt. `trust: untrusted` is not usable for this server: `obsidian-mcp` publishes no `readOnlyHint` annotations on any of its 33 tools, and Hermes treats missing annotations as write-capable, so `untrusted` gates reads and writes alike. The safety boundary is the server configuration below plus `audit.jsonl`, not a prompt.
+* **Trust is cached at discovery**: Hermes records a server's trust tier when it connects and does not re-read it per call. Changing `trust` requires a restart (`kubectl -n hermes rollout restart deploy/hermes`). `command_allowlist` is the exception — hand edits to it are re-synced from disk on every check.
 * **Path fencing**: writes are currently unrestricted across the vault. To confine the agent, add `WRITE_PATHS` (for example `AI/`) to the `mcp` container, create that folder in the vault, and restart. `DENY_READ_PATHS`/`DENY_WRITE_PATHS` already protect `.obsidian/`, `.trash/`, and `_AI_INSTRUCTIONS.md`.
 * **Destructive tools stay off**: `ENABLE_DELETE`, `ENABLE_MOVE`, `ENABLE_FOLDER_RENAME`, and `ENABLE_BULK_REPLACE` are explicitly `false`, so those tools are never registered. Turning one on is a deliberate decision, not a configuration tweak.
 * **Single replica only**: `livesync` keeps a PouchDB database and state under `/data`; two pods on the same volume corrupt it. The Deployment uses `Recreate` for the same reason.
 * **Volume sizing**: `10Gi` covers a vault of roughly 3GiB (mirror + PouchDB copy + revision history). Check `du -sh /vault` and `du -sh /data` before assuming it is enough; grow the PVC rather than pruning state.
+
+### 7.1 Remote lock and device acceptance
+
+The remote database carries a lock in `_local/obsydian_livesync_milestone`:
+
+```json
+{ "locked": true, "accepted_nodes": ["<desktop>", "<android>", "<headless-vault>"] }
+```
+
+LiveSync enforces it in the client, during the pre-replication compatibility check:
+
+```js
+if (milestone.locked && milestone.accepted_nodes.indexOf(thisDeviceNodeId) === -1)
+  return milestone.cleaned ? "NODE_CLEANED" : "NODE_LOCKED";
+```
+
+What that means in practice:
+
+* `locked: true` plus the device in `accepted_nodes` — replicates normally.
+* `locked: true` and the device **not** listed — refused before any document is exchanged, `recoveryHint.reason = node-locked`. This is not a partial failure: nothing is pulled and nothing is pushed.
+* `locked: false` — the check short-circuits. `accepted_nodes` is still recorded, but it is documentation only.
+
+The lock is a **cooperative guardrail, not access control**. The check runs in the plug-in and the CLI, so anyone holding the CouchDB credentials and the E2EE passphrase can read and write the database directly. It also does not prevent an unaccepted device from *downloading*: a blocked plug-in offers **Fetch**, which replaces that device's local database with the remote state. Its purpose is to stop a device that lost or reset its local state from pushing deletions into a healthy remote.
+
+Each device's node id is a random 10-character string minted on first run and stored in its **local** database. On this pod that is `/data` on the PVC, so **a re-created PVC is a new device**, not the same one returning.
+
+**Current state**: `locked: true`, with the desktop, the Android device, and `headless-vault` accepted. List them at any time:
+
+```bash
+export VAULT_ADDR=https://vault.indigo.dalmura.cloud
+U=$(vault kv get -field=ADMIN_USERNAME site/wave-5/obsidian-livesync/couchdb-secrets)
+P=$(vault kv get -field=ADMIN_PASSWORD site/wave-5/obsidian-livesync/couchdb-secrets)
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n obsidian-livesync \
+  port-forward svc/obsidian-livesync-couchdb 5984:5984 &
+curl -fsS -u "$U:$P" http://localhost:5984/<db>/_local/obsydian_livesync_milestone \
+  | jq '{locked, accepted_nodes, devices: (.node_info | keys)}'
+```
+
+> [!IMPORTANT]
+> Do not use the plug-in's "lock database" or "I am ready, unlock the database" buttons, and do not run `lock-remote`. Every one of them goes through `markRemoteLocked()`, which writes `accepted_nodes = [this.nodeid]` — the single device that clicked. That silently evicts every other device. This is how the phone was dropped once already.
+
+#### Accepting a device
+
+There is no control in the plug-in to accept *another* device; the joined-devices dialog is read-only apart from "Forget device". Two additive options:
+
+1. **From the device itself.** A plug-in shows the button "I have made a backup, mark this device as resolved" wherever replication is blocked by the lock, and the CLI has the same operation:
+
+   ```bash
+   # inside a one-off pod that mounts the same volume, after scaling the daemon to 0
+   livesync-cli --vault /vault --settings /data/.livesync/settings.json mark-resolved
+   ```
+
+   Both run `markRemoteResolved()`, which appends: `accepted_nodes = [...existing, this.nodeid]`, and leaves `locked` untouched. Because the plug-in only renders that button while the remote is *locked*, an unlocked remote offers no way to mark a device resolved.
+
+2. **Directly, as one merge.** Read the milestone, add the id, put it back with the same `_rev`. This preserves every other field and is what the command above would have written:
+
+   ```bash
+   DOC="$(curl -fsS -u "$U:$P" http://localhost:5984/<db>/_local/obsydian_livesync_milestone)"
+   NEW="$(jq --arg id "<node-id>" '.accepted_nodes = ((.accepted_nodes + [$id]) | unique)' <<<"$DOC")"
+   curl -fsS -u "$U:$P" -X PUT -H 'Content-Type: application/json' \
+     http://localhost:5984/<db>/_local/obsydian_livesync_milestone -d "$NEW"
+   ```
+
+   The milestone is a `_local` document: it is never replicated to devices, so editing it directly touches only the server's copy of the state. **Set or clear `locked` the same way** — read, change that one field, PUT with the current `_rev` — because the plug-in buttons that would do it also truncate `accepted_nodes`.
+
+The CLI holds its PouchDB lock, so a `mark-resolved` against the same volume has to wait for the daemon to stop: scale the Deployment to `0`, run it, then scale back. The volume is `ReadWriteOnce`, so any pod doing this has to be pinned to the same node.
+
+### 7.2 Diagnosing a stalled daemon
+
+The daemon reports every replication failure the same way, with no reason:
+
+```text
+[Daemon] Replicating with remote...
+[Daemon] Initial replication failed, cannot continue
+[Error] Command 'daemon' failed
+```
+
+Check these in order:
+
+| Symptom in the log | Cause | Fix |
+|---|---|---|
+| `(Notice) The request may have failed. The reason sent by the server: 403: Forbidden` | Database re-created, so `_security` lost the grant | Re-run 4.2 |
+| Silent failure, `_security` fine | `node-locked`: this identity is not in `accepted_nodes` | 7.1 |
+| Silent failure, device accepted | `id-derivation-mismatch`: settings do not match the ones the vault was created with | 4.3 |
+
+For the silent cases the reason is in the return value, which the daemon never prints. Patch it into a throwaway copy of the bundle rather than guessing:
+
+```bash
+DOCKER_CONFIG=/tmp/opencode/dockercfg-empty   # avoid a stale ghcr.io auth entry
+CID=$(docker create ghcr.io/vrtmrz/livesync-cli:1.0.50-cli)
+docker cp "$CID:/app/dist/index.cjs" /tmp/index.cjs && docker rm "$CID"
+python3 - <<'PY'
+p = "/tmp/index.cjs"
+s = open(p).read()
+old = '''\t\tlog("Replicating with remote...");
+\t\tif (!isReplicationCompleted(await core.services.replication.replicateUnattended({
+\t\t\ttrigger: "daemon",
+\t\t\tinteraction: NO_INTERACTION
+\t\t}))) {'''
+new = '''\t\tlog("Replicating with remote...");
+\t\tconst __res = await core.services.replication.replicateUnattended({
+\t\t\ttrigger: "daemon",
+\t\t\tinteraction: NO_INTERACTION
+\t\t});
+\t\twriteStderrLine(standardIo, "[DBG] " + JSON.stringify(__res, (k, v) => (typeof v === "symbol" ? String(v) : v)));
+\t\tif (!isReplicationCompleted(__res)) {'''
+assert s.count(old) == 1, "call site not found; the bundle layout changed"
+open(p, "w").write(s.replace(old, new))
+PY
+```
+
+Run that bundle with `-v /tmp/index.cjs:/app/dist/index.cjs:ro` against a scratch directory plus a settings file built from Vault, and the output names the reason directly. The settings file takes the same keys as 4.3 (`couchDB_URI`, `couchDB_USER`, `couchDB_PASSWORD`, `couchDB_DBNAME`, `passphrase`, `usePathObfuscation`, `pathNormalizationVersion`, `handleFilenameCaseSensitive`), with `couchDB_URI` pointed at a port-forward of the CouchDB service:
+
+```text
+[DBG] {"status":"failed","error":{},"recoveryHint":{"reason":"node-locked"}}
+```
+
+`node-locked` and `node-cleaned` come from the lock (7.1); `id-derivation-mismatch` means the ID derivation inputs differ from the ones the vault was created with (`handleFilenameCaseSensitive`, `usePathObfuscation`, `pathNormalizationVersion`). Copy those from a device that already syncs instead of choosing them; 4.3 lists which Vault key feeds each one.

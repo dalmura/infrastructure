@@ -29,18 +29,39 @@ config:
     provider: archestra
     default: "deepseek:deepseek-flash"
   mcp_servers:
-    # Obsidian vault (headless LiveSync mirror + file-based MCP server).
     # See INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md.
     obsidian:
       url: http://obsidian-mcp.obsidian-mcp.svc.cluster.local:8000/mcp
       headers:
         Authorization: "Bearer ${OBSIDIAN_MCP_TOKEN}"
-      # Every write-capable tool call needs approval, even if the MCP server's
-      # own readOnlyHint is wrong. Applied on top of approvals.mode: manual.
-      trust: untrusted
-      # FastMCP answers a bare GET/HEAD on /mcp with a non-MCP content type,
-      # which trips the fail-fast preflight probe.
       skip_preflight: true
+    Fastmail MCP Michael:
+      url: https://api.fastmail.com/mcp
+      auth: oauth
+  command_allowlist:
+    - "mcp:obsidian/find_similar_notes_tool"
+    - "mcp:obsidian/get_audit_log_tool"
+    - "mcp:obsidian/get_backlinks_tool"
+    - "mcp:obsidian/get_broken_links_tool"
+    - "mcp:obsidian/get_link_graph_tool"
+    - "mcp:obsidian/get_orphans_tool"
+    - "mcp:obsidian/get_periodic_note_tool"
+    - "mcp:obsidian/get_tasks_tool"
+    - "mcp:obsidian/get_vault_conventions_tool"
+    - "mcp:obsidian/get_vault_stats_tool"
+    - "mcp:obsidian/lint_schema_tool"
+    - "mcp:obsidian/list_all_tags_tool"
+    - "mcp:obsidian/list_attachments_tool"
+    - "mcp:obsidian/list_files_tool"
+    - "mcp:obsidian/list_folder_tool"
+    - "mcp:obsidian/list_notes_tool"
+    - "mcp:obsidian/list_templates_tool"
+    - "mcp:obsidian/list_vaults_tool"
+    - "mcp:obsidian/query_notes_tool"
+    - "mcp:obsidian/read_attachment_tool"
+    - "mcp:obsidian/read_note_tool"
+    - "mcp:obsidian/resolve_alias_tool"
+    - "mcp:obsidian/search_notes_tool"
   terminal:
     backend: local
   agent:
@@ -72,12 +93,6 @@ extraEnv:
     value: /opt/data/cache
   - name: npm_config_cache
     value: /opt/data/.npm
-  # Home Assistant's internal `ha` Service (8080 -> pod 8123). HASS_TOKEN is
-  # injected from hermes-env; with it set, the homeassistant plugin enables the
-  # ha_* tools automatically. No `platforms.homeassistant` entry is needed
-  # unless we also want HA state-change events forwarded to the agent.
-  - name: HASS_URL
-    value: http://ha.home-assistant.svc.cluster.local:8080
 
 externalSecret:
   enabled: true
@@ -141,7 +156,10 @@ externalSecret:
         key: wave-5/obsidian-mcp/config
         property: MCP_API_KEY
     # Home Assistant Long-Lived Access Token (HA profile -> Security ->
-    # Long-lived access tokens). Enables the homeassistant plugin's ha_* tools.
+    # Long-lived access tokens). The pod env copy is not visible to profile
+    # turns under the multiplexed gateway; seed-house-manager-hass copies it
+    # into the house-manager profile's .env, which is the only place the
+    # homeassistant plugin reads it.
     - secretKey: HASS_TOKEN
       remoteRef:
         key: wave-5/hermes/config
@@ -234,6 +252,57 @@ extraInitContainers:
       runAsGroup: 0
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
+    volumeMounts:
+      - name: data
+        mountPath: /opt/data
+  # The gateway multiplexes every profile in one process
+  # (gateway.multiplex_profiles is on by default and cannot be disabled), and a
+  # profile turn resolves credentials only from its own <home>/.env — the pod
+  # environment (`hermes-env` envFrom) never reaches get_secret() there. HASS_*
+  # is wanted for the house-manager profile alone, so seed that profile's .env
+  # from the Vault-backed Secret on every start; Vault stays the source of truth
+  # and the other profiles (default, event-manager) keep no Home Assistant
+  # credentials. Runs after fix-data-ownership so the volume is writable.
+  - name: seed-house-manager-hass
+    image: busybox:1.38
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        profile_dir=/opt/data/profiles/house-manager
+        env_file="$profile_dir/.env"
+        if [ ! -d "$profile_dir" ]; then
+          echo "house-manager profile absent; nothing to seed"
+          exit 0
+        fi
+        tmp="$env_file.tmp"
+        umask 007
+        # Drop any previous HASS_TOKEN line and its placeholder comment, then
+        # append the managed value so repeated starts stay idempotent.
+        grep -vE '^(# )?HASS_TOKEN=' "$env_file" 2>/dev/null >"$tmp" || :
+        printf 'HASS_TOKEN=%s\n' "$HASS_TOKEN" >>"$tmp"
+        # HASS_URL is only needed here too; keep an operator-set value if present.
+        if ! grep -q '^HASS_URL=' "$tmp"; then
+          printf 'HASS_URL=%s\n' "$HASS_URL" >>"$tmp"
+        fi
+        mv "$tmp" "$env_file"
+        chmod 660 "$env_file"
+        echo "seeded HASS_TOKEN/HASS_URL into $env_file"
+    env:
+      - name: HASS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hermes-env
+            key: HASS_TOKEN
+      - name: HASS_URL
+        value: http://ha.home-assistant.svc.cluster.local:8080
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
     volumeMounts:
       - name: data
         mountPath: /opt/data

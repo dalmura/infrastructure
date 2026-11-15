@@ -262,26 +262,68 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
   annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite
 ```
 
+`HASS_TOKEN` also has to reach the **house-manager profile's secret scope** described in [Step 7.3](#step-73-multiplexed-profiles-and-profile-secret-scope). The `seed-house-manager-hass` init container reads it from the same `hermes-env` Secret, so no extra Vault write is needed; verify it after the rollout:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  sh -c 'grep -o "^HASS_[A-Z]*=" /opt/data/profiles/house-manager/.env'
+```
+
 ### Step 7.2: Connection details
 
-* `HASS_URL` is set in `values/hermes/values.yaml` to `http://ha.home-assistant.svc.cluster.local:8080`. The `ha` Service listens on **8080** and forwards to the pod's named port `http` (8123). Use 8080 in `HASS_URL`; the Cilium policies match the pod port 8123, like the existing `traefik-private` policy.
-* `HASS_TOKEN` is a normal `hermes-env` key read from `site/wave-5/hermes/config`, so it follows the same rotation flow as the other secrets. With it set, the `homeassistant` toolset activates automatically; no `platforms.homeassistant` entry is needed in `config.yaml`.
+* `HASS_URL` (`http://ha.home-assistant.svc.cluster.local:8080`) and `HASS_TOKEN` live only in the `house-manager` profile's `/opt/data/profiles/house-manager/.env`. The `ha` Service listens on **8080** and forwards to the pod's named port `http` (8123), like the existing `traefik-private` policy.
+* `HASS_TOKEN` is read from `site/wave-5/hermes/config` and follows the same rotation flow as the other secrets; the init container re-seeds the profile `.env` on every rollout. With it set in that profile's scope, the `homeassistant` toolset activates automatically; no `platforms.homeassistant` entry is needed in `config.yaml`.
 * Traffic is allowed in both directions: `overlays/hermes/network-policy.yaml` (egress to the `home-assistant` pods on 8123) and `overlays/home-assistant/network-policy.yaml` (ingress from the `hermes` namespace to 8123).
 * Setting only `HASS_TOKEN` does **not** subscribe to state-change events, so Home Assistant noise never reaches Slack. To enable reactive automations, add `platforms.homeassistant.extra.watch_domains` (or `watch_entities`) in `values/hermes/values.yaml` with `bootstrap.overwrite: true` for one sync, as described in [Operations & Maintenance Notes](#8-operations--maintenance-notes).
 * The plugin blocks the `shell_command`, `command_line`, `python_script`, `pyscript`, `hassio`, and `rest_command` service domains, and validates entity IDs before calling the REST API.
 
-### Step 7.3: Verification
+### Step 7.3: Multiplexed profiles and profile secret scope
 
-```bash
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
-  sh -c 'curl -fsS -H "Authorization: Bearer $HASS_TOKEN" "$HASS_URL/api/"'
+One gateway process serves every profile (`default`, `event-manager`, `house-manager`, …): `gateway.multiplex_profiles` defaults to `true` and cannot be disabled. In that mode Hermes resolves credentials through a **profile secret scope**, which is built from `<profile home>/.env` plus optional external secret sources — it deliberately does **not** fall back to the pod environment, because profile A's keys must not leak into profile B's turns. The practical consequences are:
+
+* Anything injected with `envFrom`/`extraEnv` (the `hermes-env` Secret) is visible to process-level code but **not** to `get_secret()` inside a profile turn. That is why `ha_*` tools stayed disabled even though the Deployment had `HASS_TOKEN` in its environment.
+* A credential that only one profile should hold belongs in that profile's `.env`, e.g. `/opt/data/profiles/house-manager/.env`. A credential every profile may use belongs in the managed scope (`HERMES_MANAGED_DIR`, layered over every profile's `.env`). Do not use the managed scope for per-profile secrets — it is process-wide.
+
+This deployment keeps Home Assistant credentials in the `house-manager` profile only. The `.env` there lives on the `/opt/data` PVC, so instead of editing it by hand the `seed-house-manager-hass` init container writes it from the `hermes-env` Secret on every start:
+
+```text
+/opt/data/profiles/house-manager/.env
+  HASS_URL=...
+  HASS_TOKEN=...
 ```
 
-This should print `{"message":"API running."}`. Then confirm the tools are registered:
+Rules the init container follows: it runs after `fix-data-ownership` (so the volume is writable as uid 10000), it no-ops when the profile directory does not exist, it replaces any previous `HASS_TOKEN` line (including the commented placeholder) rather than appending duplicates, and it leaves an operator-set `HASS_URL` alone. Rewriting the file is picked up on the next profile turn because `build_profile_secret_scope()` re-reads `<home>/.env` each time; no gateway restart is needed beyond the rollout the chart performs anyway.
+
+To scope another credential the same way, copy that init container with a different profile directory, or extend the script with a loop. Never widen it to `/opt/data/.env` or the managed scope: that is how a credential ends up visible to every profile.
+
+Relevant values: `extraInitContainers` (`seed-house-manager-hass`). `HASS_URL` is deliberately *not* set in `extraEnv`, because the pod environment is the wrong layer for profile credentials.
+
+### Step 7.4: Verification
 
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
-  hermes tools list | grep -i home
+  sh -c 'curl -fsS -H "Authorization: Bearer $HASS_TOKEN" http://ha.home-assistant.svc.cluster.local:8080/api/'
+```
+
+This should print `{"message":"API running."}` — the `curl` runs in the pod shell, where `HASS_TOKEN` comes from `hermes-env`; profile turns never see that copy. Then confirm the profile `.env` was seeded:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  sh -c 'grep -o "^HASS_[A-Z]*=" /opt/data/profiles/house-manager/.env'
+```
+
+To check what a profile actually resolves — `hermes tools list` is not a valid check because the CLI has no secret scope and falls back to the pod env — build that profile's scope the way the gateway does. `house-manager` should report the token, `default` must not:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec -i deploy/hermes -- \
+  sh -c 'cd /opt/hermes && .venv/bin/python -' <<'PY'
+from pathlib import Path
+from agent.secret_scope import build_profile_secret_scope
+
+for home in ("/opt/data", "/opt/data/profiles/house-manager"):
+    scope = build_profile_secret_scope(Path(home))
+    print(home, "HASS_TOKEN set:", bool(scope.get("HASS_TOKEN")), "HASS_URL:", scope.get("HASS_URL"))
+PY
 ```
 
 Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights") — `ha_call_service` should be the tool it reaches for, with `ha_list_entities` first to resolve the entity ID.
@@ -295,4 +337,4 @@ Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights
 * **Single Replica Only**: Hermes uses SQLite in WAL mode under `/opt/data`; keep `replicaCount: 1` with `Recreate` strategy.
 * **Confidential OIDC Client**: The Authentik provider is `Confidential`; Hermes sends `HERMES_DASHBOARD_OIDC_CLIENT_SECRET` to the token endpoint while still using PKCE. To rotate the secret, generate a new one on the Authentik provider, update `site/data/wave-5/hermes/config` in Vault, then force an ExternalSecret refresh (`kubectl -n hermes annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite`) and let Reloader restart the Deployment.
 * **Dashboard Sessions**: Hermes stores the ID token in the `hermes_session_at` cookie (Max-Age = the provider's token TTL) and only sets the `hermes_session_rt` cookie when the provider returns a refresh token. Authentik requires `offline_access` to be both requested in `HERMES_DASHBOARD_OIDC_SCOPES` and enabled on the provider's scope mappings; without it every access-token expiry (Authentik default: 5 minutes) forces a fresh login. Diagnose from `/opt/data/logs/dashboard-auth.log` on the PVC: after the first 5 minutes you should see `refresh_success` events, and no repeating `session_rejected` with `reason=no_cookie` (which means both cookies are absent, not merely expired). Adding the scope takes effect on the next rollout, but existing cookies carry no refresh token, so each user needs one fresh sign-in first.
-* **Secret Layout**: Every key rendered under `externalSecret.data` must exist in `site/wave-5/hermes/config`; the chart injects the whole `hermes-env` Secret via `envFrom`, so new keys take effect after refresh and restart.
+* **Secret Layout**: Every key rendered under `externalSecret.data` must exist in `site/wave-5/hermes/config`; the chart injects the whole `hermes-env` Secret via `envFrom`, so new keys take effect after refresh and restart. That Secret is **not** visible to profile turns — profile-scoped code reads only `<profile home>/.env` (see [Step 7.3](#step-73-multiplexed-profiles-and-profile-secret-scope)). Credentials a single profile needs are seeded into its `.env` (`seed-house-manager-hass` is the template); anything only one profile should hold must never go into `envFrom`, `extraEnv`, or a managed scope.
