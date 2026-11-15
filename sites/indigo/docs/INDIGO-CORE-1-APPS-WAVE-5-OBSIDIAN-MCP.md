@@ -116,7 +116,14 @@ EOF
 
 ### 4.2 CouchDB database user
 
-CouchDB has no read-only role: any member of a database can write to it. Create a dedicated user and scope it to **only this vault's database**. Never reuse the CouchDB admin account.
+CouchDB has no read-only role: any account allowed to sync can write the vault. The goal is **scope**, not read-only. Create a dedicated user and make it a **database admin for this vault's database only**:
+
+* A database admin can read/write all documents, including design documents, and cannot create or delete databases or read `_users`.
+* A plain `member` cannot write design documents, and LiveSync's local PouchDB creates `_design/chunks`; if replication ever pushes it, a member gets a `403`.
+* A **server** admin can do anything to every database, including `_users` and server config. Do not hand that credential to this pod.
+
+> [!NOTE]
+> If you deliberately accept a server-admin blast radius, you can reuse the CouchDB admin credentials from `site/wave-5/obsidian-livesync/couchdb-secrets` in 4.3 and skip this section. The rest of the runbook is unchanged; only the scope of the credential differs.
 
 The database must already exist (connect a device with the LiveSync plug-in once, or create it as admin). Then:
 
@@ -141,16 +148,22 @@ curl -fsS -u "$ADMIN_USERNAME:$ADMIN_PASSWORD" \
         '{_id:"org.couchdb.user:obsidian-mcp",name:"obsidian-mcp",type:"user",roles:[],password:$password}')"
 ```
 
-Grant it membership of only the vault database:
+Grant it database admin **without changing the rest of the security object**:
 
-> [!NOTE]
-> This replaces the database's `_security` object. Read it first (`GET /$COUCH_DB/_security`) and merge any existing members or roles instead of overwriting them.
+> [!IMPORTANT]
+> Do not overwrite `_security` with empty arrays. CouchDB 3 creates databases with the `_admin` role in both `admins` and `members`; clearing them opens regular documents to every user. Merge instead, as below.
 
 ```bash
+CURRENT="$(curl -fsS -u "$ADMIN_USERNAME:$ADMIN_PASSWORD" \
+  "http://localhost:5984/$COUCH_DB/_security")"
+NEW="$(jq '
+  .admins.names  = (((.admins.names  // []) + ["obsidian-mcp"]) | unique)
+  | .members.names = (((.members.names // []) + ["obsidian-mcp"]) | unique)
+' <<<"$CURRENT")"
+
 curl -fsS -u "$ADMIN_USERNAME:$ADMIN_PASSWORD" \
   -X PUT "http://localhost:5984/$COUCH_DB/_security" \
-  -H 'Content-Type: application/json' \
-  -d '{"admins":{"names":[],"roles":[]},"members":{"names":["obsidian-mcp"],"roles":[]}}'
+  -H 'Content-Type: application/json' -d "$NEW"
 ```
 
 Verify, then stop the port-forward:
