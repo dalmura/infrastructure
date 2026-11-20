@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: git.erwanleboucher.dev/eleboucher/charts
       chart: forgejo-runner
-      targetRevision: 13.2.1
+      targetRevision: 13.2.2
       helm:
         valueFiles:
         - $values/sites/indigo/clusters/dal-indigo-core-1/wave-5/values/forgejo-runner/values.yaml
