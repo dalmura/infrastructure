@@ -195,13 +195,27 @@ server:
                 description: "Node exporter on {{ $labels.instance }} has been unreachable for more than 5 minutes."
 
             - alert: HostHighCpuLoad
-              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+              # Counts idle + iowait as "free" so tasks blocked on a slow disk
+              # are not reported as CPU load. Disk saturation has its own alert.
+              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=~"idle|iowait"}[5m])) * 100) > 90
               for: 10m
               labels:
                 severity: warning
               annotations:
                 summary: "Host {{ $labels.instance }} high CPU load"
-                description: "CPU load on {{ $labels.instance }} is {{ $value | printf \"%.2f\" }}% (above 90%) for the last 10 minutes."
+                description: "CPU load excluding IO wait on {{ $labels.instance }} is {{ $value | printf \"%.2f\" }}% (above 90%) for the last 10 minutes."
+
+            - alert: HostDiskIoSaturation
+              # PSI io.full: fraction of time all runnable tasks were stalled on IO.
+              # Cluster baseline is <1%; sustained 25% only happens during Longhorn
+              # replica rebuilds or when a disk's write path has collapsed.
+              expr: rate(node_pressure_io_stalled_seconds_total[5m]) * 100 > 25
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Host {{ $labels.instance }} is stalled on disk IO"
+                description: "Tasks on {{ $labels.instance }} were fully stalled on disk IO {{ $value | printf \"%.2f\" }}% of the time over the last 10 minutes. Check per-device write latency and Longhorn replica rebuild activity."
 
             - alert: HostOutOfMemory
               expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
