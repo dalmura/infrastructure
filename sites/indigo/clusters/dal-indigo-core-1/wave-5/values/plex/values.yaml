@@ -30,6 +30,10 @@ serviceAccount:
 extraEnv:
   # Video GID for transcoding device access
   PLEX_GID: "44"
+  # Container timezone. Plex also derives its Butler (scheduled task) window
+  # from this, so the window itself is 06:00-08:00 local time. That range is
+  # deliberately clear of the 03:00-05:30 backup band (CNPG + Longhorn).
+  TZ: "Australia/Melbourne"
 
 nodeSelector:
   k8s.dalmura.cloud/nodegroup: eq14-worker-pool
