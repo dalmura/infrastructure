@@ -18,8 +18,14 @@ pms:
 
   resources:
     requests:
-      cpu: 50m
+      cpu: 250m
       memory: 450Mi
+    limits:
+      # Plex butler tasks (deep media analysis) peak at ~3.4 cores, which
+      # saturated this 4-core node and tripped HostHighCpuLoad. Cap it so the
+      # node stays under ~75% and co-tenants (authentik-db, matrix) have room.
+      # Memory is deliberately unlimited: 30d peak is ~2.3GiB with no pressure.
+      cpu: 2500m
 
 service:
   port: 32406
