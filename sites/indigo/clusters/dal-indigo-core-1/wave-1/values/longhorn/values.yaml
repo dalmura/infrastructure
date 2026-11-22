@@ -11,7 +11,9 @@ defaultSettings:
   # Obsidian's CouchDB is scaled down for the 17:00 UTC backup window, so
   # Longhorn must attach the detached volume itself to run the recurring job.
   allowRecurringJobWhileVolumeDetached: "true"
-  backupExecutionTimeout: "5"
+  # Minutes before a backup is marked failed. 5 minutes isn't appropriate
+  # for volumes over 100GB.
+  backupExecutionTimeout: "30"
   # Replica rebuilds saturate the SATA SSD on talos-e8ff1ed8884b (30MB/s
   # sustained, ~350ms write latency). Rebuild one at a time per node.
   concurrentReplicaRebuildPerNodeLimit: "1"
