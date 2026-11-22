@@ -8,6 +8,7 @@ resources:
   - sealedsecret-ha-mcp-dynamic.yaml
   - middleware-geoblock.yaml
   - middleware-anubis.yaml
+  - middleware-crowdsec-bouncer-no-appsec.yaml
   - middleware-ratelimit.yaml
   - middleware-security-headers.yaml
   - tls-option.yaml

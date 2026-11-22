@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: crowdsec-bouncer-no-appsec
+spec:
+  plugin:
+    bouncer:
+      enabled: true
+      updateIntervalSeconds: 60
+      crowdsecMode: stream
+      crowdsecLapiScheme: http
+      crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+      crowdsecLapiKeyFile: "/etc/crowdsec/key"
+      # Keep IP-reputation blocking, but skip AppSec body inspection for MCP
+      # JSON-RPC payloads. The CRS rules false-positive on tool-call bodies and
+      # return 403 before the request reaches Home Assistant.
+      crowdsecAppsecEnabled: false
+      crowdsecAppsecHost: crowdsec-appsec-service.crowdsec.svc.cluster.local:7422
+      crowdsecAppsecFailureBlock: true
+      crowdsecAppsecUnreachableBlock: true

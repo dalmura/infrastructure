@@ -106,8 +106,8 @@ OAuth-based MCP clients that rely on `/.well-known/oauth-authorization-server` d
 
 ### Security notes
 
-- The file-provider router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer`, and `traefik-public-security-headers`. `traefik-public-geoblock` is deliberately omitted so cloud-hosted MCP clients outside AU/NZ can connect.
-- CrowdSec AppSec inspects request bodies. If legitimate MCP tool calls are blocked with `403`, add a CrowdSec exclusion for this route. The file-provider config is the place to change the middleware list.
+- The file-provider router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec`, and `traefik-public-security-headers`. `traefik-public-geoblock` is deliberately omitted so cloud-hosted MCP clients outside AU/NZ can connect.
+- `crowdsec-bouncer-no-appsec` keeps CrowdSec IP-reputation blocking but disables AppSec body inspection. The CRS rules false-positive on MCP JSON-RPC tool-call bodies and return `403` before HA sees them. Other public routes keep the full `crowdsec-bouncer` with AppSec enabled.
 - The `traefik-public` Cilium egress policy already allows `home-assistant` on `ha:8123`, and the `home-assistant` policy already allows ingress from `traefik-public`, so no network-policy change was needed.
 - The SealedSecret is encrypted with the cluster's sealed-secrets key. Repo readers cannot read the UUID, but cluster readers with access to the `traefik-public` namespace can.
 - The `ha-mcp-dynamic` volume is mounted with `optional: true` so a missing or broken secret cannot take down the other public hosts.
