@@ -14,10 +14,21 @@ deployment:
       secret:
         secretName: crowdsec-bouncer
         optional: true
+    # Dynamic file-provider config for the HA MCP router. The UUID path is
+    # sealed in sealedsecret-ha-mcp-dynamic.yaml so it is not committed in
+    # plaintext. Optional so a broken/missing secret cannot take down the
+    # other public hosts.
+    - name: ha-mcp-dynamic
+      secret:
+        secretName: ha-mcp-dynamic
+        optional: true
 
 additionalVolumeMounts:
   - name: crowdsec-bouncer
     mountPath: /etc/crowdsec
+    readOnly: true
+  - name: ha-mcp-dynamic
+    mountPath: /etc/traefik/dynamic
     readOnly: true
 
 resources:
@@ -90,6 +101,9 @@ additionalArguments:
   - "--serversTransport.insecureSkipVerify=true"
   - "--api.insecure=true"
   - "--metrics.prometheus=true"
+  # Load routers/middlewares from the sealed HA MCP config (dynamic file).
+  - "--providers.file.directory=/etc/traefik/dynamic"
+  - "--providers.file.watch=true"
 
 experimental:
   plugins:

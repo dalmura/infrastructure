@@ -5,6 +5,7 @@ namespace: traefik-public
 
 resources:
   - ingress.yaml
+  - sealedsecret-ha-mcp-dynamic.yaml
   - middleware-geoblock.yaml
   - middleware-anubis.yaml
   - middleware-ratelimit.yaml
