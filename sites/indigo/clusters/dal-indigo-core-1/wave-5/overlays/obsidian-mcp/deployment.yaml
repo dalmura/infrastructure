@@ -37,7 +37,7 @@ spec:
           type: RuntimeDefault
       initContainers:
         # Create the volume layout and hand it to the runtime UID. Only the
-        # three top-level directories are chowned; a recursive chown of a large
+        # four top-level directories are chowned; a recursive chown of a large
         # vault on every start is not acceptable.
         - name: fix-ownership
           image: busybox:1.38
@@ -46,8 +46,8 @@ spec:
             - -c
             - |
               set -e
-              mkdir -p /mnt/data/vault /mnt/data/livesync /mnt/data/mcp
-              chown 10000:10000 /mnt/data/vault /mnt/data/livesync /mnt/data/mcp
+              mkdir -p /mnt/data/vault /mnt/data/livesync /mnt/data/mcp /mnt/data/mcp-rw
+              chown 10000:10000 /mnt/data/vault /mnt/data/livesync /mnt/data/mcp /mnt/data/mcp-rw
           securityContext:
             runAsNonRoot: false
             runAsUser: 0
@@ -312,6 +312,111 @@ spec:
             - name: data
               mountPath: /data
               subPath: mcp
+            - name: tmp
+              mountPath: /tmp
+        # Separate read/write instance for the public Grok/Tesla endpoint.
+        # Writes are scoped to Inbox/ only; destructive tool groups stay off.
+        - name: mcp-rw
+          image: ghcr.io/ykoellmann/obsidian-mcp:2.1.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+              name: http-rw
+              protocol: TCP
+          env:
+            - name: VAULT_PATH
+              value: /vault
+            - name: TRANSPORT
+              value: http
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "8001"
+            - name: READ_ONLY
+              value: "false"
+            - name: WRITE_PATHS
+              value: Inbox/
+            - name: REQUIRE_WRITE_PRECONDITIONS
+              value: "true"
+            - name: DENY_READ_PATHS
+              value: .obsidian/,.trash/,private/
+            - name: DENY_WRITE_PATHS
+              value: .obsidian/,.trash/,_AI_INSTRUCTIONS.md,private/
+            # Destructive tool groups stay unregistered for the public
+            # endpoint as well.
+            - name: ENABLE_DELETE
+              value: "false"
+            - name: ENABLE_MOVE
+              value: "false"
+            - name: ENABLE_FOLDER_RENAME
+              value: "false"
+            - name: ENABLE_BULK_REPLACE
+              value: "false"
+            - name: LOCK_PATH
+              value: /data/locks
+            - name: AUDIT_LOG_PATH
+              value: /data/audit.jsonl
+            - name: FASTMCP_HOME
+              value: /data/fastmcp
+            - name: HOME
+              value: /data
+            - name: XDG_CACHE_HOME
+              value: /data/cache
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: TZ
+              value: Australia/Melbourne
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian-mcp-car-auth
+                  key: MCP_CAR_API_KEY
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http-rw
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: http-rw
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /health
+              port: http-rw
+              scheme: HTTP
+            periodSeconds: 10
+            timeoutSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /vault
+              subPath: vault
+            - name: data
+              mountPath: /data
+              subPath: mcp-rw
             - name: tmp
               mountPath: /tmp
       volumes:

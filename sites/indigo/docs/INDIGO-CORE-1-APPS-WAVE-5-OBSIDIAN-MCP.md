@@ -29,7 +29,7 @@ Consequences to keep in mind:
 
 * **CouchDB stays the source of truth and stays encrypted.** The PVC is a derived, disposable mirror. If it is lost, the vault is re-fetched from CouchDB.
 * **LiveSync's E2EE protects CouchDB, not the PVC.** The volume holds plaintext Markdown and the LiveSync passphrase. It is deliberately on `cluster-nobackup` so a Longhorn backup does not copy the plaintext into S3.
-* **The MCP server is not reachable from an ingress.** Hermes is its only client; authentication is a static bearer token.
+* **The internal MCP server on 8000 is Hermes-only.** It is not reachable from an ingress. A second read/write instance on 8001 is exposed publicly for the Grok/Tesla harness; its writes are scoped to `Inbox/` (section 8).
 
 ## 2. Repository layout
 
@@ -41,10 +41,11 @@ sites/indigo/clusters/dal-indigo-core-1/wave-5/
     ├── service-account.yaml                 # obsidian-mcp-sa
     ├── secret-store-site.yaml               # Vault SecretStore
     ├── external-secret.yaml                 # obsidian-mcp-env
+    ├── sealedsecret-obsidian-mcp-car-auth.yaml # public Grok/Tesla API key
     ├── pvc.yaml                             # obsidian-mcp-data (cluster-nobackup)
-    ├── deployment.yaml                      # livesync + mcp containers
-    ├── service.yaml                         # ClusterIP :8000
-    └── network-policy.yaml                  # Hermes ingress, CouchDB + DNS egress
+    ├── deployment.yaml                      # livesync + mcp + mcp-rw containers
+    ├── service.yaml                         # ClusterIP :8000 and :8001
+    └── network-policy.yaml                  # Hermes + traefik-public ingress, CouchDB + DNS egress
 ```
 
 ## 3. Container images
@@ -494,3 +495,77 @@ Run that bundle with `-v /tmp/index.cjs:/app/dist/index.cjs:ro` against a scratc
 ```
 
 `node-locked` and `node-cleaned` come from the lock (7.1); `id-derivation-mismatch` means the ID derivation inputs differ from the ones the vault was created with (`handleFilenameCaseSensitive`, `usePathObfuscation`, `pathNormalizationVersion`). Copy those from a device that already syncs instead of choosing them; 4.3 lists which Vault key feeds each one.
+
+## 8. Public Grok/Tesla endpoint (read-write, Inbox/ only)
+
+The `mcp-rw` container is a second `obsidian-mcp` instance on port `8001`, exposed through the public `ha-hooks.indigo.dalmura.cloud` host under a sealed UUID path. It lets the Grok/Tesla harness read the vault and write notes, but writes are allowlisted to `Inbox/`.
+
+### 8.1 What is exposed
+
+- URL: `https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp`
+- Auth: `Authorization: Bearer <MCP_CAR_API_KEY>`
+- Transport: Streamable HTTP (`/mcp`)
+- Write scope: `Inbox/` only
+- Read scope: whole vault except `.obsidian/`, `.trash/`, `private/`
+- Destructive tool groups disabled (`ENABLE_DELETE`, `ENABLE_MOVE`, `ENABLE_FOLDER_RENAME`, `ENABLE_BULK_REPLACE` all `false`)
+- Write preconditions required (`REQUIRE_WRITE_PRECONDITIONS=true`)
+- Audit log: `/data/mcp-rw/audit.jsonl`, readable with `get_audit_log_tool`
+- The existing `mcp` container on `8000` is unchanged and remains Hermes-only.
+
+Ensure `Inbox/` exists in the vault before the first write. The server can create the configured scope and descendants, but not ancestors above it.
+
+### 8.2 Retrieve the URL and token
+
+The UUID lives in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret:
+
+```bash
+kubectl --kubeconfig sites/indigo/kubeconfigs/dal-indigo-core-1 \
+  -n traefik-public get secret ha-mcp-dynamic \
+  -o jsonpath='{.data.ha-mcp\.yml}' | base64 -d \
+  | grep -A4 'obsidian-mcp:'
+```
+
+Look for the `PathPrefix` on the `obsidian-mcp` router. The full URL is:
+
+```text
+https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp
+```
+
+The car token is sealed separately in the `obsidian-mcp` namespace:
+
+```bash
+kubectl --kubeconfig sites/indigo/kubeconfigs/dal-indigo-core-1 \
+  -n obsidian-mcp get secret obsidian-mcp-car-auth \
+  -o jsonpath='{.data.MCP_CAR_API_KEY}' | base64 -d
+```
+
+### 8.3 Client config
+
+```json
+{
+  "mcpServers": {
+    "obsidian": {
+      "type": "http",
+      "url": "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp",
+      "headers": {
+        "Authorization": "Bearer <MCP_CAR_API_KEY>"
+      }
+    }
+  }
+}
+```
+
+### 8.4 Network and Traefik
+
+- `wave-5/overlays/obsidian-mcp/network-policy.yaml` allows `traefik-public` to port `8001`.
+- `wave-2/overlays/traefik-public/network-policy-traefik.yaml` allows egress to `obsidian-mcp` and DNS for `obsidian-mcp.obsidian-mcp`.
+- The `obsidian-mcp` router in the sealed file-provider config uses the public rate-limit, CrowdSec-no-AppSec, and security-header middlewares, then strips the UUID before forwarding `/mcp` to `obsidian-mcp:8001`.
+
+### 8.5 Rotation
+
+The car token and the UUID are independent.
+
+- **Token:** generate a new key, seal it for `obsidian-mcp/obsidian-mcp-car-auth`, replace `sealedsecret-obsidian-mcp-car-auth.yaml`, and sync. The pod restarts because the env var changed.
+- **UUID:** re-seal the Traefik file-provider config with a new prefix for the `obsidian-mcp` router and middleware, then sync `traefik-public`. If the router does not reload within a minute, restart the `traefik-public` Deployment.
+
+Keep the token out of Git and out of client logs. The sealed secrets are the only secret material committed.

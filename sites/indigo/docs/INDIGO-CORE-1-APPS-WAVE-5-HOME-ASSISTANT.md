@@ -63,7 +63,7 @@ Home Assistant's built-in [Model Context Protocol](https://www.home-assistant.io
 https://ha-hooks.indigo.dalmura.cloud/<uuid>/api/mcp
 ```
 
-The UUID is **not stored in plaintext in this repo**. It lives in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (`wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml`). Traefik mounts that Secret at `/etc/traefik/dynamic`, watches it, and builds the `ha-mcp` router and `stripPrefix` middleware from it.
+The UUID is **not stored in plaintext in this repo**. It lives in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (`wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml`). Traefik mounts that Secret at `/etc/traefik/dynamic`, watches it, and builds the `ha-mcp` router and `stripPrefix` middleware from it. The same Secret also holds the public Obsidian MCP route; see [the Obsidian MCP runbook](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md#8-public-groktesla-endpoint-read-write-inbox-only).
 
 To read the current URL from the cluster:
 

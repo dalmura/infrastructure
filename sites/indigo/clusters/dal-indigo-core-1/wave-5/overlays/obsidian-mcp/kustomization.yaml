@@ -7,6 +7,7 @@ resources:
   - service-account.yaml
   - secret-store-site.yaml
   - external-secret.yaml
+  - sealedsecret-obsidian-mcp-car-auth.yaml
   - pvc.yaml
   - deployment.yaml
   - service.yaml

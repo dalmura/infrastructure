@@ -9,8 +9,7 @@ spec:
       app.kubernetes.io/name: obsidian-mcp
       app.kubernetes.io/instance: obsidian-mcp
   ingress:
-    # Hermes is the only client; the MCP server is deliberately not exposed
-    # through either Traefik instance.
+    # Hermes uses the read/write instance on 8000.
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: hermes
@@ -18,6 +17,15 @@ spec:
       toPorts:
         - ports:
             - port: "8000"
+              protocol: TCP
+    # Public Grok/Tesla read/write instance on 8001 (writes scoped to Inbox/).
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8001"
               protocol: TCP
 
   egress:

@@ -13,6 +13,10 @@ spec:
       port: 8000
       protocol: TCP
       targetPort: http
+    - name: http-rw
+      port: 8001
+      protocol: TCP
+      targetPort: http-rw
   selector:
     app.kubernetes.io/instance: obsidian-mcp
     app.kubernetes.io/name: obsidian-mcp

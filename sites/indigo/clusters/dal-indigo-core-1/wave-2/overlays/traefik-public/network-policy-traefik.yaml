@@ -72,6 +72,9 @@ spec:
               - matchPattern: "*.home-assistant.svc.cluster.local"
               - matchPattern: "ha"
               - matchPattern: "ha.home-assistant"
+              - matchPattern: "*.obsidian-mcp.svc.cluster.local"
+              - matchPattern: "obsidian-mcp"
+              - matchPattern: "obsidian-mcp.obsidian-mcp"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -91,6 +94,8 @@ spec:
             io.kubernetes.pod.namespace: matrix
         - matchLabels:
             io.kubernetes.pod.namespace: home-assistant
+        - matchLabels:
+            io.kubernetes.pod.namespace: obsidian-mcp
     - toFQDNs:
         - matchName: "plugins.traefik.io"
         - matchName: "get.geojs.io"
