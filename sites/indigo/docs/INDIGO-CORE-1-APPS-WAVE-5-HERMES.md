@@ -383,7 +383,9 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
 * `overlays/hermes/service-mcp.yaml` — ClusterIP `hermes-mcp:8765`, separate from the chart's dashboard Service so the legacy `9119` port definition is untouched.
 * `overlays/hermes/network-policy.yaml` — ingress from `traefik-public` to `8765`.
 * `wave-2/overlays/traefik-public/network-policy-traefik.yaml` — egress to the `hermes` namespace on `8765` plus DNS for `hermes-mcp.hermes.svc.cluster.local`.
-* `wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml` — the `hermes-mcp` router (`Host(...) && PathPrefix('/<uuid>/mcp')`), its `stripPrefix` middleware, and the `hermes-mcp` service. It reuses the existing `ha-hooks` certificate and DNS record; no new hostname.
+* `wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml` — the `hermes-mcp` router (`Host(...) && PathPrefix('/<uuid>/mcp')`), its `stripPrefix` and `hermes-mcp-no-www-authenticate` middlewares, and the `hermes-mcp` service. It reuses the existing `ha-hooks` certificate and DNS record; no new hostname.
+
+The `hermes-mcp-no-www-authenticate` headers middleware removes `WWW-Authenticate` from mcp-proxy's `401` so MCP clients do not start OAuth discovery against this host. Without it, a client that fails to send the bearer token sees `mcp-proxy`'s `Bearer realm="mcp-proxy"` challenge, probes `/.well-known/oauth-authorization-server` and dynamic client registration at the host root, gets `404`, and reports an OAuth error instead of a plain `401`. Traefik matches `customResponseHeaders` names case-insensitively and an empty value deletes the header; this was verified against `traefik:v3.7.19`.
 
 `--allowed-host` must be the bare hostname: Traefik forwards `Host` without the port, and mcp-proxy answers `421 Misdirected Request` to anything else. `/healthz` and `/status` also require the token, so the sidecar readiness probe is a TCP check.
 
@@ -411,6 +413,8 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-public \
   | jq -r '.data["ha-mcp.yml"]' | base64 -d
 ```
 
+**This is not an OAuth server.** mcp-proxy authenticates with the single shared bearer token above; there is no `/.well-known` metadata, dynamic client registration, or token endpoint. A client that never sends the header therefore cannot authenticate at all — the UUID router's 401 deliberately carries no `WWW-Authenticate`, so it reports a plain `401 Unauthorized` instead of attempting OAuth. Clients without a header field (for example Claude Desktop's remote-connector UI) must go through `mcp-remote` on the client side, or through [Archestra](INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md) if a real OAuth/OIDC front is wanted.
+
 ### 8.5 Verification
 
 ```bash
@@ -432,7 +436,7 @@ A `404` means the router did not load: check the Traefik file-provider config an
 
 * This route is **public** (`ingress-public` via the `ha-hooks` host). Anyone holding both the UUID and the token can read every conversation in `state.db` and **send messages as the connected Slack/Telegram/etc. accounts**. Treat the token like the Slack bot token: rotate it in Vault, and delete clients that no longer need it.
 * `--tools` is deliberately not passed: it would also expose Hermes' web/vision/image/TTS tools under the profile's provider credentials and spend credits. Add it to the sidecar args only if that is wanted; terminal, file, code and kanban tools are never exposed either way.
-* The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies.
+* The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies. It also runs `hermes-mcp-no-www-authenticate`, which strips the `WWW-Authenticate` challenge from 401s (see §8.3): unauthorised clients see `401 Unauthorized`, not a broken OAuth handshake.
 * Do **not** expose the sidecar as a second Deployment on the `/opt/data` PVC: `cluster-regular` is Longhorn `ReadWriteOnce`, and Hermes is a single-writer workload. Sharing the pod is what makes this work.
 * The `mcp-serve` tools are read/send/approval only; `permissions_*` is best-effort outside the gateway process, and sends go through the profile's own platform credentials rather than the gateway's live connections. Verify a send after a rollout.
 
