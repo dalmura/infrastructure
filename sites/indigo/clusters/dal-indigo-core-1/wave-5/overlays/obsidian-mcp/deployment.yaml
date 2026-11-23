@@ -69,7 +69,7 @@ spec:
         # It lives beside the PouchDB directory so the CLI's default settings
         # path applies and a recovery pod can reuse it without extra mounts.
         - name: livesync-settings
-          image: ghcr.io/vrtmrz/livesync-cli:1.0.51-cli
+          image: ghcr.io/vrtmrz/livesync-cli:1.0.52-cli
           command:
             - node
             - -e
@@ -171,7 +171,7 @@ spec:
         # Mirrors CouchDB <-> /vault using the plug-in's own sync core, which is
         # what performs the E2EE decryption.
         - name: livesync
-          image: ghcr.io/vrtmrz/livesync-cli:1.0.51-cli
+          image: ghcr.io/vrtmrz/livesync-cli:1.0.52-cli
           imagePullPolicy: IfNotPresent
           args:
             - --vault
