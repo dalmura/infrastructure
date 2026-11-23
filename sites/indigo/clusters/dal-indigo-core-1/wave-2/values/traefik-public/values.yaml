@@ -14,10 +14,11 @@ deployment:
       secret:
         secretName: crowdsec-bouncer
         optional: true
-    # Dynamic file-provider config for the HA MCP router. The UUID path is
-    # sealed in sealedsecret-ha-mcp-dynamic.yaml so it is not committed in
-    # plaintext. Optional so a broken/missing secret cannot take down the
-    # other public hosts.
+    # Dynamic file-provider config for the public MCP routers (Home Assistant,
+    # Obsidian and Hermes). The UUID paths are sealed in
+    # sealedsecret-ha-mcp-dynamic.yaml so they are not committed in plaintext.
+    # Optional so a broken/missing secret cannot take down the other public
+    # hosts.
     - name: ha-mcp-dynamic
       secret:
         secretName: ha-mcp-dynamic

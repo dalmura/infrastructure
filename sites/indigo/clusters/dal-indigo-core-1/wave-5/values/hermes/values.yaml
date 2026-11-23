@@ -164,6 +164,13 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: HASS_TOKEN
+    # Shared bearer token the mcp-http sidecar requires on every request
+    # (mcp-proxy reads MCP_PROXY_AUTH_TOKEN). Clients send it as
+    # `Authorization: Bearer <token>`. See INDIGO-CORE-1-APPS-WAVE-5-HERMES.md.
+    - secretKey: MCP_PROXY_AUTH_TOKEN
+      remoteRef:
+        key: wave-5/hermes/config
+        property: MCP_PROXY_AUTH_TOKEN
 
 persistence:
   enabled: true
@@ -233,6 +240,75 @@ extraVolumeMounts:
     mountPath: /tmp
   - name: shm
     mountPath: /dev/shm
+
+# `hermes mcp-serve` (plugin `mcp-serve`) is stdio-only, so this sidecar wraps
+# the same `hermes` binary in mcp-proxy and publishes Streamable HTTP on 8765.
+# It shares the pod's HERMES_HOME volume and `hermes-env`, so it reads the same
+# state.db (read-only connection, safe beside the gateway) and can send as the
+# profile's platform accounts. The public route lives in the traefik-public
+# file-provider config (see INDIGO-CORE-1-APPS-WAVE-5-HERMES.md).
+extraContainers:
+  - name: mcp-http
+    image: nousresearch/hermes-agent:v0.23.3
+    imagePullPolicy: IfNotPresent
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        # uv ships in the image's managed tool store, which is not on PATH and
+        # whose directory name carries the pinned uv version.
+        uv_dir="$(ls -d /opt/hermes/tools/uv-*/ | sort -V | tail -1)"
+        export HOME=/opt/data
+        export UV_TOOL_DIR=/opt/data/.uv-tools
+        export UV_CACHE_DIR=/opt/data/.uv-cache
+        exec "${uv_dir}uvx" --from 'mcp-proxy==0.15.0' mcp-proxy \
+          --host 0.0.0.0 \
+          --port 8765 \
+          --allowed-host ha-hooks.indigo.dalmura.cloud \
+          --pass-environment \
+          -- hermes mcp-serve
+    envFrom:
+      - secretRef:
+          name: hermes-env
+    env:
+      - name: TZ
+        value: Australia/Melbourne
+      # Explicit (rather than relying on envFrom) so a missing Vault key fails
+      # this container loudly instead of serving the bridge unauthenticated.
+      - name: MCP_PROXY_AUTH_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hermes-env
+            key: MCP_PROXY_AUTH_TOKEN
+    ports:
+      - name: mcp
+        containerPort: 8765
+        protocol: TCP
+    # /healthz also requires the bearer token, so probe the socket instead.
+    readinessProbe:
+      tcpSocket:
+        port: mcp
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      failureThreshold: 3
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+    volumeMounts:
+      - name: data
+        mountPath: /opt/data
+      - name: tmp-tmpfs
+        mountPath: /tmp
 
 # The image normally chowns HERMES_HOME to the gateway user as root before
 # dropping privileges. The non-root podSecurityContext above skips that, and

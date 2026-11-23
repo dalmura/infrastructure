@@ -18,6 +18,17 @@ spec:
         - ports:
             - port: "9119"
               protocol: TCP
+    # Allow traffic from Traefik Public to the mcp-http sidecar (port 8765).
+    # The only route there is the sealed-UUID router in the traefik-public
+    # file-provider config; mcp-proxy still requires its bearer token.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: traefik-public
+            app.kubernetes.io/name: traefik
+      toPorts:
+        - ports:
+            - port: "8765"
+              protocol: TCP
   egress:
     # Allow DNS lookups
     - toEndpoints:

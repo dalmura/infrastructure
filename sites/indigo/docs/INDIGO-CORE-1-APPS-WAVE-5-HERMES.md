@@ -274,7 +274,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes 
 * `HASS_URL` (`http://ha.home-assistant.svc.cluster.local:8080`) and `HASS_TOKEN` live only in the `house-manager` profile's `/opt/data/profiles/house-manager/.env`. The `ha` Service listens on **8080** and forwards to the pod's named port `http` (8123), like the existing `traefik-private` policy.
 * `HASS_TOKEN` is read from `site/wave-5/hermes/config` and follows the same rotation flow as the other secrets; the init container re-seeds the profile `.env` on every rollout. With it set in that profile's scope, the `homeassistant` toolset activates automatically; no `platforms.homeassistant` entry is needed in `config.yaml`.
 * Traffic is allowed in both directions: `overlays/hermes/network-policy.yaml` (egress to the `home-assistant` pods on 8123) and `overlays/home-assistant/network-policy.yaml` (ingress from the `hermes` namespace to 8123).
-* Setting only `HASS_TOKEN` does **not** subscribe to state-change events, so Home Assistant noise never reaches Slack. To enable reactive automations, add `platforms.homeassistant.extra.watch_domains` (or `watch_entities`) in `values/hermes/values.yaml` with `bootstrap.overwrite: true` for one sync, as described in [Operations & Maintenance Notes](#8-operations--maintenance-notes).
+* Setting only `HASS_TOKEN` does **not** subscribe to state-change events, so Home Assistant noise never reaches Slack. To enable reactive automations, add `platforms.homeassistant.extra.watch_domains` (or `watch_entities`) in `values/hermes/values.yaml` with `bootstrap.overwrite: true` for one sync, as described in [Operations & Maintenance Notes](#9-operations--maintenance-notes).
 * The plugin blocks the `shell_command`, `command_line`, `python_script`, `pyscript`, `hassio`, and `rest_command` service domains, and validates entity IDs before calling the REST API.
 
 ### Step 7.3: Multiplexed profiles and profile secret scope
@@ -330,7 +330,119 @@ Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights
 
 ---
 
-## 8. Operations & Maintenance Notes
+## 8. MCP Server over HTTP (plugin `mcp-serve`)
+
+The [`mcp-serve`](https://hermes-agent.nousresearch.com/marketplace/mcp-serve) plugin runs Hermes as an MCP server: any MCP client can list/read conversations, poll events, send messages and answer approvals. It is **stdio only** (`hermes mcp-serve`), so a `mcp-http` sidecar wraps the same `hermes` binary in [mcp-proxy](https://github.com/sparfenyuk/mcp-proxy) and publishes Streamable HTTP:
+
+```
+https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp
+```
+
+The UUID lives only in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (the same one that carries the Home Assistant and Obsidian MCP routes), so repo readers cannot see it. It is an obscurity layer only: mcp-proxy also requires a bearer token on every request.
+
+> [!IMPORTANT]
+> Do the two prerequisites **before** syncing this change: install/enable the plugin (§8.1) and add `MCP_PROXY_AUTH_TOKEN` to Vault (§8.2). mcp-proxy exits when its `hermes mcp-serve` child exits, and the sidecar's secret reference is not optional. Either omission leaves `mcp-http` crash-looping or in `CreateContainerConfigError`, which keeps the whole Pod (dashboard included) `NotReady`.
+
+### 8.1 Install and enable the plugin
+
+The plugin persists on the `/opt/data` volume, so install it once into the running gateway pod's default profile (`HERMES_HOME=/opt/data`):
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  sh -c 'hermes plugins install mcp-serve && hermes plugins enable mcp-serve'
+```
+
+Installing without `enable` leaves the command unavailable: the plugin ships disabled.
+
+### 8.2 Store the bearer token in Vault
+
+Generate a token and add it without dropping the other keys (every key under `externalSecret.data` must exist in Vault or ESO reports `SecretSyncedError`):
+
+```bash
+umask 077
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
+vault kv get -format=json site/wave-5/hermes/config | jq '.data.data' >"$tmp"
+jq --arg token "$(openssl rand -hex 32)" '. + {MCP_PROXY_AUTH_TOKEN: $token}' "$tmp" >"$tmp.new"
+mv "$tmp.new" "$tmp"
+
+vault kv put site/wave-5/hermes/config @"$tmp"
+```
+
+Then force the ExternalSecret refresh; Reloader restarts the Deployment (including the sidecar):
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
+  annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite
+```
+
+### 8.3 How it is wired
+
+* `values/hermes/values.yaml` — `extraContainers[mcp-http]`: same image as the gateway, runs `uvx --from mcp-proxy==0.15.0 mcp-proxy --port 8765 --allowed-host ha-hooks.indigo.dalmura.cloud -- hermes mcp-serve`. It shares the pod's `/opt/data` and `hermes-env`, so it reads the same `state.db` (mcp-serve opens it `mode=ro`) and sends as the same profile. `uv` is not on `PATH` in the image; the script resolves it from `/opt/hermes/tools/uv-*/`. The plugin cache and tool environment live under `/opt/data/.uv-*` so they survive restarts.
+* `overlays/hermes/service-mcp.yaml` — ClusterIP `hermes-mcp:8765`, separate from the chart's dashboard Service so the legacy `9119` port definition is untouched.
+* `overlays/hermes/network-policy.yaml` — ingress from `traefik-public` to `8765`.
+* `wave-2/overlays/traefik-public/network-policy-traefik.yaml` — egress to the `hermes` namespace on `8765` plus DNS for `hermes-mcp.hermes.svc.cluster.local`.
+* `wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml` — the `hermes-mcp` router (`Host(...) && PathPrefix('/<uuid>/mcp')`), its `stripPrefix` middleware, and the `hermes-mcp` service. It reuses the existing `ha-hooks` certificate and DNS record; no new hostname.
+
+`--allowed-host` must be the bare hostname: Traefik forwards `Host` without the port, and mcp-proxy answers `421 Misdirected Request` to anything else. `/healthz` and `/status` also require the token, so the sidecar readiness probe is a TCP check.
+
+### 8.4 Client configuration
+
+```json
+{
+  "mcpServers": {
+    "hermes": {
+      "type": "http",
+      "url": "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp",
+      "headers": {
+        "Authorization": "Bearer <MCP_PROXY_AUTH_TOKEN>"
+      }
+    }
+  }
+}
+```
+
+For Claude Desktop, bridge it locally with `npx -y mcp-remote <url> --header "Authorization: Bearer <token>"`. Read the current UUID from the cluster:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-public \
+  get secret ha-mcp-dynamic -o json \
+  | jq -r '.data["ha-mcp.yml"]' | base64 -d
+```
+
+### 8.5 Verification
+
+```bash
+# Sidecar running and listening
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes get pod \
+  -o jsonpath='{range .items[0].spec.containers[*]}{.name}{"\n"}{end}'
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes logs deploy/hermes -c mcp-http --tail 50
+
+# 401 without the token, 200 with it (from a host on the LAN / VPN)
+curl -i "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+```
+
+A `404` means the router did not load: check the Traefik file-provider config and logs, and restart the `traefik-public` Deployment if the secret was just updated. A `421` means the `Host` allowlist in the sidecar args does not match the URL.
+
+### 8.6 Security notes
+
+* This route is **public** (`ingress-public` via the `ha-hooks` host). Anyone holding both the UUID and the token can read every conversation in `state.db` and **send messages as the connected Slack/Telegram/etc. accounts**. Treat the token like the Slack bot token: rotate it in Vault, and delete clients that no longer need it.
+* `--tools` is deliberately not passed: it would also expose Hermes' web/vision/image/TTS tools under the profile's provider credentials and spend credits. Add it to the sidecar args only if that is wanted; terminal, file, code and kanban tools are never exposed either way.
+* The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies.
+* Do **not** expose the sidecar as a second Deployment on the `/opt/data` PVC: `cluster-regular` is Longhorn `ReadWriteOnce`, and Hermes is a single-writer workload. Sharing the pod is what makes this work.
+* The `mcp-serve` tools are read/send/approval only; `permissions_*` is best-effort outside the gateway process, and sends go through the profile's own platform credentials rather than the gateway's live connections. Verify a send after a rollout.
+
+### 8.7 Rotation
+
+* **Token:** update `MCP_PROXY_AUTH_TOKEN` in Vault, force-sync `hermes-env`, and update clients.
+* **UUID:** generate a new UUID, rebuild the `hermes-mcp` router/middleware in the dynamic config, re-seal it (bind it to `traefik-public/ha-mcp-dynamic`), sync `traefik-public`, and update clients. Do not commit the plaintext YAML.
+* **Plugin upgrade:** `hermes plugins install mcp-serve --force` (then `enable` if it was disabled) in the pod; the version persists on the PVC.
+
+## 9. Operations & Maintenance Notes
 * **Persistent Config (`bootstrap.overwrite`)**: The chart seeds `/opt/data/config.yaml` only on first boot (`bootstrap.overwrite: false`) so runtime changes made through the dashboard or CLI persist across restarts. If you later change `dashboard.publicUrl`, `dashboard.trustedProxies`, or `config.*` in `values/hermes/values.yaml`, temporarily set `bootstrap.overwrite: true` for one sync (or update `/opt/data/config.yaml` on the PVC), then revert `bootstrap.overwrite` to `false`.
 * **Storage & Backups**: `/opt/data` (`HERMES_HOME`) uses a `10Gi` `cluster-regular` Longhorn block volume, which is covered by the `daily-default-backup` recurring S3 job and protected with `Delete=false` / `helm.sh/resource-policy: keep`.
 * **Volume Ownership**: The chart's normal entrypoint chowns `/opt/data` to uid/gid `10000` as root before dropping privileges, but the non-root `podSecurityContext` here prevents that and `fsGroup` only changes the group. A fresh Longhorn volume therefore leaves the directory owned by `root:10000`, and Hermes rejects it with `gateway inaccessible: unsafe_control_path (/opt/data is owned by uid 0, expected uid 10000 ...)`. The `fix-data-ownership` init container runs as root and chowns the volume root before the agent starts. This is expected and safe; do not remove it while `podSecurityContext.runAsUser` is non-root.
