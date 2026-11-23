@@ -266,6 +266,8 @@ extraContainers:
           --host 0.0.0.0 \
           --port 8765 \
           --allowed-host ha-hooks.indigo.dalmura.cloud \
+          --allowed-host ha-hooks.indigo.dalmura.cloud:443 \
+          --allow-origin '*' \
           --pass-environment \
           -- hermes mcp-serve
     envFrom:
