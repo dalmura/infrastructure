@@ -8,6 +8,10 @@ spec:
   task: backup
   groups: []
   retain: 1
-  concurrency: 5
+  # Keep the recurring job's volume concurrency at or below the effective
+  # backup-concurrent-limit (2). With 5, extra volume jobs queue for a backup
+  # slot and can exceed Longhorn's 90s backup-start timeout, which restarts the
+  # Job and re-runs backups for every volume.
+  concurrency: 2
   labels:
     jobname: daily-default-backup
