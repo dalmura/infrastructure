@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: evolution-api
-          image: evoapicloud/evolution-api:v2.3.7
+          image: evoapicloud/evolution-api:v2.3.8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
