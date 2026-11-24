@@ -164,13 +164,13 @@ externalSecret:
       remoteRef:
         key: wave-5/hermes/config
         property: HASS_TOKEN
-    # Shared bearer token the mcp-http sidecar requires on every request
-    # (mcp-proxy reads MCP_PROXY_AUTH_TOKEN). Clients send it as
-    # `Authorization: Bearer <token>`. See INDIGO-CORE-1-APPS-WAVE-5-HERMES.md.
-    - secretKey: MCP_PROXY_AUTH_TOKEN
+    # Bearer token for the hermes-tasks MCP shim's mcp-proxy listener (port 8770).
+    # Clients send it as `Authorization: Bearer <token>`. See
+    # INDIGO-CORE-1-APPS-WAVE-5-HERMES.md.
+    - secretKey: HERMES_TASKS_TOKEN
       remoteRef:
         key: wave-5/hermes/config
-        property: MCP_PROXY_AUTH_TOKEN
+        property: HERMES_TASKS_TOKEN
 
 persistence:
   enabled: true
@@ -232,6 +232,10 @@ extraVolumes:
     emptyDir:
       medium: Memory
       sizeLimit: 1Gi
+  # MCP shim that turns the API server into MCP tools (see extraContainers[mcp-tasks]).
+  - name: hermes-tasks
+    configMap:
+      name: hermes-tasks
 
 extraVolumeMounts:
   - name: run-tmpfs
@@ -241,14 +245,13 @@ extraVolumeMounts:
   - name: shm
     mountPath: /dev/shm
 
-# `hermes mcp-serve` (plugin `mcp-serve`) is stdio-only, so this sidecar wraps
-# the same `hermes` binary in mcp-proxy and publishes Streamable HTTP on 8765.
-# It shares the pod's HERMES_HOME volume and `hermes-env`, so it reads the same
-# state.db (read-only connection, safe beside the gateway) and can send as the
-# profile's platform accounts. The public route lives in the traefik-public
-# file-provider config (see INDIGO-CORE-1-APPS-WAVE-5-HERMES.md).
+# MCP tools for Hermes' kanban board: create_task, list_tasks, get_task and
+# board_status. The shim is a stdio MCP server (overlays/hermes/configmap-hermes-tasks.yaml)
+# that opens the profile's board at /opt/data/kanban.db directly, the same SQLite
+# store the gateway's kanban tools and dispatcher use; mcp-proxy provides the HTTP
+# transport, bearer token and CORS.
 extraContainers:
-  - name: mcp-http
+  - name: mcp-tasks
     image: nousresearch/hermes-agent:v0.23.3
     imagePullPolicy: IfNotPresent
     command:
@@ -256,41 +259,36 @@ extraContainers:
       - -c
       - |
         set -eu
-        # uv ships in the image's managed tool store, which is not on PATH and
-        # whose directory name carries the pinned uv version.
         uv_dir="$(ls -d /opt/hermes/tools/uv-*/ | sort -V | tail -1)"
         export HOME=/opt/data
         export UV_TOOL_DIR=/opt/data/.uv-tools
         export UV_CACHE_DIR=/opt/data/.uv-cache
         exec "${uv_dir}uvx" --from 'mcp-proxy==0.15.0' mcp-proxy \
           --host 0.0.0.0 \
-          --port 8765 \
+          --port 8770 \
           --allowed-host ha-hooks.indigo.dalmura.cloud \
           --allowed-host ha-hooks.indigo.dalmura.cloud:443 \
           --allow-origin '*' \
           --pass-environment \
-          -- hermes mcp-serve
-    envFrom:
-      - secretRef:
-          name: hermes-env
+          -- /opt/hermes/.venv/bin/python /opt/mcp-tasks/server.py
     env:
       - name: TZ
         value: Australia/Melbourne
-      # Explicit (rather than relying on envFrom) so a missing Vault key fails
-      # this container loudly instead of serving the bridge unauthenticated.
+      # mcp-proxy's own inbound token for this listener. Clients send it as
+      # `Authorization: Bearer <HERMES_TASKS_TOKEN>`. The container deliberately
+      # gets no other secrets: the kanban tools only need the board file.
       - name: MCP_PROXY_AUTH_TOKEN
         valueFrom:
           secretKeyRef:
             name: hermes-env
-            key: MCP_PROXY_AUTH_TOKEN
+            key: HERMES_TASKS_TOKEN
     ports:
-      - name: mcp
-        containerPort: 8765
+      - name: tasks
+        containerPort: 8770
         protocol: TCP
-    # /healthz also requires the bearer token, so probe the socket instead.
     readinessProbe:
       tcpSocket:
-        port: mcp
+        port: tasks
       initialDelaySeconds: 20
       periodSeconds: 10
       failureThreshold: 3
@@ -302,13 +300,14 @@ extraContainers:
           - ALL
     resources:
       requests:
-        cpu: 100m
-        memory: 512Mi
+        cpu: 50m
+        memory: 256Mi
       limits:
-        memory: 2Gi
+        memory: 1Gi
     volumeMounts:
-      - name: data
-        mountPath: /opt/data
+      - name: hermes-tasks
+        mountPath: /opt/mcp-tasks
+        readOnly: true
       - name: tmp-tmpfs
         mountPath: /tmp
 

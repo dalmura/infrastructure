@@ -1,19 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hermes-mcp
+  name: hermes-tasks
   labels:
     app.kubernetes.io/name: hermes-agent
     app.kubernetes.io/instance: hermes
 spec:
   ipFamilyPolicy: SingleStack
   ports:
-    # mcp-http sidecar: mcp-proxy (Streamable HTTP at /mcp) in front of
-    # `hermes mcp-serve`. Reached only through the traefik-public UUID router.
-    - name: mcp
-      port: 8765
+    # mcp-tasks sidecar: the kanban MCP shim (create_task / list_tasks /
+    # get_task / board_status) behind mcp-proxy. Reached only through the
+    # traefik-public sealed-UUID router.
+    - name: tasks
+      port: 8770
       protocol: TCP
-      targetPort: mcp
+      targetPort: tasks
   selector:
     app.kubernetes.io/name: hermes-agent
     app.kubernetes.io/instance: hermes

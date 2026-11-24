@@ -76,8 +76,8 @@ spec:
               - matchPattern: "obsidian-mcp"
               - matchPattern: "obsidian-mcp.obsidian-mcp"
               - matchPattern: "*.hermes.svc.cluster.local"
-              - matchPattern: "hermes-mcp"
-              - matchPattern: "hermes-mcp.hermes"
+              - matchPattern: "hermes-tasks"
+              - matchPattern: "hermes-tasks.hermes"
               - matchPattern: "plugins.traefik.io"
               - matchPattern: "get.geojs.io"
     - toEndpoints:
@@ -99,13 +99,13 @@ spec:
             io.kubernetes.pod.namespace: home-assistant
         - matchLabels:
             io.kubernetes.pod.namespace: obsidian-mcp
-    # Hermes' mcp-http sidecar, reached only through the sealed-UUID router.
+    # Hermes' mcp-tasks sidecar, reached only through the sealed-UUID router.
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: hermes
       toPorts:
         - ports:
-            - port: "8765"
+            - port: "8770"
               protocol: TCP
     - toFQDNs:
         - matchName: "plugins.traefik.io"

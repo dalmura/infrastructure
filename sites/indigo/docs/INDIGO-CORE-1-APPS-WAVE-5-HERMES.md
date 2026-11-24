@@ -330,121 +330,115 @@ Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights
 
 ---
 
-## 8. MCP Server over HTTP (plugin `mcp-serve`)
+## 8. MCP Kanban Tools
 
-The [`mcp-serve`](https://hermes-agent.nousresearch.com/marketplace/mcp-serve) plugin runs Hermes as an MCP server: any MCP client can list/read conversations, poll events, send messages and answer approvals. It is **stdio only** (`hermes mcp-serve`), so a `mcp-http` sidecar wraps the same `hermes` binary in [mcp-proxy](https://github.com/sparfenyuk/mcp-proxy) and publishes Streamable HTTP:
+Hermes' kanban board is exposed to MCP clients as four tools — create, list, inspect and summarise tasks. The endpoint is:
 
 ```
 https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp
 ```
 
+The shim calls `hermes_cli.kanban_db` directly against the default profile's board at `/opt/data/kanban.db`, the same SQLite store the gateway's own kanban tools and dispatcher use. There is no HTTP API layer and no second credential: the only auth is mcp-proxy's bearer token. The gateway has `kanban.dispatch_in_gateway: true`, so a created task is claimed and run by a worker agent within about a minute.
+
 The UUID lives only in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (the same one that carries the Home Assistant and Obsidian MCP routes), so repo readers cannot see it. It is an obscurity layer only: mcp-proxy also requires a bearer token on every request.
 
-> [!IMPORTANT]
-> Do the two prerequisites **before** syncing this change: install/enable the plugin (§8.1) and add `MCP_PROXY_AUTH_TOKEN` to Vault (§8.2). mcp-proxy exits when its `hermes mcp-serve` child exits, and the sidecar's secret reference is not optional. Either omission leaves `mcp-http` crash-looping or in `CreateContainerConfigError`, which keeps the whole Pod (dashboard included) `NotReady`.
+> [!NOTE]
+> Two earlier surfaces were removed before this one was deployed: the conversation bridge (`hermes mcp-serve` via an `mcp-http` sidecar on port 8765) and a short-lived set of API-server-backed chat tools (`hermes_chat`, `hermes_task`, `hermes_status`, `hermes_chats`). Only the kanban tools remain. If chat/run tools are ever wanted, they need `apiServer.enabled: true` plus `API_SERVER_KEY` in `externalSecret.data`.
 
-### 8.1 Install and enable the plugin
+### 8.1 Prerequisite: bearer token
 
-The plugin persists on the `/opt/data` volume, so install it once into the running gateway pod's default profile (`HERMES_HOME=/opt/data`):
-
-```bash
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
-  sh -c 'hermes plugins install mcp-serve && hermes plugins enable mcp-serve'
-```
-
-Installing without `enable` leaves the command unavailable: the plugin ships disabled.
-
-### 8.2 Store the bearer token in Vault
-
-Generate a token and add it without dropping the other keys (every key under `externalSecret.data` must exist in Vault or ESO reports `SecretSyncedError`):
+`HERMES_TASKS_TOKEN` is mcp-proxy's inbound bearer for this listener (clients send `Authorization: Bearer <token>`). Add it to Vault before syncing — every key under `externalSecret.data` must exist or ESO reports `SecretSyncedError`:
 
 ```bash
-umask 077
-tmp="$(mktemp)"
-trap 'rm -f "$tmp"' EXIT
+vault kv patch site/wave-5/hermes/config \
+  HERMES_TASKS_TOKEN="$(openssl rand -hex 32)"
 
-vault kv get -format=json site/wave-5/hermes/config | jq '.data.data' >"$tmp"
-jq --arg token "$(openssl rand -hex 32)" '. + {MCP_PROXY_AUTH_TOKEN: $token}' "$tmp" >"$tmp.new"
-mv "$tmp.new" "$tmp"
-
-vault kv put site/wave-5/hermes/config @"$tmp"
-```
-
-Then force the ExternalSecret refresh; Reloader restarts the Deployment (including the sidecar):
-
-```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
   annotate externalsecret hermes-env force-sync="$(date +%s)" --overwrite
 ```
 
-### 8.3 How it is wired
+### 8.2 How it is wired
 
-* `values/hermes/values.yaml` — `extraContainers[mcp-http]`: same image as the gateway, runs `uvx --from mcp-proxy==0.15.0 mcp-proxy --port 8765 --allowed-host ha-hooks.indigo.dalmura.cloud -- hermes mcp-serve`. It shares the pod's `/opt/data` and `hermes-env`, so it reads the same `state.db` (mcp-serve opens it `mode=ro`) and sends as the same profile. `uv` is not on `PATH` in the image; the script resolves it from `/opt/hermes/tools/uv-*/`. The plugin cache and tool environment live under `/opt/data/.uv-*` so they survive restarts.
-* `overlays/hermes/service-mcp.yaml` — ClusterIP `hermes-mcp:8765`, separate from the chart's dashboard Service so the legacy `9119` port definition is untouched.
-* `overlays/hermes/network-policy.yaml` — ingress from `traefik-public` to `8765`.
-* `wave-2/overlays/traefik-public/network-policy-traefik.yaml` — egress to the `hermes` namespace on `8765` plus DNS for `hermes-mcp.hermes.svc.cluster.local`.
-* `wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml` — the `hermes-mcp` router (`Host(...) && PathPrefix('/<uuid>/mcp')`), its `stripPrefix` and `hermes-mcp-no-www-authenticate` middlewares, and the `hermes-mcp` service. It reuses the existing `ha-hooks` certificate and DNS record; no new hostname.
+* `values/hermes/values.yaml` — `extraContainers[mcp-tasks]`: the same image as the gateway, running mcp-proxy on 8770 around the stdio shim (`/opt/mcp-tasks/server.py`). The container gets `MCP_PROXY_AUTH_TOKEN` from `HERMES_TASKS_TOKEN` and **no other secrets**: the kanban tools only need the board file.
+* `overlays/hermes/configmap-hermes-tasks.yaml` — the shim (stdlib Python plus the image's MCP SDK); it opens a short-lived `kanban_db` connection per call.
+* `overlays/hermes/service-tasks.yaml` — ClusterIP `hermes-tasks:8770`.
+* `overlays/hermes/network-policy.yaml` — ingress from `traefik-public` to `8770`; `wave-2/overlays/traefik-public/network-policy-traefik.yaml` — egress to `hermes:8770` plus DNS for `hermes-tasks.hermes.svc.cluster.local`.
+* `wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml` — the `hermes-tasks` router (`/<uuid>/mcp`), its `stripPrefix`, and the shared `mcp-no-www-authenticate` headers middleware; service → `http://hermes-tasks.hermes.svc.cluster.local:8770`.
 
-The `hermes-mcp-no-www-authenticate` headers middleware removes `WWW-Authenticate` from mcp-proxy's `401` so MCP clients do not start OAuth discovery against this host. Without it, a client that fails to send the bearer token sees `mcp-proxy`'s `Bearer realm="mcp-proxy"` challenge, probes `/.well-known/oauth-authorization-server` and dynamic client registration at the host root, gets `404`, and reports an OAuth error instead of a plain `401`. Traefik matches `customResponseHeaders` names case-insensitively and an empty value deletes the header; this was verified against `traefik:v3.7.19`.
+Three details are load-bearing:
 
-`--allowed-host` must be the bare hostname: Traefik forwards `Host` without the port, and mcp-proxy answers `421 Misdirected Request` to anything else. `/healthz` and `/status` also require the token, so the sidecar readiness probe is a TCP check.
+* `--allowed-host` must include the bare hostname (Traefik forwards `Host` without the port) **and** the `:443` form, because some clients send the port explicitly. Anything else gets `421 Misdirected Request`.
+* mcp-proxy's default CORS policy answers `403 Invalid Origin header` to any request carrying an `Origin`, which is what grok.com's connector check does. `--allow-origin '*'` is safe here because auth is a bearer header, not a cookie.
+* `mcp-no-www-authenticate` deletes `WWW-Authenticate` from mcp-proxy's `401`, so clients do not start OAuth discovery against a host with no OAuth metadata (they would fail at dynamic client registration with a 404). Unauthorised callers see a plain `401 Unauthorized`.
+
+### 8.3 Tools
+
+| Tool | Behaviour |
+|---|---|
+| `create_task(title, body?, assignee?, priority=0, skills?, parents?, triage=False, key?)` | Creates a card and returns its id plus the status it landed in. `parents` are task ids the card depends on (it stays `todo` until they are `done`); `triage=True` parks it in `triage` for the orchestrator to plan/decompose instead of dispatching it; `key` makes the call idempotent. |
+| `list_tasks(status?, assignee?, limit=20)` | Lists cards, highest priority first. Statuses: `todo`, `ready`, `scheduled`, `running`, `review`, `blocked`, `done`, `triage`, `archived`. |
+| `get_task(task_id)` | Card detail: body, status, assignee, result, failure counters, current run id, child task ids. |
+| `board_status()` | `board_stats`: counts by status and by assignee, plus the age of the oldest ready card. |
+
+Typical flow from an MCP client: `create_task("Summarise last week's Slack threads", assignee="event-manager", body="…")` → the dispatcher runs it → `get_task` (or the board UI) shows `running`, then `done` with a `result`. The tools read and write the board directly, so they work whether or not the API server or a chat session exists.
 
 ### 8.4 Client configuration
 
 ```json
 {
   "mcpServers": {
-    "hermes": {
+    "hermes-kanban": {
       "type": "http",
       "url": "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp",
       "headers": {
-        "Authorization": "Bearer <MCP_PROXY_AUTH_TOKEN>"
+        "Authorization": "Bearer <HERMES_TASKS_TOKEN>"
       }
     }
   }
 }
 ```
 
-For Claude Desktop, bridge it locally with `npx -y mcp-remote <url> --header "Authorization: Bearer <token>"`. Read the current UUID from the cluster:
+This is not an OAuth server: clients must send the static bearer, and clients with no header field need `npx -y mcp-remote <url> --header "Authorization: Bearer <token>"`. Read the current UUID from the cluster:
 
 ```bash
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n traefik-public \
-  get secret ha-mcp-dynamic -o json \
-  | jq -r '.data["ha-mcp.yml"]' | base64 -d
+  get secret ha-mcp-dynamic -o json | jq -r '.data["ha-mcp.yml"]' | base64 -d \
+  | yq -r '.http.routers["hermes-tasks"].rule'
 ```
-
-**This is not an OAuth server.** mcp-proxy authenticates with the single shared bearer token above; there is no `/.well-known` metadata, dynamic client registration, or token endpoint. A client that never sends the header therefore cannot authenticate at all — the UUID router's 401 deliberately carries no `WWW-Authenticate`, so it reports a plain `401 Unauthorized` instead of attempting OAuth. Clients without a header field (for example Claude Desktop's remote-connector UI) must go through `mcp-remote` on the client side, or through [Archestra](INDIGO-CORE-1-APPS-WAVE-5-ARCHESTRA.md) if a real OAuth/OIDC front is wanted.
 
 ### 8.5 Verification
 
 ```bash
-# Sidecar running and listening
 kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes get pod \
-  -o jsonpath='{range .items[0].spec.containers[*]}{.name}{"\n"}{end}'
-kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes logs deploy/hermes -c mcp-http --tail 50
+  -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[*].ready
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes logs deploy/hermes -c mcp-tasks --tail 50
+```
 
-# 401 without the token, 200 with it (from a host on the LAN / VPN)
+Through Traefik (from the LAN, resolve `ha-hooks` to the public VIP; from outside, use DNS):
+
+```bash
 curl -i "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp" \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
+  -H "Authorization: Bearer <HERMES_TASKS_TOKEN>" \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
 ```
 
-A `404` means the router did not load: check the Traefik file-provider config and logs, and restart the `traefik-public` Deployment if the secret was just updated. A `421` means the `Host` allowlist in the sidecar args does not match the URL.
+`401` without the token, `421` on a Host mismatch, `404` when the router has not reloaded (restart the `traefik-public` Deployment after re-sealing). A `board_status` call should match what the dashboard's kanban board shows.
 
-### 8.6 Security notes
+### 8.6 Behaviour and caveats
 
-* This route is **public** (`ingress-public` via the `ha-hooks` host). Anyone holding both the UUID and the token can read every conversation in `state.db` and **send messages as the connected Slack/Telegram/etc. accounts**. Treat the token like the Slack bot token: rotate it in Vault, and delete clients that no longer need it.
-* `--tools` is deliberately not passed: it would also expose Hermes' web/vision/image/TTS tools under the profile's provider credentials and spend credits. Add it to the sidecar args only if that is wanted; terminal, file, code and kanban tools are never exposed either way.
-* The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies. It also runs `hermes-mcp-no-www-authenticate`, which strips the `WWW-Authenticate` challenge from 401s (see §8.3): unauthorised clients see `401 Unauthorized`, not a broken OAuth handshake.
-* Do **not** expose the sidecar as a second Deployment on the `/opt/data` PVC: `cluster-regular` is Longhorn `ReadWriteOnce`, and Hermes is a single-writer workload. Sharing the pod is what makes this work.
-* The `mcp-serve` tools are read/send/approval only; `permissions_*` is best-effort outside the gateway process, and sends go through the profile's own platform credentials rather than the gateway's live connections. Verify a send after a rollout.
+* Tasks run as worker agents with the assignee's full toolset (terminal included), with retries, claim locks and workspace handling. `kanban.max_in_progress` is currently unlimited: if the endpoint is shared with clients you do not fully trust, either cap concurrency in `config.kanban` or create intake cards with `triage=True` so a human/orchestrator decides when they run.
+* `kanban.auto_decompose` is on, so an orchestrator may split one card into subtasks; ticketing `parents` keeps ordering explicit.
+* Approvals are unchanged (`approvals.mode: manual`): a worker that reaches a tool needing approval raises the normal approval request on Hermes' messaging surface and continues once answered; the card stays `running` until it lands.
+* Only the **default profile's board** is served. `assignee` selects which profile *runs* a card (`default`, `event-manager`, `house-manager`, …); nothing is created on another profile's own board.
+* The shim opens a connection per call, so it never holds a lock against the gateway's dispatcher.
+* The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies.
 
 ### 8.7 Rotation
 
-* **Token:** update `MCP_PROXY_AUTH_TOKEN` in Vault, force-sync `hermes-env`, and update clients.
-* **UUID:** generate a new UUID, rebuild the `hermes-mcp` router/middleware in the dynamic config, re-seal it (bind it to `traefik-public/ha-mcp-dynamic`), sync `traefik-public`, and update clients. Do not commit the plaintext YAML.
-* **Plugin upgrade:** `hermes plugins install mcp-serve --force` (then `enable` if it was disabled) in the pod; the version persists on the PVC.
+* **Token:** update `HERMES_TASKS_TOKEN` in Vault, force-sync `hermes-env`, and update clients.
+* **UUID:** generate a new UUID, rebuild the `hermes-tasks` router/middleware in the dynamic config, re-seal it (bound to `traefik-public/ha-mcp-dynamic`), sync `traefik-public`, and update clients. Do not commit the plaintext YAML.
+* **Shim change:** edit `overlays/hermes/configmap-hermes-tasks.yaml` and sync `hermes`; the sidecar restarts with the new ConfigMap.
 
 ## 9. Operations & Maintenance Notes
 * **Persistent Config (`bootstrap.overwrite`)**: The chart seeds `/opt/data/config.yaml` only on first boot (`bootstrap.overwrite: false`) so runtime changes made through the dashboard or CLI persist across restarts. If you later change `dashboard.publicUrl`, `dashboard.trustedProxies`, or `config.*` in `values/hermes/values.yaml`, temporarily set `bootstrap.overwrite: true` for one sync (or update `/opt/data/config.yaml` on the PVC), then revert `bootstrap.overwrite` to `false`.

@@ -6,5 +6,6 @@ namespace: hermes
 resources:
   - secret-store-site.yaml
   - ingress.yaml
-  - service-mcp.yaml
+  - configmap-hermes-tasks.yaml
+  - service-tasks.yaml
   - network-policy.yaml

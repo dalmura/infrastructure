@@ -1,0 +1,221 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-tasks
+  labels:
+    app.kubernetes.io/name: hermes-agent
+    app.kubernetes.io/instance: hermes
+data:
+  server.py: |
+    # MCP tools for Hermes' kanban board.
+    #
+    # Runs as a stdio MCP server spawned by mcp-proxy (see values/hermes/values.yaml,
+    # extraContainers[mcp-tasks]); mcp-proxy supplies HTTP, the bearer token, CORS and
+    # the Host allowlist. The tools call hermes_cli.kanban_db directly against the
+    # profile's board at $HERMES_HOME/kanban.db (/opt/data/kanban.db), the same SQLite
+    # store the gateway's own kanban tools and dispatcher use. No API server involved.
+
+    from __future__ import annotations
+
+    import asyncio
+    import json
+    from typing import Any, Optional
+
+    from mcp.server import MCPServer
+
+    MAX_TEXT = 20_000
+
+    mcp = MCPServer(
+        "hermes-tasks",
+        instructions=(
+            "Work Hermes' kanban board: create tasks, list them, inspect one, and "
+            "summarise the board. Created tasks are dispatched to a worker agent by "
+            "the Hermes gateway within about a minute."
+        ),
+    )
+
+
+    def _emit(payload: dict) -> str:
+        text = json.dumps(payload, indent=2, ensure_ascii=False)
+        return text if len(text) <= MAX_TEXT else text[:MAX_TEXT] + "\n… (truncated)"
+
+
+    def _kanban_connect():
+        """Open the profile's kanban DB (default board). Imported lazily so the shim
+        still starts if the module is unavailable."""
+        from hermes_cli import kanban_db_connect as kbc
+
+        return kbc.connect()
+
+
+    def _task_row(task: Any) -> dict:
+        return {
+            "task_id": task.id,
+            "title": task.title,
+            "status": task.status,
+            "assignee": task.assignee,
+            "priority": task.priority,
+            "created_at": task.created_at,
+            "started_at": task.started_at,
+            "completed_at": task.completed_at,
+        }
+
+
+    @mcp.tool()
+    def create_task(
+        title: str,
+        body: Optional[str] = None,
+        assignee: Optional[str] = None,
+        priority: int = 0,
+        skills: Optional[list[str]] = None,
+        parents: Optional[list[str]] = None,
+        triage: bool = False,
+        key: Optional[str] = None,
+    ) -> str:
+        """Create a task on the Hermes kanban board.
+
+        The gateway dispatcher claims ready tasks about once a minute and runs each
+        as a worker agent (full toolset, retries, claim locks), which makes this the
+        durable way to hand Hermes work. The task id is also readable on the board.
+
+        Args:
+            title: Short, specific task title (required).
+            body: Details, acceptance criteria, links.
+            assignee: Profile to run it, e.g. "default", "event-manager",
+                "house-manager". Omit for kanban.default_assignee.
+            priority: Higher runs first (default 0).
+            skills: Skill names the worker should load.
+            parents: Task ids this task depends on; it stays "todo" until they are done.
+            triage: Park the task in "triage" so the orchestrator plans/decomposes it
+                instead of dispatching it straight away.
+            key: Idempotency key; re-creating with the same key returns the existing task.
+        """
+        title = (title or "").strip()
+        if not title:
+            return _emit({"error": "title is required"})
+        conn = None
+        try:
+            from hermes_cli import kanban_db as kb
+
+            conn = _kanban_connect()
+            task_id = kb.create_task(
+                conn,
+                title=title,
+                body=(body or "").strip() or None,
+                assignee=(assignee or "").strip() or None,
+                priority=int(priority or 0),
+                skills=[str(s).strip() for s in (skills or []) if str(s).strip()] or None,
+                parents=[str(p).strip() for p in (parents or []) if str(p).strip()],
+                triage=bool(triage),
+                idempotency_key=(key or "").strip() or None,
+            )
+            task = kb.get_task(conn, task_id)
+            payload = _task_row(task) if task is not None else {"task_id": task_id}
+            payload["note"] = (
+                "parked in triage for the orchestrator to plan"
+                if triage
+                else "queued; the dispatcher claims ready tasks about once a minute"
+            )
+            return _emit(payload)
+        except Exception as exc:
+            return _emit({"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    @mcp.tool()
+    def list_tasks(status: Optional[str] = None, assignee: Optional[str] = None,
+                   limit: int = 20) -> str:
+        """List Hermes kanban tasks, highest priority first.
+
+        Args:
+            status: Filter by status: todo, ready, scheduled, running, review,
+                blocked, done, triage, archived.
+            assignee: Filter by profile name.
+            limit: Maximum tasks to return (1-50, default 20).
+        """
+        try:
+            limit = max(1, min(int(limit), 50))
+        except (TypeError, ValueError):
+            return _emit({"error": "limit must be an integer"})
+        conn = None
+        try:
+            from hermes_cli import kanban_db as kb
+
+            conn = _kanban_connect()
+            tasks = kb.list_tasks(
+                conn,
+                status=(status or "").strip() or None,
+                assignee=(assignee or "").strip() or None,
+                limit=limit,
+            )
+            return _emit({"count": len(tasks), "tasks": [_task_row(t) for t in tasks]})
+        except Exception as exc:
+            return _emit({"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    @mcp.tool()
+    def get_task(task_id: str) -> str:
+        """Show one Hermes kanban task, including its result or failure.
+
+        Args:
+            task_id: The task id returned by `create_task` or `list_tasks`.
+        """
+        task_id = (task_id or "").strip()
+        if not task_id:
+            return _emit({"error": "task_id is required"})
+        conn = None
+        try:
+            from hermes_cli import kanban_db as kb
+
+            conn = _kanban_connect()
+            task = kb.get_task(conn, task_id)
+            if task is None:
+                return _emit({"error": f"task {task_id} not found"})
+            payload = _task_row(task)
+            payload.update({
+                "body": (task.body or "")[:4000],
+                "result": (task.result or "")[:4000],
+                "created_by": task.created_by,
+                "skills": task.skills,
+                "current_run_id": task.current_run_id,
+                "consecutive_failures": task.consecutive_failures,
+                "last_failure_error": task.last_failure_error,
+                "last_heartbeat_at": task.last_heartbeat_at,
+                "workspace_kind": task.workspace_kind,
+                "branch_name": task.branch_name,
+            })
+            try:
+                payload["child_task_ids"] = list(kb.child_ids(conn, task_id))
+            except Exception:
+                pass
+            return _emit(payload)
+        except Exception as exc:
+            return _emit({"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    @mcp.tool()
+    def board_status() -> str:
+        """Summarise the kanban board: task counts by status and assignee."""
+        conn = None
+        try:
+            from hermes_cli import kanban_db as kb
+
+            conn = _kanban_connect()
+            return _emit(kb.board_stats(conn))
+        except Exception as exc:
+            return _emit({"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    if __name__ == "__main__":
+        asyncio.run(mcp.run_stdio_async())

@@ -63,7 +63,7 @@ Home Assistant's built-in [Model Context Protocol](https://www.home-assistant.io
 https://ha-hooks.indigo.dalmura.cloud/<uuid>/api/mcp
 ```
 
-The UUID is **not stored in plaintext in this repo**. It lives in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (`wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml`). Traefik mounts that Secret at `/etc/traefik/dynamic`, watches it, and builds the `ha-mcp` router and `stripPrefix` middleware from it. The same Secret also holds the public Obsidian MCP route and the Hermes MCP bridge; see [the Obsidian MCP runbook](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md#8-public-groktesla-endpoint-read-write-inbox-only) and [the Hermes runbook](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md#8-mcp-server-over-http-plugin-mcp-serve).
+The UUID is **not stored in plaintext in this repo**. It lives in the Traefik file-provider config inside the `ha-mcp-dynamic` SealedSecret (`wave-2/overlays/traefik-public/sealedsecret-ha-mcp-dynamic.yaml`). Traefik mounts that Secret at `/etc/traefik/dynamic`, watches it, and builds the `ha-mcp` router and `stripPrefix` middleware from it. The same Secret also holds the public Obsidian MCP route and the Hermes MCP kanban tools; see [the Obsidian MCP runbook](INDIGO-CORE-1-APPS-WAVE-5-OBSIDIAN-MCP.md#8-public-groktesla-endpoint-read-write-inbox-only) and [the Hermes runbook](INDIGO-CORE-1-APPS-WAVE-5-HERMES.md#8-mcp-kanban-tools).
 
 To read the current URL from the cluster:
 
