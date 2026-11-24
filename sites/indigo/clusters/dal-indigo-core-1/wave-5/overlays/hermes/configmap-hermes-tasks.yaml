@@ -19,6 +19,7 @@ data:
 
     import asyncio
     import json
+    import sys
     from typing import Any, Optional
 
     from mcp.server import MCPServer
@@ -218,4 +219,19 @@ data:
 
 
     if __name__ == "__main__":
+        # One line to stderr so the sidecar log shows which board file is in use:
+        # a missing /opt/data mount looks like a healthy server with an empty board.
+        try:
+            from hermes_cli import kanban_db as _kb
+
+            _conn = _kanban_connect()
+            try:
+                _count = len(_kb.list_tasks(_conn, limit=500))
+                print(f"hermes-tasks: board {_kb.kanban_db_path()} ({_count} tasks)",
+                      file=sys.stderr, flush=True)
+            finally:
+                _conn.close()
+        except Exception as _exc:  # never block the server on a diagnostic
+            print(f"hermes-tasks: board check failed: {type(_exc).__name__}: {_exc}",
+                  file=sys.stderr, flush=True)
         asyncio.run(mcp.run_stdio_async())

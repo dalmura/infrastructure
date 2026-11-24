@@ -305,6 +305,11 @@ extraContainers:
       limits:
         memory: 1Gi
     volumeMounts:
+      # The board itself: hermes_cli.kanban_db reads /opt/data/kanban.db. Without
+      # this mount the container gets the image's empty throwaway /opt/data
+      # (declared VOLUME), so every call sees an empty board.
+      - name: data
+        mountPath: /opt/data
       - name: hermes-tasks
         mountPath: /opt/mcp-tasks
         readOnly: true
