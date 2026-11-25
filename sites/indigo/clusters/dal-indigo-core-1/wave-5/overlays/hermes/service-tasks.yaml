@@ -9,7 +9,7 @@ spec:
   ipFamilyPolicy: SingleStack
   ports:
     # mcp-tasks sidecar: the kanban MCP shim (create_task / list_tasks /
-    # get_task / board_status) behind mcp-proxy. Reached only through the
+    # get_task / board_status / list_assignees) behind mcp-proxy. Reached only through the
     # traefik-public sealed-UUID router.
     - name: tasks
       port: 8770

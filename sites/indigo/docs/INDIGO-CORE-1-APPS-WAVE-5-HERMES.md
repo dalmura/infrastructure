@@ -332,7 +332,7 @@ Ask Hermes in Slack for a state change (for example, "turn on the kitchen lights
 
 ## 8. MCP Kanban Tools
 
-Hermes' kanban board is exposed to MCP clients as four tools — create, list, inspect and summarise tasks. The endpoint is:
+Hermes' kanban board is exposed to MCP clients as five tools — create, list, inspect, summarise and discover assignees. The endpoint is:
 
 ```
 https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp
@@ -359,7 +359,7 @@ kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes \
 
 ### 8.2 How it is wired
 
-* `values/hermes/values.yaml` — `extraContainers[mcp-tasks]`: the same image as the gateway, running mcp-proxy on 8770 around the stdio shim (`/opt/mcp-tasks/server.py`). The container gets `MCP_PROXY_AUTH_TOKEN` from `HERMES_TASKS_TOKEN` and **no other secrets**: the kanban tools only need the board file.
+* `values/hermes/values.yaml` — `extraContainers[mcp-tasks]`: the same image as the gateway, running mcp-proxy on 8770 around the stdio shim (`/opt/mcp-tasks/server.py`). The container gets `MCP_PROXY_AUTH_TOKEN` from `HERMES_TASKS_TOKEN` plus `SLACK_HOME_CHANNEL` (a channel id, not a credential) so every created card can subscribe the home channel for completion pings; it needs no other Secret material because the board file is on the data volume.
 * `overlays/hermes/configmap-hermes-tasks.yaml` — the shim (stdlib Python plus the image's MCP SDK); it opens a short-lived `kanban_db` connection per call.
 * `overlays/hermes/service-tasks.yaml` — ClusterIP `hermes-tasks:8770`.
 * `overlays/hermes/network-policy.yaml` — ingress from `traefik-public` to `8770`; `wave-2/overlays/traefik-public/network-policy-traefik.yaml` — egress to `hermes:8770` plus DNS for `hermes-tasks.hermes.svc.cluster.local`.
@@ -375,12 +375,13 @@ Three details are load-bearing:
 
 | Tool | Behaviour |
 |---|---|
-| `create_task(title, body?, assignee?, priority=0, skills?, parents?, triage=False, key?)` | Creates a card and returns its id plus the status it landed in. `parents` are task ids the card depends on (it stays `todo` until they are `done`); `triage=True` parks it in `triage` for the orchestrator to plan/decompose instead of dispatching it; `key` makes the call idempotent. |
+| `create_task(title, body?, assignee?, priority=0, skills?, parents?, triage=False, key?, notify=True)` | Creates a card and returns its id plus the status it landed in. Omitting `assignee` routes the card to `kanban.default_assignee`, else the active default profile — never `NULL`, which the dispatcher would skip forever; an explicit assignee that this host cannot run is returned with `assignee_known: false` and a warning naming the installed profiles. `created_by` is recorded as `tasks-mcp`. Unless `notify=False`, the card subscribes `SLACK_HOME_CHANNEL` (the home channel used for cron/proactive posts, passive `notify` mode, no agent wake) so completion/block/crash events are posted to Slack. `parents` are task ids the card depends on (it stays `todo` until they are `done`); `triage=True` parks it in `triage` for the orchestrator to plan/decompose instead of dispatching it; `key` makes the call idempotent. |
 | `list_tasks(status?, assignee?, limit=20)` | Lists cards, highest priority first. Statuses: `todo`, `ready`, `scheduled`, `running`, `review`, `blocked`, `done`, `triage`, `archived`. |
+| `list_assignees()` | Profiles a card can be assigned to: exact id, `description` (the profile's own summary, for routing), `runnable`, per-status task counts, and the resolved `default_assignee`. Call it before `create_task` when the id is uncertain — ids are lowercase/hyphenated (`event-manager`, not `event manager`), and a near-miss creates a card the dispatcher parks as `skipped_nonspawnable`. |
 | `get_task(task_id)` | Card detail: body, status, assignee, result, failure counters, current run id, child task ids. |
 | `board_status()` | `board_stats`: counts by status and by assignee, plus the age of the oldest ready card. |
 
-Typical flow from an MCP client: `create_task("Summarise last week's Slack threads", assignee="event-manager", body="…")` → the dispatcher runs it → `get_task` (or the board UI) shows `running`, then `done` with a `result`. The tools read and write the board directly, so they work whether or not the API server or a chat session exists.
+Typical flow from an MCP client: `list_assignees()` (when the profile id is not known verbatim) → `create_task("Summarise last week's Slack threads", assignee="event-manager", body="…")` → the dispatcher runs it → `get_task` (or the board UI) shows `running`, then `done` with a `result`. The tools read and write the board directly, so they work whether or not the API server or a chat session exists.
 
 ### 8.4 Client configuration
 
@@ -425,12 +426,22 @@ curl -i "https://ha-hooks.indigo.dalmura.cloud/<uuid>/mcp" \
 
 `401` without the token, `421` on a Host mismatch, `404` when the router has not reloaded (restart the `traefik-public` Deployment after re-sealing). A `board_status` call should match what the dashboard's kanban board shows.
 
+Every `create_task` response carries a `notify` object. Confirm the subscription landed on a real card:
+
+```bash
+kubectl --kubeconfig kubeconfigs/dal-indigo-core-1 -n hermes exec deploy/hermes -- \
+  hermes kanban notify-list <task_id>
+```
+
+`subscribed: false` means `SLACK_HOME_CHANNEL` is unset on the `mcp-tasks` container (the `reason` field says so); the card still runs, it just posts no ping.
+
 ### 8.6 Behaviour and caveats
 
 * Tasks run as worker agents with the assignee's full toolset (terminal included), with retries, claim locks and workspace handling. `kanban.max_in_progress` is currently unlimited: if the endpoint is shared with clients you do not fully trust, either cap concurrency in `config.kanban` or create intake cards with `triage=True` so a human/orchestrator decides when they run.
 * `kanban.auto_decompose` is on, so an orchestrator may split one card into subtasks; ticketing `parents` keeps ordering explicit.
 * Approvals are unchanged (`approvals.mode: manual`): a worker that reaches a tool needing approval raises the normal approval request on Hermes' messaging surface and continues once answered; the card stays `running` until it lands.
 * Only the **default profile's board** is served. `assignee` selects which profile *runs* a card (`default`, `event-manager`, `house-manager`, …); nothing is created on another profile's own board.
+* Notifications are passive: each MCP-created card subscribes `SLACK_HOME_CHANNEL` with `delivery_mode: notify`, so the gateway posts completion/block/crash events without waking an agent session. The bot must be invited to that channel, as with cron results. Subscriptions are per card, so cards created by decomposition or by a worker's own fan-out are not covered by this shim.
 * The shim opens a connection per call, so it never holds a lock against the gateway's dispatcher.
 * The router keeps `traefik-public-ratelimit`, `traefik-public-crowdsec-bouncer-no-appsec` and `traefik-public-security-headers`, and omits geoblock so cloud MCP clients outside AU/NZ can connect. AppSec is off for this route because its CRS rules false-positive on MCP JSON-RPC bodies.
 

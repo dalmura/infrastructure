@@ -19,19 +19,24 @@ data:
 
     import asyncio
     import json
+    import os
     import sys
     from typing import Any, Optional
 
     from mcp.server import MCPServer
 
     MAX_TEXT = 20_000
+    NOTIFY_PLATFORM = "slack"
 
     mcp = MCPServer(
         "hermes-tasks",
         instructions=(
             "Work Hermes' kanban board: create tasks, list them, inspect one, and "
             "summarise the board. Created tasks are dispatched to a worker agent by "
-            "the Hermes gateway within about a minute."
+            "the Hermes gateway within about a minute; omitting assignee routes the "
+            "card to kanban.default_assignee, else the active default profile. Each "
+            "card notifies the Slack home channel when it completes or blocks. Call "
+            "list_assignees first when you are unsure of an assignee's exact id."
         ),
     )
 
@@ -47,6 +52,107 @@ data:
         from hermes_cli import kanban_db_connect as kbc
 
         return kbc.connect()
+
+
+    def _default_assignee() -> Optional[str]:
+        """Assignee for a create call that omits one.
+
+        Mirrors the fallback in hermes_cli.kanban_decompose: kanban.default_assignee
+        when it names an installed profile, else the active default profile. The
+        dispatcher only claims cards that have an assignee, so leaving a card NULL
+        parks it in "ready" forever (the gateway logs skipped_unassigned) unless
+        kanban.default_assignee is also configured."""
+        try:
+            from hermes_cli.config import load_config_readonly
+
+            cfg = load_config_readonly()
+            configured = ((cfg.get("kanban") or {}).get("default_assignee") or "").strip()
+        except Exception:
+            configured = ""
+        try:
+            from hermes_cli import profiles
+
+            if configured and profiles.profile_exists(configured):
+                return configured
+            return profiles.get_active_profile_name() or None
+        except Exception:
+            return configured or None
+
+
+    def _assignee_known(name: Optional[str]) -> Optional[bool]:
+        """Whether this host can spawn a worker for ``name`` (None = unverifiable).
+
+        Uses the dispatcher's own gate (``profile_exists_here``) so a card that
+        will be parked as skipped_nonspawnable is reported at create time."""
+        if not name:
+            return None
+        try:
+            from hermes_cli.profiles_run_elsewhere import profile_exists_here
+
+            return bool(profile_exists_here(name))
+        except Exception:
+            pass
+        try:
+            from hermes_cli import profiles
+
+            return bool(profiles.profile_exists(name))
+        except Exception:
+            return None
+
+
+    def _notify_target() -> Optional[dict]:
+        """Slack home channel the gateway already uses for cron and proactive posts.
+
+        The mcp-tasks container receives SLACK_HOME_CHANNEL from ``hermes-env``: a
+        channel id, not a credential. None when it is unset, in which case the card
+        still runs but no ping is delivered."""
+        chat_id = (os.environ.get("SLACK_HOME_CHANNEL") or "").strip()
+        if not chat_id:
+            return None
+        try:
+            from hermes_cli import profiles
+
+            profile = profiles.get_active_profile_name() or "default"
+        except Exception:
+            profile = "default"
+        return {
+            "platform": NOTIFY_PLATFORM,
+            "chat_id": chat_id,
+            "chat_type": "channel",
+            "notifier_profile": profile,
+            # Passive ping only: waking the default profile on every finished MCP
+            # card would spawn a second agent turn on top of the worker that ran it.
+            "delivery_mode": "notify",
+        }
+
+
+    def _subscribe_notify(conn: Any, task_id: str) -> dict:
+        """Subscribe the Slack home channel to this card's terminal events.
+
+        Never raises: the card already exists and must not be lost because
+        delivery bookkeeping failed."""
+        target = _notify_target()
+        if target is None:
+            return {
+                "platform": NOTIFY_PLATFORM,
+                "subscribed": False,
+                "reason": "SLACK_HOME_CHANNEL is not set on the mcp-tasks container",
+            }
+        try:
+            from hermes_cli import kanban_db_notify as kbn
+
+            kbn.add_notify_sub(conn, task_id=task_id, **target)
+        except Exception as exc:
+            return {
+                "platform": NOTIFY_PLATFORM,
+                "subscribed": False,
+                "reason": f"{type(exc).__name__}: {exc}",
+            }
+        return {
+            "platform": NOTIFY_PLATFORM,
+            "subscribed": True,
+            "channel": target["chat_id"],
+        }
 
 
     def _task_row(task: Any) -> dict:
@@ -72,6 +178,7 @@ data:
         parents: Optional[list[str]] = None,
         triage: bool = False,
         key: Optional[str] = None,
+        notify: bool = True,
     ) -> str:
         """Create a task on the Hermes kanban board.
 
@@ -83,17 +190,23 @@ data:
             title: Short, specific task title (required).
             body: Details, acceptance criteria, links.
             assignee: Profile to run it, e.g. "default", "event-manager",
-                "house-manager". Omit for kanban.default_assignee.
+                "house-manager". Omit for kanban.default_assignee, else the active
+                default profile; a card is never left unassigned because the
+                dispatcher only claims tasks that have one.
             priority: Higher runs first (default 0).
             skills: Skill names the worker should load.
             parents: Task ids this task depends on; it stays "todo" until they are done.
             triage: Park the task in "triage" so the orchestrator plans/decomposes it
                 instead of dispatching it straight away.
             key: Idempotency key; re-creating with the same key returns the existing task.
+            notify: Subscribe the Slack home channel to this card's completion/block
+                events (default True). Set False for test cards that should not ping.
         """
         title = (title or "").strip()
         if not title:
             return _emit({"error": "title is required"})
+        requested = (assignee or "").strip()
+        resolved = requested or _default_assignee()
         conn = None
         try:
             from hermes_cli import kanban_db as kb
@@ -103,7 +216,8 @@ data:
                 conn,
                 title=title,
                 body=(body or "").strip() or None,
-                assignee=(assignee or "").strip() or None,
+                assignee=resolved,
+                created_by="tasks-mcp",
                 priority=int(priority or 0),
                 skills=[str(s).strip() for s in (skills or []) if str(s).strip()] or None,
                 parents=[str(p).strip() for p in (parents or []) if str(p).strip()],
@@ -112,6 +226,52 @@ data:
             )
             task = kb.get_task(conn, task_id)
             payload = _task_row(task) if task is not None else {"task_id": task_id}
+            if task is not None:
+                # An idempotency-key hit can return a card another surface created.
+                payload["created_by"] = task.created_by
+            if not requested and resolved:
+                payload["assignee_source"] = (
+                    "kanban.default_assignee/active default profile"
+                )
+            known = _assignee_known(resolved)
+            if known is not None:
+                payload["assignee_known"] = known
+            if known is False:
+                installed = []
+                try:
+                    installed = kb.list_profiles_on_disk()
+                except Exception:
+                    pass
+                landed = str(payload.get("assignee") or resolved)
+                close = []
+                try:
+                    import difflib
+
+                    from hermes_cli.profiles import normalize_profile_name
+
+                    close = difflib.get_close_matches(
+                        normalize_profile_name(landed), installed, n=3, cutoff=0.7
+                    )
+                except Exception:
+                    close = []
+                payload["warning"] = (
+                    f"assignee {landed!r} is not a profile this host can run; the "
+                    "dispatcher will park the card as skipped_nonspawnable until it is "
+                    "reassigned"
+                    + (f". Use list_assignees; installed: {', '.join(installed)}." if installed else ".")
+                    + (f" Closest match: {', '.join(close)}." if close else "")
+                )
+            try:
+                payload["notify"] = (
+                    _subscribe_notify(conn, task_id)
+                    if notify
+                    else {"subscribed": False, "reason": "notify=False"}
+                )
+            except Exception as exc:  # never lose the card over notification bookkeeping
+                payload["notify"] = {
+                    "subscribed": False,
+                    "reason": f"{type(exc).__name__}: {exc}",
+                }
             payload["note"] = (
                 "parked in triage for the orchestrator to plan"
                 if triage
@@ -216,6 +376,66 @@ data:
         finally:
             if conn is not None:
                 conn.close()
+
+
+    @mcp.tool()
+    def list_assignees() -> str:
+        """List the profiles a task can be assigned to.
+
+        Call this before create_task when the assignee's exact id is uncertain:
+        profile ids are lowercase and hyphenated ("event-manager", never
+        "Event Manager" or "even manager"). ``description`` is the profile's own
+        summary, useful for routing work to the right owner. ``runnable`` False
+        means the name only appears in board history — assigning it parks the card
+        as skipped_nonspawnable.
+        """
+        conn = None
+        try:
+            from hermes_cli import kanban_db as kb
+
+            conn = _kanban_connect()
+            counts = {row["name"]: row.get("counts") or {} for row in kb.known_assignees(conn)}
+        except Exception as exc:
+            return _emit({"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            if conn is not None:
+                conn.close()
+
+        described: dict[str, dict] = {}
+        try:
+            from hermes_cli import profiles
+
+            for profile in profiles.list_profiles(lazy_skill_count=True):
+                described[profile.name] = {
+                    "description": (profile.description or "").strip() or None,
+                    "description_auto": bool(getattr(profile, "description_auto", False)),
+                }
+        except Exception:
+            pass
+
+        names = sorted(described) or sorted(
+            name for name in counts if _assignee_known(name)
+        )
+        assignees = []
+        for name in names:
+            info = described.get(name) or {}
+            assignees.append({
+                "name": name,
+                "description": info.get("description"),
+                "description_auto": info.get("description_auto", False),
+                "runnable": _assignee_known(name),
+                "tasks": counts.get(name) or {},
+            })
+        if not assignees:
+            return _emit({
+                "error": "no assignable profiles found",
+                "hint": "Create one with `hermes profile create <name>`.",
+            })
+        return _emit({
+            "count": len(assignees),
+            "default_assignee": _default_assignee(),
+            "assignees": assignees,
+        })
 
 
     if __name__ == "__main__":

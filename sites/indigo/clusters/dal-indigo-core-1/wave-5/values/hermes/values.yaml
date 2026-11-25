@@ -245,8 +245,9 @@ extraVolumeMounts:
   - name: shm
     mountPath: /dev/shm
 
-# MCP tools for Hermes' kanban board: create_task, list_tasks, get_task and
-# board_status. The shim is a stdio MCP server (overlays/hermes/configmap-hermes-tasks.yaml)
+# MCP tools for Hermes' kanban board: create_task, list_tasks, get_task,
+# board_status and list_assignees. The shim is a stdio MCP server
+# (overlays/hermes/configmap-hermes-tasks.yaml)
 # that opens the profile's board at /opt/data/kanban.db directly, the same SQLite
 # store the gateway's kanban tools and dispatcher use; mcp-proxy provides the HTTP
 # transport, bearer token and CORS.
@@ -275,13 +276,22 @@ extraContainers:
       - name: TZ
         value: Australia/Melbourne
       # mcp-proxy's own inbound token for this listener. Clients send it as
-      # `Authorization: Bearer <HERMES_TASKS_TOKEN>`. The container deliberately
-      # gets no other secrets: the kanban tools only need the board file.
+      # `Authorization: Bearer <HERMES_TASKS_TOKEN>`.
       - name: MCP_PROXY_AUTH_TOKEN
         valueFrom:
           secretKeyRef:
             name: hermes-env
             key: HERMES_TASKS_TOKEN
+      # Where kanban notifications land: the Slack home channel the gateway already
+      # uses for cron/proactive posts. This is a channel id, not a credential; when
+      # unset, created cards still run but post no completion ping. The kanban tools
+      # need nothing else from this Secret — the board file is on the data volume.
+      - name: SLACK_HOME_CHANNEL
+        valueFrom:
+          secretKeyRef:
+            name: hermes-env
+            key: SLACK_HOME_CHANNEL
+            optional: true
     ports:
       - name: tasks
         containerPort: 8770
